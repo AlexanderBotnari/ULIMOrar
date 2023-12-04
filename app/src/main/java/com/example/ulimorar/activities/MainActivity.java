@@ -1,7 +1,8 @@
-package com.example.ulimorar;
+package com.example.ulimorar.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import com.example.ulimorar.R;
 
 public class MainActivity extends AppCompatActivity {
 

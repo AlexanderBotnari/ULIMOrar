@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">ULIM Orar</string>
+    <string name="login_label">IDNP</string>
+    <string name="password_label">Password</string>
+    <string name="forgot_password_button"><u>FORGOT PASSWORD</u></string>
+    <string name="login_button">LOGIN</string>
 </resources>

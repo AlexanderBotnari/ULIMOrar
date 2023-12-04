@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".activities.LoginActivity">
+
+    <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ulim_logo"
+            android:id="@+id/imageView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintBottom_toTopOf="@+id/idnpTextField"
+            android:layout_marginBottom="125dp"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/idnpTextField"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/login_label"
+            app:hintTextColor="@color/stroke_color"
+            app:errorEnabled="true"
+            app:counterMaxLength="13"
+            app:counterEnabled="true"
+            app:endIconMode="clear_text"
+            app:boxStrokeColor="@color/stroke_color"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="35dp"
+            android:layout_marginEnd="35dp"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintBottom_toTopOf="@+id/passwordTextField"
+            android:layout_marginBottom="19dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/idnpEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/login_label"
+                android:inputType="number"
+        />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!--            app:endIconMode="clear_text"-->
+    <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/passwordTextField"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/password_label"
+            app:hintTextColor="@color/stroke_color"
+            app:errorEnabled="true"
+            app:passwordToggleEnabled="true"
+            app:boxStrokeColor="@color/stroke_color"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="35dp"
+            android:layout_marginEnd="35dp"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintBottom_toTopOf="@+id/loginButton"
+            android:layout_marginBottom="19dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/passwordEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/password_label"
+                android:inputType="textPassword"
+        />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+            android:id="@+id/loginButton"
+            style="@style/Widget.Material3.Button.ElevatedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/login_button"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:clipToOutline="true"
+            android:backgroundTint="@color/light_blue"
+            android:textColor="@color/blue"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/forgotPasswordButton"
+            android:layout_marginBottom="19dp"/>
+    <TextView
+            android:text="@string/forgot_password_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/forgotPasswordButton"
+            android:textColor="?android:textColorPrimary"
+            android:fontFamily="@font/roboto"
+            android:textSize="14sp"
+            android:clickable="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="70dp"
+            android:minHeight="48dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
