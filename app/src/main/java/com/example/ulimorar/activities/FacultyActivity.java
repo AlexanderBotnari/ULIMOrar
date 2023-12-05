@@ -4,11 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import com.example.ulimorar.R;
 
-public class MainActivity extends AppCompatActivity {
+public class FacultyActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setTitle(R.string.faculty_activity_title);
+        setContentView(R.layout.activity_faculty);
     }
 }

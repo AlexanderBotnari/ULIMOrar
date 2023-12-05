@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.ULIMOrar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.ULIMOrar" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/white</item>
         <item name="colorPrimaryVariant">@color/background_dark_theme</item>
@@ -9,10 +9,27 @@
         <item name="colorSecondary">@color/blue</item>
         <item name="colorSecondaryVariant">@color/blue</item>
         <item name="colorOnSecondary">@color/black</item>
+        <item name="actionBarTheme">@style/AppBaseTheme.Toolbar</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
         <item name="android:progressTint">@color/blue</item>
         <item name="android:textColorPrimary">@color/blue</item>
+
+        <item name="materialButtonOutlinedStyle">@style/Widget.App.Button.OutlinedButton</item>
     </style>
+
+    <style name="AppBaseTheme.Toolbar" parent="Widget.AppCompat.ActionBar.Solid">
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="colorControlNormal">@color/black</item>
+    </style>
+
+    <style name="Widget.App.Button.OutlinedButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Button.OutlinedButton</item>
+    </style>
+
+    <style name="ThemeOverlay.App.Button.OutlinedButton" parent="">
+        <item name="colorPrimary">@color/blue</item>
+    </style>
+
 </resources>

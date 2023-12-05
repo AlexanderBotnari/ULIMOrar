@@ -16,6 +16,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(R.style.Theme_AppCompat_Light_NoActionBar);
         setContentView(R.layout.activity_splash_screen);
 
         progressBar = findViewById(R.id.progressBar);
@@ -25,7 +26,7 @@ public class SplashScreenActivity extends AppCompatActivity {
             public void run() {
                 try {
                     progressBar.setVisibility(View.VISIBLE);
-                    sleep(3000);
+                    sleep(2000);
                 }catch (Exception e){
                     e.printStackTrace();
                 }finally {
