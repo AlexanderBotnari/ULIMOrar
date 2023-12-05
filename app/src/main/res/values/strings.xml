@@ -1,12 +1,19 @@
 <resources>
+<!--    Titles-->
     <string name="app_name">ULIM Orar</string>
     <string name="faculty_activity_title">ULIM Facultati</string>
+
+<!--    Menu items-->
     <string name="faculty_menu_item">Faculty</string>
     <string name="group_menu_item">Group</string>
-    <string name="exit_menu_item">Exit</string>
+    <string name="logout_menu_item">Logout</string>
+
+<!--    Edit texts-->
     <string name="login_label">IDNP</string>
     <string name="password_label">Password</string>
-    <string name="forgot_password_button"><u>FORGOT PASSWORD</u></string>
+
+<!--    Buttons-->
     <string name="login_button">LOGIN</string>
     <string name="view_button">VIEW</string>
+    <string name="forgot_password_button"><u>FORGOT PASSWORD</u></string>
 </resources>

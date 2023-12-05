@@ -16,7 +16,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTheme(R.style.Theme_AppCompat_Light_NoActionBar);
+        setTheme(R.style.Theme_ULIMNoActionBar);
         setContentView(R.layout.activity_login);
 
         TextInputLayout loginInput = findViewById(R.id.idnpTextField);
@@ -32,7 +32,7 @@ public class LoginActivity extends AppCompatActivity {
                 String password = passwordInput.getEditText().getText().toString().trim();
                 String message = "Login: " + login + " , Password: " + password;
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(LoginActivity.this, FacultyActivity.class);
+                Intent intent = new Intent(LoginActivity.this, ChairActivity.class);
                 startActivity(intent);
             }
         });

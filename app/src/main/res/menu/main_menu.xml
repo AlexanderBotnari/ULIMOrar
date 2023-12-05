@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:title="@string/faculty_menu_item"/>
-    <item android:title="@string/group_menu_item"/>
-    <item android:title="@string/exit_menu_item"/>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+            android:id="@+id/faculty"
+            android:title="@string/faculty_menu_item"/>
+
+    <item
+            android:id="@+id/group"
+            android:title="@string/group_menu_item"/>
+
+    <item
+            android:id="@+id/logout"
+            android:title="@string/logout_menu_item"/>
 </menu>

@@ -10,6 +10,18 @@
             android:supportsRtl="true"
             android:theme="@style/Theme.ULIMOrar">
         <activity
+                android:name=".activities.TimetableActivity"
+                android:exported="true"
+                android:parentActivityName=".activities.GroupActivity"/>
+        <activity
+                android:name=".activities.GroupActivity"
+                android:exported="true"
+                android:parentActivityName=".activities.ChairActivity"/>
+        <activity
+                android:name=".activities.ChairActivity"
+                android:exported="true"
+                android:parentActivityName=".activities.FacultyActivity"/>
+        <activity
                 android:name=".activities.LoginActivity"
                 android:exported="true"/>
         <activity
@@ -24,7 +36,10 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <meta-data android:name="preloaded_fonts" android:resource="@array/preloaded_fonts"/>
+
+        <meta-data
+                android:name="preloaded_fonts"
+                android:resource="@array/preloaded_fonts"/>
     </application>
 
 </manifest>
