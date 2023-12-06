@@ -33,6 +33,7 @@
         <item name="android:colorBackground">@color/background_dark_theme</item>
         <item name="android:textColorPrimary">@color/white</item>
         <item name="android:textColorSecondary">@color/white</item>
+
     </style>
 
     <style name="Widget.App.Button.OutlinedButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
@@ -41,6 +42,14 @@
 
     <style name="ThemeOverlay.App.Button.OutlinedButton" parent="">
         <item name="colorPrimary">@color/white</item>
+    </style>
+
+    <style name="SymbolBackground" parent="TextAppearance.AppCompat">
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="IconStyle" parent="Widget.AppCompat">
+
     </style>
 
 </resources>

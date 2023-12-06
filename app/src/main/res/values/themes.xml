@@ -45,4 +45,8 @@
         <item name="colorPrimary">@color/blue</item>
     </style>
 
+    <style name="SymbolBackground" parent="TextAppearance.AppCompat">
+        <item name="android:background">@color/background_dark_theme</item>
+    </style>
+
 </resources>
