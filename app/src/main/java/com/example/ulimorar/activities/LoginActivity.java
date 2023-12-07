@@ -32,7 +32,7 @@ public class LoginActivity extends AppCompatActivity {
                 String password = passwordInput.getEditText().getText().toString().trim();
                 String message = "Login: " + login + " , Password: " + password;
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(LoginActivity.this, ChairActivity.class);
+                Intent intent = new Intent(LoginActivity.this, FacultyActivity.class);
                 startActivity(intent);
             }
         });

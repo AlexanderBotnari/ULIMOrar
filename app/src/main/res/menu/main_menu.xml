@@ -6,10 +6,24 @@
             android:title="@string/faculty_menu_item"/>
 
     <item
+            android:id="@+id/chair"
+            android:title="@string/chair_menu_item"/>
+
+    <item
             android:id="@+id/group"
             android:title="@string/group_menu_item"/>
 
     <item
+            android:id="@+id/timetable"
+            android:title="@string/timetable_menu_item"/>
+
+    <item
             android:id="@+id/logout"
             android:title="@string/logout_menu_item"/>
+
+    <item
+            android:id="@+id/users"
+            android:icon="@drawable/ic_users"
+            app:showAsAction="always"
+            android:title="@string/user_menu_item"/>
 </menu>

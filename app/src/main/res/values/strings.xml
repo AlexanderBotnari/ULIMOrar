@@ -1,17 +1,29 @@
 <resources>
     <!--    Titles-->
-    <string name="app_name">ULIM Orar</string>
+    <string name="app_name">ULIM Timetable</string>
     <string name="faculty_activity_title">ULIM Faculties</string>
+    <string name="chairs_activity_title">ULIM Chairs</string>
+    <string name="groups_activity_title">ULIM Groups</string>
     <string name="users_activity_title">ULIM Users</string>
 
     <!--    Menu items-->
-    <string name="faculty_menu_item">Faculty</string>
-    <string name="group_menu_item">Group</string>
+    <string name="faculty_menu_item">Faculties</string>
+    <string name="chair_menu_item">Chairs</string>
+    <string name="group_menu_item">Groups</string>
+    <string name="timetable_menu_item">Timetables</string>
+    <string name="user_menu_item">Users</string>
     <string name="logout_menu_item">Logout</string>
 
     <!--    Edit texts-->
     <string name="login_label">IDNP</string>
     <string name="password_label">Password</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="chair_name">Chair name</string>
+    <string name="faculty_name">Faculty name</string>
+    <string name="faculty_description">Faculty description</string>
+    <string name="user_first_name">First name</string>
+    <string name="user_last_name">Last name</string>
+    <string name="timetable_name">Timetable name</string>
 
     <!--    Buttons-->
     <string name="login_button">LOGIN</string>
