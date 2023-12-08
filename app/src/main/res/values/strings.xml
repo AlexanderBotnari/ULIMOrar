@@ -24,6 +24,8 @@
     <string name="user_first_name">First name</string>
     <string name="user_last_name">Last name</string>
     <string name="timetable_name">Timetable name</string>
+    <string name="group_name">Group name</string>
+    <string name="group_symbol">Group symbol</string>
 
     <!--    Buttons-->
     <string name="login_button">LOGIN</string>
@@ -37,4 +39,7 @@
 <!--    Dialogs-->
     <string name="add_faculty_dialog_title">Add Faculty</string>
     <string name="add_chair_dialog_title">Add Chair</string>
+    <string name="add_group_dialog_title">Add Group</string>
+    <string name="add_timetable_dialog_title">Add Timetable</string>
+    <string name="add_user_dialog_title">Add User</string>
 </resources>

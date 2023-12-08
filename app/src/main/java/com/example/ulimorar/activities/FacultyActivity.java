@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.*;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,7 +27,6 @@ public class FacultyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_faculty);
 
         addFacultyButton = findViewById(R.id.addFacultyFloatingButton);
-
         addFacultyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -42,6 +42,7 @@ public class FacultyActivity extends AppCompatActivity {
         titleTextView.setText(dialogTitle);
         EditText facultyNameEditText = alertDialogCustomView.findViewById(R.id.facultyNameEditText);
         EditText facultyDescriptionEditText = alertDialogCustomView.findViewById(R.id.facultyDescriptionEditText);
+        ImageButton facultyAddImageButton = alertDialogCustomView.findViewById(R.id.facultyAddImageButton);
 
         // Construiți interfața de dialog personalizată
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
