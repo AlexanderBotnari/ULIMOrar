@@ -31,4 +31,10 @@
     <string name="forgot_password_button">
         <u>FORGOT PASSWORD</u>
     </string>
+    <string name="cancel_button">Cancel</string>
+    <string name="save_button">Save</string>
+
+<!--    Dialogs-->
+    <string name="add_faculty_dialog_title">Add Faculty</string>
+    <string name="add_chair_dialog_title">Add Chair</string>
 </resources>

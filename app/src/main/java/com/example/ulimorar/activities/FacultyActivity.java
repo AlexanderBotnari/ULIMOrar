@@ -2,26 +2,22 @@ package com.example.ulimorar.activities;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.view.*;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import com.example.ulimorar.R;
+import com.example.ulimorar.utils.GetDialogsStandartButtons;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class FacultyActivity extends AppCompatActivity {
 
     private FloatingActionButton addFacultyButton;
-    private TextView dialogTitleTextView;
-    private EditText facultyNameEditText;
-    private EditText facultyDescriptionEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,81 +26,47 @@ public class FacultyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_faculty);
 
         addFacultyButton = findViewById(R.id.addFacultyFloatingButton);
-        dialogTitleTextView = findViewById(R.id.dialogTitleTextView);
-        facultyNameEditText = findViewById(R.id.facultyNameEditText);
-        facultyDescriptionEditText = findViewById(R.id.facultyDescriptionEditText);
 
         addFacultyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openCustomDialog();
+                openDialog(R.string.add_faculty_dialog_title);
             }
         });
     }
 
-    private void openCustomDialog() {
-        // Obțineți referință la LayoutInflater
-        LayoutInflater inflater = LayoutInflater.from(this);
-        // Inflate layout-ul dialogului
-        View dialogView = inflater.inflate(R.layout.add_edit_faculty_dialog, null);
+    private void openDialog(int dialogTitle) {
+        View alertDialogCustomView = LayoutInflater.from(this).inflate(R.layout.add_edit_faculty_dialog, null);
 
-        // Configurați TextView-ul pentru titlu
-        TextView titleTextView = dialogView.findViewById(R.id.dialogTitleTextView);
-        titleTextView.setText("Add Faculty");
-        titleTextView.setTextSize(24);
-        titleTextView.setTypeface(null, android.graphics.Typeface.BOLD);
-        titleTextView.setGravity(View.TEXT_ALIGNMENT_CENTER);
-
-        // Configurați EditText-urile
-        EditText facultyNameEditText = dialogView.findViewById(R.id.facultyNameEditText);
-        EditText facultyDescriptionEditText = dialogView.findViewById(R.id.facultyDescriptionEditText);
+        TextView titleTextView = alertDialogCustomView.findViewById(R.id.dialogTitleTextView);
+        titleTextView.setText(dialogTitle);
+        EditText facultyNameEditText = alertDialogCustomView.findViewById(R.id.facultyNameEditText);
+        EditText facultyDescriptionEditText = alertDialogCustomView.findViewById(R.id.facultyDescriptionEditText);
 
         // Construiți interfața de dialog personalizată
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setView(dialogView);
-
-        // Adăugați butoanele "Cancel" și "Save"
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Acțiunea pentru butonul "Cancel"
-                dialog.dismiss();
-            }
-        });
-
-        builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Acțiunea pentru butonul "Save"
-                String facultyName = facultyNameEditText.getText().toString();
-                String facultyDescription = facultyDescriptionEditText.getText().toString();
-
-                // Implementați logica pentru salvare sau afișare a valorilor
-                // ...
-                Toast.makeText(FacultyActivity.this, facultyName + " " + facultyDescription, Toast.LENGTH_SHORT).show();
-
-                dialog.dismiss();
-            }
-        });
+        builder.setView(alertDialogCustomView);
 
         // Afișați dialogul
         AlertDialog alertDialog = builder.create();
+        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         alertDialog.show();
 
-        // Setați culoarea butoanelor în mod programatic
-        setButtonColors(alertDialog);
-    }
+        GetDialogsStandartButtons.getSaveButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(FacultyActivity.this, facultyNameEditText.getText().toString()+" "+
+                        facultyDescriptionEditText.getText().toString(), Toast.LENGTH_SHORT).show();
+                alertDialog.dismiss();
+            }
+        });
 
-    private void setButtonColors(AlertDialog alertDialog) {
-        // Obțineți butoanele dialogului
-        Button negativeButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-        Button positiveButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
-
-        // Setați culoarea textului pentru butonul "Cancel"
-        negativeButton.setTextColor(Color.BLUE);
-
-        // Setați culoarea textului pentru butonul "Save"
-        positiveButton.setTextColor(Color.BLUE);
+        GetDialogsStandartButtons.getCancelButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.cancel();
+            }
+        });
     }
 
     @Override

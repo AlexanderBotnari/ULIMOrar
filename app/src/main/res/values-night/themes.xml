@@ -44,6 +44,9 @@
         <item name="colorPrimary">@color/white</item>
     </style>
 
+    <style name="ButtonStyle" parent="Widget.App.Button.OutlinedButton">
+    </style>
+
     <style name="SymbolBackground" parent="TextAppearance.AppCompat">
         <item name="android:background">@color/white</item>
     </style>
