@@ -45,6 +45,17 @@ android:layout_height="match_parent">
             android:hint="@string/user_last_name" />
 
     <EditText
+            android:id="@+id/emailEditText"
+            android:inputType="textEmailAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginBottom="4dp"
+            android:hint="@string/login_label" />
+
+    <EditText
             android:id="@+id/idnpEditText"
             android:inputType="number"
             android:layout_width="match_parent"
@@ -53,7 +64,7 @@ android:layout_height="match_parent">
             android:layout_marginLeft="4dp"
             android:layout_marginRight="4dp"
             android:layout_marginBottom="4dp"
-            android:hint="@string/login_label" />
+            android:hint="@string/user_idnp" />
 
     <EditText
             android:id="@+id/passwordEditText"

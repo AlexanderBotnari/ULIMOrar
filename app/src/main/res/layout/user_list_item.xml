@@ -2,7 +2,6 @@
 <androidx.cardview.widget.CardView
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="16dp"
@@ -40,6 +39,18 @@
                 android:layout_marginStart="8dp"/>
 
         <TextView
+                android:id="@+id/emailTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ulim@gmail.com"
+                android:textSize="18dp"
+                android:fontFamily="@font/roboto_thin"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/userFirstNameTextView"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"/>
+
+        <TextView
                 android:id="@+id/idnpTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -48,9 +59,9 @@
                 android:paddingBottom="16dp"
                 android:fontFamily="@font/roboto_thin"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/userFirstNameTextView"
+                app:layout_constraintTop_toBottomOf="@+id/emailTextView"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"/>
+                android:layout_marginTop="8dp"/>
 
         <ImageView
                 android:layout_width="wrap_content"

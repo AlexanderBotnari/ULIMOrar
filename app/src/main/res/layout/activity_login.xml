@@ -15,19 +15,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.498"
-            app:layout_constraintBottom_toTopOf="@+id/idnpTextField"
+            app:layout_constraintBottom_toTopOf="@+id/emailTextField"
             android:layout_marginBottom="125dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/idnpTextField"
+            android:id="@+id/emailTextField"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/login_label"
             app:hintTextColor="@color/stroke_color"
             app:errorEnabled="true"
-            app:counterMaxLength="13"
-            app:counterEnabled="true"
             app:endIconMode="clear_text"
             app:boxStrokeColor="@color/stroke_color"
             app:layout_constraintStart_toStartOf="parent"
@@ -39,16 +37,15 @@
             android:layout_marginBottom="19dp">
 
         <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/idnpEditText"
+                android:id="@+id/emailEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/login_label"
-                android:inputType="number"
+                android:inputType="textEmailAddress"
         />
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!--            app:endIconMode="clear_text"-->
     <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/passwordTextField"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"

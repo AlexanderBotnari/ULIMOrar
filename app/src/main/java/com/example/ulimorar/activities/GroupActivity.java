@@ -14,6 +14,7 @@ import android.os.Bundle;
 import com.example.ulimorar.R;
 import com.example.ulimorar.utils.GetDialogsStandartButtons;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class GroupActivity extends AppCompatActivity {
 
@@ -82,34 +83,24 @@ public class GroupActivity extends AppCompatActivity {
         // Handle item selection.
         switch (item.getItemId()) {
             case R.id.faculty:
-                Toast.makeText(this, "Faculty item clicked!", Toast.LENGTH_SHORT).show();
-                intent = new Intent(GroupActivity.this, FacultyActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(GroupActivity.this, FacultyActivity.class));
                 return true;
             case R.id.chair:
-                Toast.makeText(this, "Chair item clicked!", Toast.LENGTH_SHORT).show();
-                intent = new Intent(GroupActivity.this, ChairActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(GroupActivity.this, ChairActivity.class));
                 return true;
             case R.id.group:
-                Toast.makeText(this, "Group item clicked!", Toast.LENGTH_SHORT).show();
-                intent = new Intent(GroupActivity.this, GroupActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(GroupActivity.this, GroupActivity.class));
                 return true;
             case R.id.timetable:
-                Toast.makeText(this, "Timetable item clicked!", Toast.LENGTH_SHORT).show();
-                intent = new Intent(GroupActivity.this, TimetableActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(GroupActivity.this, TimetableActivity.class));
                 return true;
             case R.id.users:
-                Toast.makeText(this, "Users item clicked!", Toast.LENGTH_SHORT).show();
-                intent = new Intent(GroupActivity.this, UsersActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(GroupActivity.this, UsersActivity.class));
                 return true;
             case R.id.logout:
-                Toast.makeText(this, "Logout item clicked!", Toast.LENGTH_SHORT).show();
-                intent = new Intent(GroupActivity.this, LoginActivity.class);
-                startActivity(intent);
+                Toast.makeText(this, R.string.logout_message, Toast.LENGTH_LONG).show();
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(GroupActivity.this, LoginActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

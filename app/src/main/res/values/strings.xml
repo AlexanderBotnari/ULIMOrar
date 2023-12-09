@@ -15,7 +15,7 @@
     <string name="logout_menu_item">Logout</string>
 
     <!--    Edit texts-->
-    <string name="login_label">IDNP</string>
+    <string name="login_label">Email</string>
     <string name="password_label">Password</string>
     <string name="confirm_password">Confirm password</string>
     <string name="chair_name">Chair name</string>
@@ -23,6 +23,7 @@
     <string name="faculty_description">Faculty description</string>
     <string name="user_first_name">First name</string>
     <string name="user_last_name">Last name</string>
+    <string name="user_idnp">IDNP</string>
     <string name="timetable_name">Timetable name</string>
     <string name="group_name">Group name</string>
     <string name="group_symbol">Group symbol</string>
@@ -42,4 +43,13 @@
     <string name="add_group_dialog_title">Add Group</string>
     <string name="add_timetable_dialog_title">Add Timetable</string>
     <string name="add_user_dialog_title">Add User</string>
+
+<!--    Errors-->
+    <string name="password_length_error">Password must be least 7 characters</string>
+    <string name="empty_email_error">Please input your email</string>
+    <string name="authentication_error">Authentication failed. Please verify input data.</string>
+
+<!--    Messages-->
+    <string name="forgot_password_message">Please contact your sys admin to recover password!</string>
+    <string name="logout_message">Account logged out</string>
 </resources>
