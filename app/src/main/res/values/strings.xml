@@ -1,6 +1,6 @@
 <resources>
     <!--    Titles-->
-    <string name="app_name">ULIM Timetable</string>
+    <string name="app_name">ULIM Orar</string>
     <string name="faculty_activity_title">ULIM Faculties</string>
     <string name="chairs_activity_title">ULIM Chairs</string>
     <string name="groups_activity_title">ULIM Groups</string>

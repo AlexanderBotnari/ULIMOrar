@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "1082982808377",
+    "firebase_url": "https://ulim-orar-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "ulim-orar",
     "storage_bucket": "ulim-orar.appspot.com"
   },
@@ -12,7 +13,20 @@
           "package_name": "com.example.ulimorar"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1082982808377-e8k4g49oga6tr64rc9jgnrnv6h9n7npt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ulimorar",
+            "certificate_hash": "7bb417adcd648bf638ace042b8f510e4ad338eb4"
+          }
+        },
+        {
+          "client_id": "1082982808377-o8h9m266esvkvb3vd5sbied8cobem9ic.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB2vev_vrj68QcaxNddLEUiF0PhBq8Ziuk"
@@ -20,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1082982808377-o8h9m266esvkvb3vd5sbied8cobem9ic.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

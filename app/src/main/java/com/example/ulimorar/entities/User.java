@@ -2,7 +2,7 @@ package com.example.ulimorar.entities;
 
 public class User {
 
-    private long id;
+    private String id;
     private String firstName;
     private String lastName;
     private String email;
@@ -12,7 +12,7 @@ public class User {
     public User() {
     }
 
-    public User(long id, String firstName, String lastName, String email, String idnp, String password) {
+    public User(String id, String firstName, String lastName, String email, String idnp, String password) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -21,11 +21,19 @@ public class User {
         this.password = password;
     }
 
-    public long getId() {
+    public User(String userId, String firstName, String lastName, String email, String idnp) {
+        this.id = userId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.idnp = idnp;
+    }
+
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
