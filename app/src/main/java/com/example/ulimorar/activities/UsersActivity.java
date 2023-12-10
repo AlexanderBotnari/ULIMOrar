@@ -7,25 +7,25 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
 import android.view.*;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.example.ulimorar.R;
+import com.example.ulimorar.adapters.UserAdapter;
 import com.example.ulimorar.entities.User;
 import com.example.ulimorar.utils.GetDialogsStandartButtons;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class UsersActivity extends AppCompatActivity {
 
@@ -43,6 +43,11 @@ public class UsersActivity extends AppCompatActivity {
     private TextInputLayout emailInputLayout;
     private TextInputLayout idnpInputLayout;
 
+    private RecyclerView userRecyclerView;
+    private UserAdapter userAdapter;
+    private RecyclerView.LayoutManager layoutManager;
+    private List<User> users;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +60,14 @@ public class UsersActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
 
         addUserButton = findViewById(R.id.addUserFloatingButton);
+        userRecyclerView = findViewById(R.id.usersRecyclerView);
+        users = new ArrayList<>();
+        layoutManager = new LinearLayoutManager(this);
+        userRecyclerView.setHasFixedSize(true);
+        userRecyclerView.setLayoutManager(layoutManager);
+        userAdapter = new UserAdapter(this, users);
+        userRecyclerView.setAdapter(userAdapter);
+
         addUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -176,6 +189,34 @@ public class UsersActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Query query = FirebaseDatabase.getInstance().getReference("users");
+        query.addValueEventListener(new ValueEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                users.clear();  // because everytime when data updates in your firebase database it creates the list with updated items
+                // so to avoid duplicate fields we clear the list everytime
+                if (snapshot.exists()) {
+                    for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                        User user = userSnapshot.getValue(User.class);
+
+                        users.add(user);
+                    }
+
+                    userAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+            }
+        });
     }
 
     @Override
