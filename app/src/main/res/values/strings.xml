@@ -47,9 +47,15 @@
 <!--    Errors-->
     <string name="password_length_error">Password must be least 7 characters</string>
     <string name="empty_email_error">Please input your email</string>
+    <string name="enter_valid_email">Enter a valid email</string>
     <string name="authentication_error">Authentication failed. Please verify input data.</string>
-
-<!--    Messages-->
     <string name="forgot_password_message">Please contact your sys admin to recover password!</string>
     <string name="logout_message">Account logged out</string>
+    <string name="add_user_successful_message">Successful added user</string>
+    <string name="add_user_failure_message">Failure to add user</string>
+    <string name="no_match_password_message">Password not match</string>
+    <string name="password_is_empty">Please input password</string>
+    <string name="first_name_is_empty">Please input first name</string>
+    <string name="last_name_is_empty">Please input last name</string>
+    <string name="idnp_length_error">Please input your 13 digits from ID card or passport</string>
 </resources>

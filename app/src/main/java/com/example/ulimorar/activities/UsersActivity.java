@@ -21,6 +21,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +31,17 @@ public class UsersActivity extends AppCompatActivity {
 
     private FloatingActionButton addUserButton;
 
+    private AlertDialog alertDialog;
+
     private DatabaseReference userDbReference;
+    private FirebaseAuth auth;
+
+    private TextInputLayout passwordInputLayout;
+    private TextInputLayout confirmPasswordInputLayout;
+    private TextInputLayout firstNameInputLayout;
+    private TextInputLayout lastNameInputLayout;
+    private TextInputLayout emailInputLayout;
+    private TextInputLayout idnpInputLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +51,8 @@ public class UsersActivity extends AppCompatActivity {
 
 //      "users" is the name of the module to storage data
         userDbReference = FirebaseDatabase.getInstance().getReference("users");
+
+        auth = FirebaseAuth.getInstance();
 
         addUserButton = findViewById(R.id.addUserFloatingButton);
         addUserButton.setOnClickListener(new View.OnClickListener() {
@@ -54,30 +68,32 @@ public class UsersActivity extends AppCompatActivity {
 
         TextView titleTextView = alertDialogCustomView.findViewById(R.id.dialogTitleTextView);
         titleTextView.setText(dialogTitle);
-        EditText firstNameEditText = alertDialogCustomView.findViewById(R.id.firstNameEditText);
-        EditText lastNameEditText = alertDialogCustomView.findViewById(R.id.lastNameEditText);
-        EditText emailEditText = alertDialogCustomView.findViewById(R.id.emailEditText);
-        EditText idnpEditText = alertDialogCustomView.findViewById(R.id.idnpEditText);
-        EditText passwordEditText = alertDialogCustomView.findViewById(R.id.passwordEditText);
-        EditText confirmPasswordEditText = alertDialogCustomView.findViewById(R.id.confirmPasswordEditText);
+        firstNameInputLayout = alertDialogCustomView.findViewById(R.id.firstNameTextField);
+        lastNameInputLayout = alertDialogCustomView.findViewById(R.id.lastNameTextField);
+        emailInputLayout = alertDialogCustomView.findViewById(R.id.emailTextField);
+        idnpInputLayout = alertDialogCustomView.findViewById(R.id.idnpTextField);
+        passwordInputLayout = alertDialogCustomView.findViewById(R.id.passwordTextField);
+        confirmPasswordInputLayout = alertDialogCustomView.findViewById(R.id.confirmPasswordTextField);
 
         // Personalized dialog interface
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(alertDialogCustomView);
 
         // Show dialog
-        AlertDialog alertDialog = builder.create();
+        alertDialog = builder.create();
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         alertDialog.show();
 
         GetDialogsStandartButtons.getSaveButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                writeNewUser(firstNameEditText.getText().toString(),
-                            lastNameEditText.getText().toString(),
-                            emailEditText.getText().toString(),
-                            idnpEditText.getText().toString());
-                alertDialog.dismiss();
+                String firstName = firstNameInputLayout.getEditText().getText().toString();
+                String lastName = lastNameInputLayout.getEditText().getText().toString();
+                String email = emailInputLayout.getEditText().getText().toString();
+                String idnp = idnpInputLayout.getEditText().getText().toString();
+                String password = passwordInputLayout.getEditText().getText().toString();
+                String confirmPassword = confirmPasswordInputLayout.getEditText().getText().toString();
+                addUser(firstName, lastName, email, idnp, password, confirmPassword);
             }
         });
 
@@ -89,21 +105,77 @@ public class UsersActivity extends AppCompatActivity {
         });
     }
 
-    public void writeNewUser(String firstName, String lastName, String email, String idnp) {
-        // Generate unique ID for user
-        String userId = userDbReference.push().getKey();
-        User user = new User(userId, firstName, lastName, email, idnp);
-        userDbReference.child(userId).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull @NotNull Task<Void> task) {
-                if (task.isSuccessful()){
-                    Toast.makeText(UsersActivity.this, "Successful added user", Toast.LENGTH_SHORT).show();
-                }else{
-                    Toast.makeText(UsersActivity.this, "Failure to add user", Toast.LENGTH_SHORT).show();
+    public void addUser(String firstName, String lastName, String email, String idnp, String password, String confirmPassword) {
+        // Validate input data
+        boolean isValid = true; // Add a flag to track overall validity
+
+        if (firstName.equals("")) {
+            firstNameInputLayout.setError(getString(R.string.first_name_is_empty));
+            isValid = false; // Mark as invalid
+        }else{
+            firstNameInputLayout.setError(null);
+        }
+
+        if (lastName.equals("")) {
+            lastNameInputLayout.setError(getString(R.string.last_name_is_empty));
+            isValid = false;
+        }else{
+            lastNameInputLayout.setError(null);
+        }
+
+        if (!email.contains("@") || !email.contains(".")) {
+            emailInputLayout.setError(getString(R.string.enter_valid_email));
+            isValid = false;
+        }else{
+            emailInputLayout.setError(null);
+        }
+
+        if (idnp.length() != 13) {
+            idnpInputLayout.setError(getString(R.string.idnp_length_error));
+            isValid = false;
+        }else {
+            idnpInputLayout.setError(null);
+        }
+
+        if (password.length() <= 6) {
+            passwordInputLayout.setError(getString(R.string.password_length_error));
+            isValid = false;
+        } else if (!password.equals(confirmPassword)) {
+            passwordInputLayout.setError(getString(R.string.no_match_password_message));
+            confirmPasswordInputLayout.setError(getString(R.string.no_match_password_message));
+            isValid = false;
+        }else {
+            passwordInputLayout.setError(null);
+            confirmPasswordInputLayout.setError(null);
+        }
+
+        if (isValid) { // Proceed only if all input is valid
+            // Generate unique ID for user
+            String userId = userDbReference.push().getKey();
+
+            User user = new User(userId, firstName, lastName, email, idnp, password);
+
+            // Add the user to the database
+            userDbReference.child(userId).setValue(user).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    // If user added successfully, add the same user credentials to Firebase Authentication
+                    auth.createUserWithEmailAndPassword(email, password)
+                            .addOnCompleteListener(authTask -> {
+                                if (authTask.isSuccessful()) {
+                                    Toast.makeText(UsersActivity.this, R.string.add_user_successful_message, Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(UsersActivity.this, R.string.add_user_failure_message, Toast.LENGTH_SHORT).show();
+                                    Log.d("FailureAddUser", authTask.getException().getMessage());
+                                }
+                            });
+
+                    alertDialog.dismiss();
+                } else {
+                    Toast.makeText(UsersActivity.this, R.string.add_user_failure_message, Toast.LENGTH_SHORT).show();
                     Log.d("FailureAddUser", task.getException().getMessage());
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override
