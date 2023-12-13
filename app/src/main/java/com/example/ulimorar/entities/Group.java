@@ -4,7 +4,6 @@ import java.util.List;
 
 public class Group {
 
-    private long id;
     private String groupName;
     private String groupSymbol;
     private List<Timetable> timetables;
@@ -12,19 +11,10 @@ public class Group {
     public Group() {
     }
 
-    public Group(long id, String groupName, String groupSymbol, List<Timetable> timetables) {
-        this.id = id;
+    public Group(String groupName, String groupSymbol, List<Timetable> timetables) {
         this.groupName = groupName;
         this.groupSymbol = groupSymbol;
         this.timetables = timetables;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public String getGroupName() {

@@ -58,4 +58,8 @@
     <string name="first_name_is_empty">Please input first name</string>
     <string name="last_name_is_empty">Please input last name</string>
     <string name="idnp_length_error">Please input your 13 digits from ID card or passport</string>
+    <string name="add_faculty_failure_message">Failure to add faculty</string>
+    <string name="add_faculty_successful_message">Successful added faculty</string>
+    <string name="empty_faculty_name_error">Please input the faculty name</string>
+    <string name="empty_faculty_description_error">Please input the faculty description</string>
 </resources>

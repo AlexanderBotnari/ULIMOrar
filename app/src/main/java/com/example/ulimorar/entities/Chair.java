@@ -4,25 +4,15 @@ import java.util.List;
 
 public class Chair {
 
-    private long id;
     private String chairName;
     private List<Group> groups;
 
     public Chair() {
     }
 
-    public Chair(long id, String chairName, List<Group> groups) {
-        this.id = id;
+    public Chair(String chairName, List<Group> groups) {
         this.chairName = chairName;
         this.groups = groups;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public String getChairName() {
