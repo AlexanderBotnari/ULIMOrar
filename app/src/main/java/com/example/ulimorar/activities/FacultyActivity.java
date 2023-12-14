@@ -26,6 +26,7 @@ import com.example.ulimorar.entities.Faculty;
 import com.example.ulimorar.utils.GetDialogsStandartButtons;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class FacultyActivity extends AppCompatActivity {
 
@@ -59,7 +61,7 @@ public class FacultyActivity extends AppCompatActivity {
 
     private AlertDialog alertDialog;
 
-    private String facultyId;
+    private Uri selectedImageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,9 +95,7 @@ public class FacultyActivity extends AppCompatActivity {
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         Intent data = result.getData();
                         if (data != null) {
-                            Uri selectedImageUri = data.getData();
-                            // Upload the selected image to Firebase Storage or perform other actions
-                            uploadImageToFirebaseStorage(selectedImageUri);
+                            selectedImageUri = data.getData();
                         }
                     }
                 });
@@ -143,7 +143,7 @@ public class FacultyActivity extends AppCompatActivity {
         });
     }
 
-    private void uploadImageToFirebaseStorage(Uri imageUri) {
+    private void uploadImageToFirebaseStorage(Uri imageUri, String facultyId) {
         if (imageUri != null) {
             // Create a reference to "images/[filename]"
             StorageReference imageFacultyRef = storageReference.child("faculties/" + facultyId + ".jpg");
@@ -155,6 +155,15 @@ public class FacultyActivity extends AppCompatActivity {
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             // Image uploaded successfully
                             Toast.makeText(FacultyActivity.this, "Image uploaded successfully", Toast.LENGTH_SHORT).show();
+
+                            // Get the download URL and update the faculty by id in realtime database
+                            imageFacultyRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri downloadUrl) {
+                                    Log.d("DownloadUrl", downloadUrl.toString());
+                                    facultiesDatabaseReference.child(facultyId).child("facultyPosterPath").setValue(downloadUrl.toString());
+                                }
+                            });
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -187,7 +196,7 @@ public class FacultyActivity extends AppCompatActivity {
 
         if (isValid) {
             // Generate unique ID for faculty
-            facultyId = facultiesDatabaseReference.push().getKey();
+            String facultyId = facultiesDatabaseReference.push().getKey();
 
             Faculty faculty = new Faculty(facultyId, facultyName, facultyDescription);
 
@@ -203,6 +212,9 @@ public class FacultyActivity extends AppCompatActivity {
                 }
             });
 
+            // Upload the selected image to Firebase Storage or perform other actions
+            uploadImageToFirebaseStorage(selectedImageUri, facultyId);
+            selectedImageUri = null;
         }
     }
 

@@ -36,6 +36,7 @@ public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyV
         Picasso.get().load(faculty.getFacultyPosterPath()).placeholder(R.drawable.ulim_logo).into(holder.facultyImageView);
         holder.facultyNameTextView.setText(faculty.getFacultyName());
         holder.facultyDescriptionTextView.setText(faculty.getFacultyDescription());
+
     }
 
     @Override
