@@ -76,7 +76,7 @@ public class FacultyActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.facultyRecyclerView);
         faculties = new ArrayList<>();
-        facultyAdapter = new FacultyAdapter(faculties);
+        facultyAdapter = new FacultyAdapter(faculties, this);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(facultyAdapter);
