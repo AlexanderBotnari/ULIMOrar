@@ -1,6 +1,8 @@
 package com.example.ulimorar.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +11,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.ulimorar.R;
+import com.example.ulimorar.activities.GroupActivity;
 import com.example.ulimorar.entities.Chair;
+import com.example.ulimorar.entities.Faculty;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -18,10 +22,12 @@ public class ChairAdapter extends RecyclerView.Adapter<ChairAdapter.ChairViewHol
 
     private List<Chair> chairs;
     private Context context;
+    private Faculty currentFaculty;
 
-    public ChairAdapter(List<Chair> chairs, Context context) {
+    public ChairAdapter(List<Chair> chairs, Context context,  Faculty currentFaculty) {
         this.chairs = chairs;
         this.context = context;
+        this.currentFaculty = currentFaculty;
     }
 
     @NonNull
@@ -33,7 +39,7 @@ public class ChairAdapter extends RecyclerView.Adapter<ChairAdapter.ChairViewHol
     }
 
     @Override
-    public void onBindViewHolder(@NonNull @NotNull ChairAdapter.ChairViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull @NotNull ChairAdapter.ChairViewHolder holder, @SuppressLint("RecyclerView") int position) {
         Chair chair = chairs.get(position);
 
         holder.chairNameTextView.setText(chair.getChairName());
@@ -42,7 +48,11 @@ public class ChairAdapter extends RecyclerView.Adapter<ChairAdapter.ChairViewHol
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context, "Chair item clicked!", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(context, GroupActivity.class);
+                intent.putExtra("chairFromIntent", chair);
+                intent.putExtra("currentFaculty", currentFaculty);
+                intent.putExtra("chairIndex", String.valueOf(position));
+                context.startActivity(intent);
             }
         });
     }
@@ -59,8 +69,8 @@ public class ChairAdapter extends RecyclerView.Adapter<ChairAdapter.ChairViewHol
 
         public ChairViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
-            chairNameTextView = itemView.findViewById(R.id.chairNameTextView);
-            chairSymbolTextView = itemView.findViewById(R.id.chairSymbol);
+            chairNameTextView = itemView.findViewById(R.id.chairGroupNameTextView);
+            chairSymbolTextView = itemView.findViewById(R.id.chairGroupSymbol);
         }
     }
 }

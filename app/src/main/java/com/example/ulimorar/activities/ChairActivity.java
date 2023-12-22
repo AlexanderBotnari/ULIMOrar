@@ -56,12 +56,14 @@ public class ChairActivity extends AppCompatActivity {
         addChairButton = findViewById(R.id.addChairFloatingButton);
         titleTextView = findViewById(R.id.titleTextView);
         chairRecyclerView = findViewById(R.id.chairRecycleView);
-        chairAdapter = new ChairAdapter(chairsList, this);
+        chairAdapter = new ChairAdapter(chairsList, this, currentFaculty);
         chairRecyclerView.setHasFixedSize(true);
         chairRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         chairRecyclerView.setAdapter(chairAdapter);
 
-        titleTextView.setText(currentFaculty.getFacultyName());
+        if (currentFaculty != null){
+            titleTextView.setText(currentFaculty.getFacultyName());
+        }
         addChairButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

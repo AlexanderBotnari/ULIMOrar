@@ -1,8 +1,9 @@
 package com.example.ulimorar.entities;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Group {
+public class Group implements Serializable {
 
     private String groupName;
     private String groupSymbol;
@@ -11,10 +12,9 @@ public class Group {
     public Group() {
     }
 
-    public Group(String groupName, String groupSymbol, List<Timetable> timetables) {
+    public Group(String groupName, String groupSymbol) {
         this.groupName = groupName;
         this.groupSymbol = groupSymbol;
-        this.timetables = timetables;
     }
 
     public String getGroupName() {
