@@ -26,6 +26,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
@@ -47,5 +50,7 @@ dependencies {
 //    Picasso
     implementation 'com.squareup.picasso:picasso:2.8'
 
+//    Library to zoom in zoom out image
+    implementation 'com.github.MikeOrtiz:TouchImageView:3.2.1'
 
 }

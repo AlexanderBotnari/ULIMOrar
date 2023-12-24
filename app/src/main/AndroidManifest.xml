@@ -13,6 +13,9 @@
             android:supportsRtl="true"
             android:theme="@style/Theme.ULIMOrar">
         <activity
+                android:name=".activities.TimetableFullscreenActivity"
+                android:exported="true"/>
+        <activity
                 android:name=".activities.UsersActivity"
                 android:exported="true"/>
         <activity

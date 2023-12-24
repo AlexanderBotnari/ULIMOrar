@@ -68,7 +68,7 @@ public class GroupActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.groupRecycleView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        groupAdapter = new GroupAdapter(groupList, this);
+        groupAdapter = new GroupAdapter(groupList, this, currentFaculty, currentChair, currentChairKey);
         recyclerView.setAdapter(groupAdapter);
 
         if (currentChair != null){

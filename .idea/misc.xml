@@ -33,6 +33,8 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.3591485507246377" />
         <entry key="app/src/main/res/layout/activity_splash_screen.xml" value="0.3591485507246377" />
         <entry key="app/src/main/res/layout/activity_timetable.xml" value="0.3591485507246377" />
+        <entry key="app/src/main/res/layout/activity_timetable_fullscreen.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/activity_timetable_image_full_screen.xml" value="0.396286231884058" />
         <entry key="app/src/main/res/layout/activity_users.xml" value="0.3591485507246377" />
         <entry key="app/src/main/res/layout/add_edit_chair_dialog.xml" value="0.3491847826086957" />
         <entry key="app/src/main/res/layout/add_edit_faculty_dialog.xml" value="0.33" />

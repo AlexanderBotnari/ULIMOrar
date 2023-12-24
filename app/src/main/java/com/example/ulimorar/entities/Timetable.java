@@ -1,6 +1,9 @@
 package com.example.ulimorar.entities;
 
-public class Timetable {
+import java.io.Serializable;
+import java.util.Date;
+
+public class Timetable implements Serializable {
 
     private String timetableName;
     private String imageUrl;
@@ -9,9 +12,9 @@ public class Timetable {
     public Timetable() {
     }
 
-    public Timetable(String timetableName, String imageUrl) {
+    public Timetable(String timetableName, Long updateTime) {
         this.timetableName = timetableName;
-        this.imageUrl = imageUrl;
+        this.updateTime = updateTime;
     }
 
     public String getTimetableName() {

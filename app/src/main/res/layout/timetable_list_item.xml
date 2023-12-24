@@ -18,6 +18,7 @@
                 android:layout_height="180dp"
                 android:id="@+id/timetableImageView"
                 android:src="@drawable/timetable"
+                android:scaleType="centerCrop"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
@@ -26,11 +27,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
-                android:text="Faculty name"
+                android:text="Session name"
                 android:fontFamily="@font/roboto"
                 android:textStyle="bold"
                 android:textSize="24sp"
-                android:id="@+id/facultyNameTextView"
+                android:id="@+id/sessionNameTextView"
                 tools:layout_editor_absoluteX="16dp"
                 app:layout_constraintTop_toBottomOf="@+id/timetableImageView"
                 android:layout_marginTop="16dp"/>
@@ -43,7 +44,7 @@
                 android:textSize="14sp"
                 android:layout_margin="16dp"
                 tools:layout_editor_absoluteX="-16dp"
-                app:layout_constraintTop_toBottomOf="@+id/facultyNameTextView"
+                app:layout_constraintTop_toBottomOf="@+id/sessionNameTextView"
                 android:layout_marginTop="16dp"/>
         <Button
                 android:id="@+id/viewButton"
