@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.ulimorar.R;
 import com.example.ulimorar.adapters.FacultyAdapter;
 import com.example.ulimorar.entities.Faculty;
@@ -58,6 +59,7 @@ public class FacultyActivity extends AppCompatActivity {
 
     private TextInputLayout facultyNameInputLayout;
     private TextInputLayout facultyDescriptionInputLayout;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private AlertDialog alertDialog;
 
@@ -99,6 +101,14 @@ public class FacultyActivity extends AppCompatActivity {
                         }
                     }
                 });
+
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getFaculties();
+            }
+        });
 
     }
 
@@ -221,6 +231,10 @@ public class FacultyActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        getFaculties();
+    }
+
+    private void getFaculties() {
         Query query = FirebaseDatabase.getInstance().getReference("faculties");
         query.addValueEventListener(new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
@@ -234,6 +248,7 @@ public class FacultyActivity extends AppCompatActivity {
                         faculties.add(faculty);
                     }
                     facultyAdapter.notifyDataSetChanged();
+                    swipeRefreshLayout.setRefreshing(false);
                 }
             }
 

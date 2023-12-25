@@ -43,7 +43,7 @@
                 android:textStyle="bold"
                 style="@style/SymbolBackground"
                 android:textColor="@color/blue"
-                android:textSize="50sp"
+                android:textSize="45sp"
                 android:paddingLeft="32dp"
                 android:paddingRight="32dp"
                 android:shadowColor="@color/white"

@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.ulimorar.R;
 import com.example.ulimorar.adapters.TimetableAdapter;
 import com.example.ulimorar.entities.Chair;
@@ -52,6 +53,7 @@ public class TimetableActivity extends AppCompatActivity {
 
     private FloatingActionButton addTimetableButton;
     private EditText timetableNameEditText;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private Group currentGroup;
     private Faculty currentFaculty;
@@ -87,8 +89,8 @@ public class TimetableActivity extends AppCompatActivity {
         timetableList = new ArrayList<>();
 
         groupsDatabaseReference = FirebaseDatabase.getInstance().getReference("faculties")
-                                      .child(currentFaculty.getId()).child("chairs")
-                                      .child(chairIndex).child("groups");
+                .child(currentFaculty.getId()).child("chairs")
+                .child(chairIndex).child("groups");
         auth = FirebaseAuth.getInstance();
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
@@ -117,6 +119,15 @@ public class TimetableActivity extends AppCompatActivity {
                         }
                     }
                 });
+
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getTimetables();
+            }
+        });
+
     }
 
     private void openDialog(int dialogTitle) {
@@ -226,28 +237,33 @@ public class TimetableActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-            Query query = FirebaseDatabase.getInstance().getReference("faculties").child(currentFaculty.getId())
-                    .child("chairs").child(chairIndex).child("groups").child(groupIndex).child("timetables");
-            query.addValueEventListener(new ValueEventListener() {
-                @SuppressLint("NotifyDataSetChanged")
-                @Override
-                public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                    timetableList.clear();  // because everytime when data updates in your firebase database it creates the list with updated items
-                    // so to avoid duplicate fields we clear the list everytime
-                    if (snapshot.exists()) {
-                        for (DataSnapshot timetableSnapshot : snapshot.getChildren()) {
-                            Timetable timetable = timetableSnapshot.getValue(Timetable.class);
-                            timetableList.add(timetable);
-                        }
-                        timetableAdapter.notifyDataSetChanged();
+        getTimetables();
+    }
+
+    private void getTimetables() {
+        Query query = FirebaseDatabase.getInstance().getReference("faculties").child(currentFaculty.getId())
+                .child("chairs").child(chairIndex).child("groups").child(groupIndex).child("timetables");
+        query.addValueEventListener(new ValueEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                timetableList.clear();  // because everytime when data updates in your firebase database it creates the list with updated items
+                // so to avoid duplicate fields we clear the list everytime
+                if (snapshot.exists()) {
+                    for (DataSnapshot timetableSnapshot : snapshot.getChildren()) {
+                        Timetable timetable = timetableSnapshot.getValue(Timetable.class);
+                        timetableList.add(timetable);
                     }
+                    timetableAdapter.notifyDataSetChanged();
+                    swipeRefreshLayout.setRefreshing(false);
                 }
+            }
 
-                @Override
-                public void onCancelled(@NonNull @NotNull DatabaseError error) {
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
 
-                }
-            });
+            }
+        });
     }
 
     @Override

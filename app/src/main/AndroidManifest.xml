@@ -21,11 +21,11 @@
         <activity
                 android:name=".activities.TimetableActivity"
                 android:exported="true"
-                android:parentActivityName=".activities.GroupActivity"/>
+                android:parentActivityName=".activities.FacultyActivity"/>
         <activity
                 android:name=".activities.GroupActivity"
                 android:exported="true"
-                android:parentActivityName=".activities.ChairActivity"/>
+                android:parentActivityName=".activities.FacultyActivity"/>
         <activity
                 android:name=".activities.ChairActivity"
                 android:exported="true"

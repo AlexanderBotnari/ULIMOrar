@@ -53,4 +53,7 @@ dependencies {
 //    Library to zoom in zoom out image
     implementation 'com.github.MikeOrtiz:TouchImageView:3.2.1'
 
+//    Swipe refresh
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01"
+
 }

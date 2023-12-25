@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.ulimorar.R;
 import com.example.ulimorar.adapters.ChairAdapter;
 import com.example.ulimorar.entities.Chair;
@@ -32,6 +33,7 @@ public class ChairActivity extends AppCompatActivity {
 
     private FloatingActionButton addChairButton;
     private TextView titleTextView;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private Faculty currentFaculty;
 
@@ -44,10 +46,11 @@ public class ChairActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent intent = getIntent();
-        currentFaculty = (Faculty) intent.getSerializableExtra("facultyFromIntent");
         setTitle(R.string.chairs_activity_title);
         setContentView(R.layout.activity_chair);
+
+        Intent intent = getIntent();
+        currentFaculty = (Faculty) intent.getSerializableExtra("facultyFromIntent");
 
         chairsList = new ArrayList<>();
 
@@ -70,6 +73,15 @@ public class ChairActivity extends AppCompatActivity {
                 openDialog(R.string.add_chair_dialog_title);
             }
         });
+
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getChairs();
+            }
+        });
+
     }
 
     private void openDialog(int dialogTitle) {
@@ -130,6 +142,10 @@ public class ChairActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        getChairs();
+    }
+
+    private void getChairs() {
         Query query = FirebaseDatabase.getInstance().getReference("faculties").child(currentFaculty.getId()).child("chairs");
         query.addValueEventListener(new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
@@ -143,6 +159,7 @@ public class ChairActivity extends AppCompatActivity {
                         chairsList.add(chair);
                     }
                     chairAdapter.notifyDataSetChanged();
+                    swipeRefreshLayout.setRefreshing(false);
                 }
             }
 

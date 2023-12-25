@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.ulimorar.R;
 import com.example.ulimorar.adapters.GroupAdapter;
 import com.example.ulimorar.entities.Chair;
@@ -36,6 +37,7 @@ public class GroupActivity extends AppCompatActivity {
 
     private FloatingActionButton addGroupButton;
     private TextView titleTextView;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private Chair currentChair;
     private Faculty currentFaculty;
@@ -81,6 +83,15 @@ public class GroupActivity extends AppCompatActivity {
                 openDialog(R.string.add_group_dialog_title);
             }
         });
+
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getGroups();
+            }
+        });
+
     }
 
     private void openDialog(int dialogTitle) {
@@ -146,6 +157,10 @@ public class GroupActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        getGroups();
+    }
+
+    private void getGroups() {
         if (currentChairKey != null){
             Query query = FirebaseDatabase.getInstance().getReference("faculties").child(currentFaculty.getId())
                     .child("chairs").child(String.valueOf(currentChairKey)).child("groups");
@@ -161,6 +176,7 @@ public class GroupActivity extends AppCompatActivity {
                             groupList.add(group);
                         }
                         groupAdapter.notifyDataSetChanged();
+                        swipeRefreshLayout.setRefreshing(false);
                     }
                 }
 

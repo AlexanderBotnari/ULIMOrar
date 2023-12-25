@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.ulimorar.R;
 import com.example.ulimorar.adapters.UserAdapter;
 import com.example.ulimorar.entities.User;
@@ -29,8 +30,6 @@ import java.util.List;
 
 public class UsersActivity extends AppCompatActivity {
 
-    private FloatingActionButton addUserButton;
-
     private AlertDialog alertDialog;
 
     private DatabaseReference userDbReference;
@@ -42,6 +41,8 @@ public class UsersActivity extends AppCompatActivity {
     private TextInputLayout lastNameInputLayout;
     private TextInputLayout emailInputLayout;
     private TextInputLayout idnpInputLayout;
+    private FloatingActionButton addUserButton;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private RecyclerView userRecyclerView;
     private UserAdapter userAdapter;
@@ -72,6 +73,14 @@ public class UsersActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 openDialog(R.string.add_user_dialog_title);
+            }
+        });
+
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getUsers();
             }
         });
     }
@@ -194,6 +203,10 @@ public class UsersActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        getUsers();
+    }
+
+    private void getUsers() {
         Query query = FirebaseDatabase.getInstance().getReference("users");
         query.addValueEventListener(new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
@@ -207,8 +220,8 @@ public class UsersActivity extends AppCompatActivity {
 
                         users.add(user);
                     }
-
                     userAdapter.notifyDataSetChanged();
+                    swipeRefreshLayout.setRefreshing(false);
                 }
             }
 
