@@ -22,6 +22,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +36,7 @@ public class ChairActivity extends AppCompatActivity {
 
     private FloatingActionButton addChairButton;
     private TextView titleTextView;
+    private TextInputLayout chairNameTextInput;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     private Faculty currentFaculty;
@@ -42,6 +46,8 @@ public class ChairActivity extends AppCompatActivity {
     private ChairAdapter chairAdapter;
 
     private DatabaseReference facultiesDatabaseReference;
+
+    private AlertDialog alertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,14 +95,15 @@ public class ChairActivity extends AppCompatActivity {
 
         TextView titleTextView = alertDialogCustomView.findViewById(R.id.dialogTitleTextView);
         titleTextView.setText(dialogTitle);
-        EditText chairNameEditText = alertDialogCustomView.findViewById(R.id.chairNameEditText);
+        chairNameTextInput = alertDialogCustomView.findViewById(R.id.chairNameTextInput);
+        TextInputEditText chairNameEditText = (TextInputEditText) chairNameTextInput.getEditText();
 
         // Construiți interfața de dialog personalizată
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(alertDialogCustomView);
 
         // Afișați dialogul
-        AlertDialog alertDialog = builder.create();
+        alertDialog = builder.create();
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         alertDialog.show();
 
@@ -104,8 +111,6 @@ public class ChairActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 addNewChairToFaculty(chairNameEditText.getText().toString());
-                Toast.makeText(ChairActivity.this, chairNameEditText.getText().toString(), Toast.LENGTH_SHORT).show();
-                alertDialog.dismiss();
             }
         });
 
@@ -119,7 +124,16 @@ public class ChairActivity extends AppCompatActivity {
 
     private void addNewChairToFaculty(String chairName) {
 
-        if (!chairName.isEmpty()){
+        boolean isValid = true;
+
+        if (chairName.isEmpty()){
+            chairNameTextInput.setError(getText(R.string.empty_chair_name_error));
+            isValid = false;
+        }else {
+            chairNameTextInput.setError(null);
+        }
+
+        if (isValid){
             Chair chair = new Chair(chairName, String.valueOf(chairName.charAt(0)));
             chairsList.add(chair);
 
@@ -128,12 +142,13 @@ public class ChairActivity extends AppCompatActivity {
             facultiesDatabaseReference.child(currentFaculty.getId()).setValue(currentFaculty).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull @NotNull Task<Void> task) {
-                    Toast.makeText(ChairActivity.this, "Successful added chair to faculty!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ChairActivity.this, R.string.add_chair_successful_message, Toast.LENGTH_SHORT).show();
+                    alertDialog.dismiss();
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull @NotNull Exception e) {
-                    Toast.makeText(ChairActivity.this, "Failure to add chair for faculty!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ChairActivity.this, R.string.failure_add_chair_error, Toast.LENGTH_LONG).show();
                 }
             });
         }

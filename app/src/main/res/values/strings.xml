@@ -1,6 +1,6 @@
 <resources>
     <!--    Titles-->
-    <string name="app_name">ULIM Orar</string>
+    <string name="app_name">ULIM Timetable</string>
     <string name="faculty_activity_title">ULIM Faculties</string>
     <string name="chairs_activity_title">ULIM Chairs</string>
     <string name="groups_activity_title">ULIM Groups</string>
@@ -44,7 +44,7 @@
     <string name="add_timetable_dialog_title">Add Timetable</string>
     <string name="add_user_dialog_title">Add User</string>
 
-    <!--    Errors-->
+    <!--    Messages-->
     <string name="password_length_error">Password must be least 7 characters</string>
     <string name="empty_email_error">Please input your email</string>
     <string name="enter_valid_email">Enter a valid email</string>
@@ -62,7 +62,7 @@
     <string name="add_faculty_successful_message">Successful added faculty</string>
     <string name="empty_faculty_name_error">Please input the faculty name</string>
     <string name="empty_faculty_description_error">Please input the faculty description</string>
-    <string name="title_activity_timetable_image_full_screen">TimetableImageFullScreenActivity</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="add_chair_successful_message">Successful added chair to faculty</string>
+    <string name="failure_add_chair_error">Failure to add chair for faculty</string>
+    <string name="empty_chair_name_error">Please input a chair name</string>
 </resources>
