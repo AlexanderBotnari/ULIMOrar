@@ -188,15 +188,6 @@ public class GroupActivity extends AppCompatActivity {
             case R.id.faculty:
                 startActivity(new Intent(GroupActivity.this, FacultyActivity.class));
                 return true;
-            case R.id.chair:
-                startActivity(new Intent(GroupActivity.this, ChairActivity.class));
-                return true;
-            case R.id.group:
-                startActivity(new Intent(GroupActivity.this, GroupActivity.class));
-                return true;
-            case R.id.timetable:
-                startActivity(new Intent(GroupActivity.this, TimetableActivity.class));
-                return true;
             case R.id.users:
                 startActivity(new Intent(GroupActivity.this, UsersActivity.class));
                 return true;

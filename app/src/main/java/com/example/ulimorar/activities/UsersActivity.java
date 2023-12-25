@@ -235,15 +235,6 @@ public class UsersActivity extends AppCompatActivity {
             case R.id.faculty:
                 startActivity(new Intent(UsersActivity.this, FacultyActivity.class));
                 return true;
-            case R.id.chair:
-                startActivity(new Intent(UsersActivity.this, ChairActivity.class));
-                return true;
-            case R.id.group:
-                startActivity(new Intent(UsersActivity.this, GroupActivity.class));
-                return true;
-            case R.id.timetable:
-                startActivity(new Intent(UsersActivity.this, TimetableActivity.class));
-                return true;
             case R.id.users:
                 startActivity(new Intent(UsersActivity.this, UsersActivity.class));
                 return true;
