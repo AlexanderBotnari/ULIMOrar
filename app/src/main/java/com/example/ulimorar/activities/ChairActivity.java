@@ -17,12 +17,11 @@ import com.example.ulimorar.R;
 import com.example.ulimorar.adapters.ChairAdapter;
 import com.example.ulimorar.entities.Chair;
 import com.example.ulimorar.entities.Faculty;
-import com.example.ulimorar.utils.GetDialogsStandartButtons;
+import com.example.ulimorar.utils.GetDialogsStandardButtons;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -107,14 +106,14 @@ public class ChairActivity extends AppCompatActivity {
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         alertDialog.show();
 
-        GetDialogsStandartButtons.getSaveButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
+        GetDialogsStandardButtons.getSaveButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 addNewChairToFaculty(chairNameEditText.getText().toString());
             }
         });
 
-        GetDialogsStandartButtons.getCancelButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
+        GetDialogsStandardButtons.getCancelButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 alertDialog.cancel();

@@ -1,7 +1,6 @@
 package com.example.ulimorar.activities;
 
 import android.content.Intent;
-import android.text.Editable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -11,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import com.example.ulimorar.R;
-import com.example.ulimorar.utils.ProvideAdminAuthData;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -91,7 +89,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = auth.getCurrentUser();
-        if(currentUser != null && ProvideAdminAuthData.ADMIN_LOGIN.equals(currentUser.getEmail())){
+        if(currentUser != null){
             startActivity(new Intent(LoginActivity.this, FacultyActivity.class));
         }
     }

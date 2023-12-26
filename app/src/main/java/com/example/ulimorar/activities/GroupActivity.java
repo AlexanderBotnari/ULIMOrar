@@ -5,9 +5,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.util.Log;
 import android.view.*;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -21,7 +19,7 @@ import com.example.ulimorar.adapters.GroupAdapter;
 import com.example.ulimorar.entities.Chair;
 import com.example.ulimorar.entities.Faculty;
 import com.example.ulimorar.entities.Group;
-import com.example.ulimorar.utils.GetDialogsStandartButtons;
+import com.example.ulimorar.utils.GetDialogsStandardButtons;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -119,7 +117,7 @@ public class GroupActivity extends AppCompatActivity {
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         alertDialog.show();
 
-        GetDialogsStandartButtons.getSaveButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
+        GetDialogsStandardButtons.getSaveButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 addNewGroupToChair(groupNameEditText.getText().toString(),
@@ -127,7 +125,7 @@ public class GroupActivity extends AppCompatActivity {
             }
         });
 
-        GetDialogsStandartButtons.getCancelButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
+        GetDialogsStandardButtons.getCancelButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 alertDialog.cancel();

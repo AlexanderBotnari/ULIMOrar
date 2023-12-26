@@ -4,7 +4,7 @@ import android.view.View;
 import android.widget.Button;
 import com.example.ulimorar.R;
 
-public class GetDialogsStandartButtons {
+public class GetDialogsStandardButtons {
 
     public static Button getSaveButton(View view) {
         return view.findViewById(R.id.saveButton);

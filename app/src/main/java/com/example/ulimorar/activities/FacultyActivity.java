@@ -24,10 +24,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.ulimorar.R;
 import com.example.ulimorar.adapters.FacultyAdapter;
 import com.example.ulimorar.entities.Faculty;
-import com.example.ulimorar.utils.GetDialogsStandartButtons;
+import com.example.ulimorar.utils.GetDialogsStandardButtons;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,7 +38,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class FacultyActivity extends AppCompatActivity {
 
@@ -136,7 +134,7 @@ public class FacultyActivity extends AppCompatActivity {
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         alertDialog.show();
 
-        GetDialogsStandartButtons.getSaveButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
+        GetDialogsStandardButtons.getSaveButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String facultyName = facultyNameInputLayout.getEditText().getText().toString();
@@ -145,7 +143,7 @@ public class FacultyActivity extends AppCompatActivity {
             }
         });
 
-        GetDialogsStandartButtons.getCancelButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
+        GetDialogsStandardButtons.getCancelButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 alertDialog.cancel();

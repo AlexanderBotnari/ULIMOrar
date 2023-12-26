@@ -7,8 +7,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
 import android.view.*;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,7 +17,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.ulimorar.R;
 import com.example.ulimorar.adapters.UserAdapter;
 import com.example.ulimorar.entities.User;
-import com.example.ulimorar.utils.GetDialogsStandartButtons;
+import com.example.ulimorar.utils.GetDialogsStandardButtons;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -43,6 +42,7 @@ public class UsersActivity extends AppCompatActivity {
     private TextInputLayout idnpInputLayout;
     private FloatingActionButton addUserButton;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private Spinner roleSpinner;
 
     private RecyclerView userRecyclerView;
     private UserAdapter userAdapter;
@@ -90,12 +90,24 @@ public class UsersActivity extends AppCompatActivity {
 
         TextView titleTextView = alertDialogCustomView.findViewById(R.id.dialogTitleTextView);
         titleTextView.setText(dialogTitle);
+        roleSpinner = alertDialogCustomView.findViewById(R.id.roleSpinner);
         firstNameInputLayout = alertDialogCustomView.findViewById(R.id.firstNameTextField);
         lastNameInputLayout = alertDialogCustomView.findViewById(R.id.lastNameTextField);
         emailInputLayout = alertDialogCustomView.findViewById(R.id.emailTextField);
         idnpInputLayout = alertDialogCustomView.findViewById(R.id.idnpTextField);
         passwordInputLayout = alertDialogCustomView.findViewById(R.id.passwordTextField);
         confirmPasswordInputLayout = alertDialogCustomView.findViewById(R.id.confirmPasswordTextField);
+
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.roleSpinnerArray,
+                android.R.layout.simple_spinner_item
+        );
+        // Specify the layout to use when the list of choices appears.
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner.
+        roleSpinner.setAdapter(adapter);
 
         // Personalized dialog interface
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -106,20 +118,21 @@ public class UsersActivity extends AppCompatActivity {
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         alertDialog.show();
 
-        GetDialogsStandartButtons.getSaveButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
+        GetDialogsStandardButtons.getSaveButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String firstName = firstNameInputLayout.getEditText().getText().toString();
                 String lastName = lastNameInputLayout.getEditText().getText().toString();
                 String email = emailInputLayout.getEditText().getText().toString();
                 String idnp = idnpInputLayout.getEditText().getText().toString();
+                String role = roleSpinner.getSelectedItem().toString();
                 String password = passwordInputLayout.getEditText().getText().toString();
                 String confirmPassword = confirmPasswordInputLayout.getEditText().getText().toString();
-                addUser(firstName, lastName, email, idnp, password, confirmPassword);
+                addUser(firstName, lastName, email, idnp, role, password, confirmPassword);
             }
         });
 
-        GetDialogsStandartButtons.getCancelButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
+        GetDialogsStandardButtons.getCancelButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 alertDialog.cancel();
@@ -127,7 +140,7 @@ public class UsersActivity extends AppCompatActivity {
         });
     }
 
-    public void addUser(String firstName, String lastName, String email, String idnp, String password, String confirmPassword) {
+    public void addUser(String firstName, String lastName, String email, String idnp, String role, String password, String confirmPassword) {
         // Validate input data
         boolean isValid = true; // Add a flag to track overall validity
 
@@ -175,7 +188,7 @@ public class UsersActivity extends AppCompatActivity {
             // Generate unique ID for user
             String userId = userDbReference.push().getKey();
 
-            User user = new User(userId, firstName, lastName, email, idnp, password);
+            User user = new User(userId, firstName, lastName, email, idnp, role, password);
 
             // Add the user to the database
             userDbReference.child(userId).setValue(user).addOnCompleteListener(task -> {

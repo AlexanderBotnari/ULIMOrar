@@ -27,6 +27,7 @@
     <string name="timetable_name">Timetable name</string>
     <string name="group_name">Group name</string>
     <string name="group_symbol">Group symbol</string>
+    <string name="role_spinner_title">Role</string>
 
     <!--    Buttons-->
     <string name="login_button">LOGIN</string>
@@ -74,4 +75,5 @@
     <string name="empty_timetable_name_error">Please input a timetable name</string>
     <string name="image_uploaded_successful_message">Image uploaded successfully</string>
     <string name="failure_image_upload">Failed to upload image</string>
+
 </resources>
