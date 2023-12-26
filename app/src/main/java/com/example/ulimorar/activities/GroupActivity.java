@@ -26,6 +26,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +40,8 @@ public class GroupActivity extends AppCompatActivity {
     private FloatingActionButton addGroupButton;
     private TextView titleTextView;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private TextInputLayout groupNameTextInput;
+    private TextInputLayout groupSymbolTextInput;
 
     private Chair currentChair;
     private Faculty currentFaculty;
@@ -49,6 +53,8 @@ public class GroupActivity extends AppCompatActivity {
     private DatabaseReference chairsDatabaseReference;
 
     private String currentChairKey;
+
+    private AlertDialog alertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,15 +105,17 @@ public class GroupActivity extends AppCompatActivity {
 
         TextView titleTextView = alertDialogCustomView.findViewById(R.id.dialogTitleTextView);
         titleTextView.setText(dialogTitle);
-        EditText groupNameEditText = alertDialogCustomView.findViewById(R.id.groupNameEditText);
-        EditText groupSymbolEditText = alertDialogCustomView.findViewById(R.id.groupSymbolEditText);
+        groupNameTextInput = alertDialogCustomView.findViewById(R.id.groupNameTextInput);
+        groupSymbolTextInput = alertDialogCustomView.findViewById(R.id.groupSymbolTextInput);
+        TextInputEditText groupNameEditText = (TextInputEditText) groupNameTextInput.getEditText();
+        TextInputEditText groupSymbolEditText = (TextInputEditText) groupSymbolTextInput.getEditText();
 
         // Construiți interfața de dialog personalizată
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(alertDialogCustomView);
 
         // Afișați dialogul
-        AlertDialog alertDialog = builder.create();
+        alertDialog = builder.create();
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         alertDialog.show();
 
@@ -116,7 +124,6 @@ public class GroupActivity extends AppCompatActivity {
             public void onClick(View view) {
                 addNewGroupToChair(groupNameEditText.getText().toString(),
                                     groupSymbolEditText.getText().toString());
-                alertDialog.dismiss();
             }
         });
 
@@ -129,7 +136,24 @@ public class GroupActivity extends AppCompatActivity {
     }
 
     private void addNewGroupToChair(String groupName, String groupSymbol) {
-        if (!groupName.isEmpty() && !groupSymbol.isEmpty()){
+
+        boolean isValid = true;
+
+        if (groupName.isEmpty()){
+            groupNameTextInput.setError(getText(R.string.empty_group_name_error));
+            isValid = false;
+        }else {
+            groupNameTextInput.setError(null);
+        }
+
+        if (groupSymbol.isEmpty()){
+            groupSymbolTextInput.setError(getText(R.string.empty_group_symbol_error));
+            isValid = false;
+        }else {
+            groupSymbolTextInput.setError(null);
+        }
+
+        if (isValid){
             if (groupSymbol.length() <= 3) {
                 Group group = new Group(groupName, groupSymbol);
                 groupList.add(group);
@@ -140,13 +164,13 @@ public class GroupActivity extends AppCompatActivity {
                     chairsDatabaseReference.child(currentChairKey).setValue(currentChair).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull @NotNull Task<Void> task) {
-                            Toast.makeText(GroupActivity.this, "Successful added group to chair!", Toast.LENGTH_SHORT).show();
-
+                            Toast.makeText(GroupActivity.this, R.string.add_group_successful_message, Toast.LENGTH_SHORT).show();
+                            alertDialog.dismiss();
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull @NotNull Exception e) {
-                            Toast.makeText(GroupActivity.this, "Failed add group for chair!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(GroupActivity.this, R.string.failure_add_group_error, Toast.LENGTH_SHORT).show();
                         }
                     });
                 }

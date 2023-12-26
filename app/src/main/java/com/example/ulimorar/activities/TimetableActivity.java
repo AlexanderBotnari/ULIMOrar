@@ -34,6 +34,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
 import com.google.firebase.storage.FirebaseStorage;
@@ -52,8 +54,8 @@ public class TimetableActivity extends AppCompatActivity {
     private Uri selectedImageUri;
 
     private FloatingActionButton addTimetableButton;
-    private EditText timetableNameEditText;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private TextInputLayout timetableNameTextInput;
 
     private Group currentGroup;
     private Faculty currentFaculty;
@@ -135,7 +137,8 @@ public class TimetableActivity extends AppCompatActivity {
 
         TextView titleTextView = alertDialogCustomView.findViewById(R.id.dialogTitleTextView);
         titleTextView.setText(dialogTitle);
-        timetableNameEditText = alertDialogCustomView.findViewById(R.id.timetableNameEditText);
+        timetableNameTextInput = alertDialogCustomView.findViewById(R.id.timetableNameTextInput);
+        TextInputEditText timetableNameEditText = (TextInputEditText) timetableNameTextInput.getEditText();
         ImageButton addTimetableImageButton = alertDialogCustomView.findViewById(R.id.timetableAddImageButton);
 
         addTimetableImageButton.setOnClickListener(new View.OnClickListener() {
@@ -159,7 +162,6 @@ public class TimetableActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 addNewTimetableToGroup(timetableNameEditText.getText().toString());
-                alertDialog.dismiss();
             }
         });
 
@@ -182,7 +184,7 @@ public class TimetableActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             // Image uploaded successfully
-                            Toast.makeText(TimetableActivity.this, "Image uploaded successfully", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(TimetableActivity.this, R.string.image_uploaded_successful_message, Toast.LENGTH_SHORT).show();
 
                             // Get the download URL and update the faculty by id in realtime database
                             imageFacultyRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
@@ -198,7 +200,7 @@ public class TimetableActivity extends AppCompatActivity {
                         @Override
                         public void onFailure(Exception e) {
                             // Handle unsuccessful uploads
-                            Toast.makeText(TimetableActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(TimetableActivity.this, R.string.failure_image_upload, Toast.LENGTH_SHORT).show();
                         }
                     });
         }
@@ -206,7 +208,16 @@ public class TimetableActivity extends AppCompatActivity {
 
     private void addNewTimetableToGroup(String timetableName) {
 
-        if (!timetableName.isEmpty()){
+        boolean isValid = true;
+
+        if (timetableName.isEmpty()){
+            timetableNameTextInput.setError(getText(R.string.empty_timetable_name_error));
+            isValid = false;
+        }else{
+            timetableNameTextInput.setError(null);
+        }
+
+        if (isValid){
 
             Timetable timetable = new Timetable(timetableName, new Date().getTime());
 
@@ -216,13 +227,13 @@ public class TimetableActivity extends AppCompatActivity {
             groupsDatabaseReference.child(groupIndex).setValue(currentGroup).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull @NotNull Task<Void> task) {
-                            Toast.makeText(TimetableActivity.this, "Successful added timetable!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(TimetableActivity.this, R.string.add_timetable_successful_message, Toast.LENGTH_SHORT).show();
                             alertDialog.dismiss();
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull @NotNull Exception e) {
-                            Toast.makeText(TimetableActivity.this, "Failed to add timetable!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(TimetableActivity.this, R.string.failure_add_timetable_error, Toast.LENGTH_SHORT).show();
                             Log.d("FailureAddTimetable", e.getMessage());
                         }
                     });

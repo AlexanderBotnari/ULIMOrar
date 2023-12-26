@@ -65,4 +65,13 @@
     <string name="add_chair_successful_message">Successful added chair to faculty</string>
     <string name="failure_add_chair_error">Failure to add chair for faculty</string>
     <string name="empty_chair_name_error">Please input a chair name</string>
+    <string name="add_group_successful_message">Successful added group to chair</string>
+    <string name="failure_add_group_error">Failed add group for chair</string>
+    <string name="empty_group_name_error">Please input a group name</string>
+    <string name="empty_group_symbol_error">Please input a group symbol</string>
+    <string name="add_timetable_successful_message">Successful added timetable</string>
+    <string name="failure_add_timetable_error">Failed to add timetable</string>
+    <string name="empty_timetable_name_error">Please input a timetable name</string>
+    <string name="image_uploaded_successful_message">Image uploaded successfully</string>
+    <string name="failure_image_upload">Failed to upload image</string>
 </resources>

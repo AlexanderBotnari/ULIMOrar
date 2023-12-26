@@ -164,7 +164,7 @@ public class FacultyActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             // Image uploaded successfully
-                            Toast.makeText(FacultyActivity.this, "Image uploaded successfully", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(FacultyActivity.this, R.string.image_uploaded_successful_message, Toast.LENGTH_SHORT).show();
 
                             // Get the download URL and update the faculty by id in realtime database
                             imageFacultyRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
@@ -180,7 +180,7 @@ public class FacultyActivity extends AppCompatActivity {
                         @Override
                         public void onFailure(Exception e) {
                             // Handle unsuccessful uploads
-                            Toast.makeText(FacultyActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(FacultyActivity.this, R.string.failure_image_upload, Toast.LENGTH_SHORT).show();
                         }
                     });
         }

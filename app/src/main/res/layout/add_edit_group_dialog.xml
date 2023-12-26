@@ -21,27 +21,43 @@
                 android:gravity="center"
         />
 
-        <EditText
-                android:id="@+id/groupNameEditText"
-                android:inputType="text"
+        <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/groupNameTextInput"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginBottom="4dp"
-                android:hint="@string/group_name" />
+                android:hint="@string/group_name"
+                app:hintTextColor="@color/stroke_color"
+                app:errorEnabled="true"
+                app:endIconMode="clear_text"
+                app:boxStrokeColor="@color/stroke_color">
 
-        <EditText
-                android:id="@+id/groupSymbolEditText"
-                android:inputType="text"
+            <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/groupNameEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+            />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/groupSymbolTextInput"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginBottom="4dp"
-                android:hint="@string/group_symbol" />
+                android:hint="@string/group_symbol"
+                app:hintTextColor="@color/stroke_color"
+                app:errorEnabled="true"
+                app:endIconMode="clear_text"
+                app:boxStrokeColor="@color/stroke_color">
+
+            <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/groupSymbolEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+            />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
                 android:layout_width="match_parent"
