@@ -23,6 +23,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         this.users = users;
     }
 
+    public List<User> getUsers() {
+        return users;
+    }
+
     @NonNull
     @NotNull
     @Override

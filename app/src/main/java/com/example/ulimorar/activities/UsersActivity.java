@@ -3,6 +3,7 @@ package com.example.ulimorar.activities;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -18,6 +20,8 @@ import com.example.ulimorar.R;
 import com.example.ulimorar.adapters.UserAdapter;
 import com.example.ulimorar.entities.User;
 import com.example.ulimorar.utils.GetDialogsStandardButtons;
+import com.example.ulimorar.utils.controllers.SwipeController;
+import com.example.ulimorar.utils.controllers.SwipeControllerActions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -49,6 +53,8 @@ public class UsersActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager layoutManager;
     private List<User> users;
 
+    private SwipeController swipeController;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,13 +67,8 @@ public class UsersActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
 
         addUserButton = findViewById(R.id.addUserFloatingButton);
-        userRecyclerView = findViewById(R.id.usersRecyclerView);
-        users = new ArrayList<>();
-        layoutManager = new LinearLayoutManager(this);
-        userRecyclerView.setHasFixedSize(true);
-        userRecyclerView.setLayoutManager(layoutManager);
-        userAdapter = new UserAdapter(this, users);
-        userRecyclerView.setAdapter(userAdapter);
+
+        setupRecyclerView();
 
         addUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,6 +82,35 @@ public class UsersActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 getUsers();
+            }
+        });
+
+    }
+
+    private void setupRecyclerView() {
+        userRecyclerView = findViewById(R.id.usersRecyclerView);
+        users = new ArrayList<>();
+        layoutManager = new LinearLayoutManager(this);
+        userRecyclerView.setHasFixedSize(true);
+        userRecyclerView.setLayoutManager(layoutManager);
+        userAdapter = new UserAdapter(this, users);
+        userRecyclerView.setAdapter(userAdapter);
+
+        swipeController = new SwipeController(new SwipeControllerActions() {
+            @Override
+            public void onRightClicked (int position) {
+                userAdapter.getUsers().remove(position);
+                userAdapter.notifyItemRemoved(position);
+                userAdapter.notifyItemRangeChanged(position, userAdapter.getItemCount());
+            }
+        });
+        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+        itemTouchhelper.attachToRecyclerView(userRecyclerView);
+
+        userRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                swipeController.onDraw(c);
             }
         });
     }
