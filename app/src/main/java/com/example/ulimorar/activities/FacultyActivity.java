@@ -24,12 +24,15 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.ulimorar.R;
 import com.example.ulimorar.adapters.FacultyAdapter;
 import com.example.ulimorar.entities.Faculty;
+import com.example.ulimorar.entities.User;
+import com.example.ulimorar.entities.enums.UserRole;
 import com.example.ulimorar.utils.GetDialogsStandardButtons;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.*;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -47,7 +50,8 @@ public class FacultyActivity extends AppCompatActivity {
     private FloatingActionButton addFacultyButton;
 
     private DatabaseReference facultiesDatabaseReference;
-    private FirebaseAuth auth;
+    private DatabaseReference usersDatabaseReference;
+    private String authenticatedUserEmail;
     private FirebaseStorage storage;
     private StorageReference storageReference;
 
@@ -63,14 +67,21 @@ public class FacultyActivity extends AppCompatActivity {
 
     private Uri selectedImageUri;
 
+    private Menu activityMenu;
+
+    private boolean isAdminFlag = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle(R.string.faculty_activity_title);
         setContentView(R.layout.activity_faculty);
 
+        authenticatedUserEmail = getIntent().getStringExtra("currentUserEmail");
+        usersDatabaseReference = FirebaseDatabase.getInstance().getReference("users");
+        getUserByEmail(authenticatedUserEmail);
+
         facultiesDatabaseReference = FirebaseDatabase.getInstance().getReference("faculties");
-        auth = FirebaseAuth.getInstance();
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
 
@@ -82,6 +93,7 @@ public class FacultyActivity extends AppCompatActivity {
         recyclerView.setAdapter(facultyAdapter);
 
         addFacultyButton = findViewById(R.id.addFacultyFloatingButton);
+        addFacultyButton.setVisibility(View.INVISIBLE);
         addFacultyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -226,6 +238,43 @@ public class FacultyActivity extends AppCompatActivity {
         }
     }
 
+    private boolean userIsAdmin(User user){
+        return user.getRole().equals(UserRole.ADMIN.toString());
+    }
+
+    private void getUserByEmail(String userEmail) {
+        Query query = usersDatabaseReference.orderByChild("email").equalTo(userEmail);
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // User found
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        // Access user data
+                        User authenticatedUserFromDb = snapshot.getValue(User.class);
+                        if (authenticatedUserFromDb != null){
+                            if (userIsAdmin(authenticatedUserFromDb)){
+                                isAdminFlag = true;
+                                addFacultyButton.setVisibility(View.VISIBLE);
+                                activityMenu.findItem(R.id.faculty).setVisible(true);
+                                activityMenu.findItem(R.id.users).setVisible(true);
+                            }
+                        }
+                    }
+                } else {
+                    // User not found
+                    Log.d("User Data", "User not found for email: " + userEmail);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("Error", "Failed to read user data.", databaseError.toException());
+            }
+        });
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -261,6 +310,14 @@ public class FacultyActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
+        activityMenu = menu;
+        if (isAdminFlag){
+            activityMenu.findItem(R.id.faculty).setVisible(true);
+            activityMenu.findItem(R.id.users).setVisible(true);
+        }else{
+            activityMenu.findItem(R.id.faculty).setVisible(false);
+            activityMenu.findItem(R.id.users).setVisible(false);
+        }
         return true;
     }
 
