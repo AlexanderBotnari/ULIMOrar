@@ -37,6 +37,7 @@ public class UsersActivity extends AppCompatActivity {
 
     private DatabaseReference userDbReference;
     private FirebaseAuth auth;
+    private String authenticatedUserEmail;
 
     private TextInputLayout passwordInputLayout;
     private TextInputLayout confirmPasswordInputLayout;
@@ -61,6 +62,7 @@ public class UsersActivity extends AppCompatActivity {
         setTitle(R.string.users_activity_title);
         setContentView(R.layout.activity_users);
 
+        authenticatedUserEmail = getIntent().getStringExtra("currentUserEmail");
 //      "users" is the name of the module to storage data
         userDbReference = FirebaseDatabase.getInstance().getReference("users");
 
@@ -289,7 +291,7 @@ public class UsersActivity extends AppCompatActivity {
         // Handle item selection.
         switch (item.getItemId()) {
             case R.id.faculty:
-                startActivity(new Intent(UsersActivity.this, FacultyActivity.class));
+                startActivity(new Intent(UsersActivity.this, FacultyActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
                 return true;
             case R.id.users:
                 startActivity(new Intent(UsersActivity.this, UsersActivity.class));

@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import androidx.annotation.NonNull;
@@ -39,6 +40,8 @@ public class ChairActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefreshLayout;
 
     private Faculty currentFaculty;
+    private boolean isAdmin;
+    private String authenticatedUserEmail;
 
     private List<Chair> chairsList;
     private RecyclerView chairRecyclerView;
@@ -56,12 +59,18 @@ public class ChairActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         currentFaculty = (Faculty) intent.getSerializableExtra("facultyFromIntent");
+        isAdmin = intent.getBooleanExtra("userIsAdmin", false);
+        authenticatedUserEmail = intent.getStringExtra("currentUserEmail");
 
         chairsList = new ArrayList<>();
 
         facultiesDatabaseReference = FirebaseDatabase.getInstance().getReference().child("faculties");
 
         addChairButton = findViewById(R.id.addChairFloatingButton);
+        if (!isAdmin){
+            addChairButton.setVisibility(View.GONE);
+        }
+
         titleTextView = findViewById(R.id.titleTextView);
         chairRecyclerView = findViewById(R.id.chairRecycleView);
         chairAdapter = new ChairAdapter(chairsList, this, currentFaculty);
@@ -185,31 +194,13 @@ public class ChairActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return true;
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home){
+            setResult(RESULT_OK, new Intent(ChairActivity.this, FacultyActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
-    @SuppressLint("NonConstantResourceId")
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent;
-        // Handle item selection.
-        switch (item.getItemId()) {
-            case R.id.faculty:
-                startActivity(new Intent(ChairActivity.this, FacultyActivity.class));
-                return true;
-            case R.id.users:
-                startActivity(new Intent(ChairActivity.this, UsersActivity.class));
-                return true;
-            case R.id.logout:
-                Toast.makeText(this, R.string.logout_message, Toast.LENGTH_LONG).show();
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(ChairActivity.this, LoginActivity.class));
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 }

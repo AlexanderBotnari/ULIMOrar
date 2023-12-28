@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.*;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -44,7 +46,9 @@ import java.util.List;
 
 public class FacultyActivity extends AppCompatActivity {
 
-    private static final int PICK_IMAGE_REQUEST = 1;
+    public static final int PICK_IMAGE_REQUEST = 1;
+    public static final int REQUEST_CODE = 1;
+
     private ActivityResultLauncher<Intent> imagePickerLauncher;
 
     private FloatingActionButton addFacultyButton;
@@ -256,9 +260,16 @@ public class FacultyActivity extends AppCompatActivity {
                         if (authenticatedUserFromDb != null){
                             if (userIsAdmin(authenticatedUserFromDb)){
                                 isAdminFlag = true;
+                                facultyAdapter.setAdmin(true);
                                 addFacultyButton.setVisibility(View.VISIBLE);
-                                activityMenu.findItem(R.id.faculty).setVisible(true);
-                                activityMenu.findItem(R.id.users).setVisible(true);
+                                try {
+                                    activityMenu.findItem(R.id.users).setVisible(true);
+                                }catch (Exception ignored){
+
+                                }
+                            }else{
+                                isAdminFlag = false;
+                                facultyAdapter.setAdmin(false);
                             }
                         }
                     }
@@ -278,7 +289,53 @@ public class FacultyActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        getFaculties();
+        facultyAdapter.setAuthenticatedUserEmail(authenticatedUserEmail);
+        swipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefreshLayout.setRefreshing(true);
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Simulează un proces de reîmprospătare inițial
+                        try {
+                            Thread.sleep(2000); // Simulează un proces de reîmprospătare care durează 2 secunde
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        // Procesează datele în fundal
+                        getFaculties();
+
+                        // Actualizează UI-ul în firul principal
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Opriți indicatorul de reîmprospătare
+                                swipeRefreshLayout.setRefreshing(false);
+                            }
+                        });
+                    }
+                }).start();
+            }
+        });
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                swipeRefreshLayout.setRefreshing(true);
+//                getFaculties();
+//            }
+//        }, 2000);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            authenticatedUserEmail = data.getStringExtra("currentUserEmail");
+        }
     }
 
     private void getFaculties() {
@@ -311,13 +368,8 @@ public class FacultyActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
         activityMenu = menu;
-        if (isAdminFlag){
-            activityMenu.findItem(R.id.faculty).setVisible(true);
-            activityMenu.findItem(R.id.users).setVisible(true);
-        }else{
-            activityMenu.findItem(R.id.faculty).setVisible(false);
-            activityMenu.findItem(R.id.users).setVisible(false);
-        }
+        activityMenu.findItem(R.id.faculty).setVisible(false);
+        activityMenu.findItem(R.id.users).setVisible(isAdminFlag);
         return true;
     }
 
@@ -327,11 +379,8 @@ public class FacultyActivity extends AppCompatActivity {
         Intent intent;
         // Handle item selection.
         switch (item.getItemId()) {
-            case R.id.faculty:
-                startActivity(new Intent(FacultyActivity.this, FacultyActivity.class));
-                return true;
             case R.id.users:
-                startActivity(new Intent(FacultyActivity.this, UsersActivity.class));
+                startActivity(new Intent(FacultyActivity.this, UsersActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
                 return true;
             case R.id.logout:
                 Toast.makeText(this, R.string.logout_message, Toast.LENGTH_LONG).show();

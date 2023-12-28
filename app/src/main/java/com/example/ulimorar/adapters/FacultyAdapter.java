@@ -11,8 +11,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.ulimorar.R;
 import com.example.ulimorar.activities.ChairActivity;
+import com.example.ulimorar.activities.FacultyActivity;
 import com.example.ulimorar.entities.Faculty;
 import com.squareup.picasso.Picasso;
 import org.jetbrains.annotations.NotNull;
@@ -21,11 +23,21 @@ import java.util.List;
 public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyViewHolder> {
 
     private List<Faculty> faculties;
-    private Context context;
+    private FacultyActivity facultyActivity;
+    private boolean isAdmin;
+    private String authenticatedUserEmail;
 
-    public FacultyAdapter(List<Faculty> faculties, Context context) {
+    public FacultyAdapter(List<Faculty> faculties, FacultyActivity facultyActivity) {
         this.faculties = faculties;
-        this.context = context;
+        this.facultyActivity = facultyActivity;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
+
+    public void setAuthenticatedUserEmail(String authenticatedUserEmail) {
+        this.authenticatedUserEmail = authenticatedUserEmail;
     }
 
     @NonNull
@@ -47,25 +59,35 @@ public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyV
         holder.viewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context, ChairActivity.class);
+                Intent intent = new Intent(facultyActivity, ChairActivity.class);
                 intent.putExtra("facultyFromIntent", faculty);
-                context.startActivity(intent);
+                intent.putExtra("userIsAdmin", isAdmin);
+                intent.putExtra("currentUserEmail", authenticatedUserEmail);
+                facultyActivity.startActivityForResult(intent, FacultyActivity.REQUEST_CODE);
             }
         });
 
-        holder.editFacultyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(context, "Edit Faculty clicked!", Toast.LENGTH_SHORT).show();
-            }
-        });
+        if (isAdmin){
+            holder.editFacultyButton.setVisibility(View.VISIBLE);
+            holder.deleteFacultyButton.setVisibility(View.VISIBLE);
+            holder.editFacultyButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(facultyActivity, "Edit Faculty clicked!", Toast.LENGTH_SHORT).show();
+                }
+            });
 
-        holder.deleteFacultyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(context, "Delete faulty clicked!", Toast.LENGTH_SHORT).show();
-            }
-        });
+            holder.deleteFacultyButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(facultyActivity, "Delete faulty clicked!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }else{
+            holder.editFacultyButton.setVisibility(View.INVISIBLE);
+            holder.deleteFacultyButton.setVisibility(View.INVISIBLE);
+        }
+
     }
 
     @Override
