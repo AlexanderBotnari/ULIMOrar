@@ -2,6 +2,7 @@ package com.example.ulimorar.activities;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -25,6 +26,7 @@ import com.example.ulimorar.utils.controllers.SwipeControllerActions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -55,6 +57,8 @@ public class UsersActivity extends AppCompatActivity {
     private List<User> users;
 
     private SwipeController swipeController;
+
+    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +105,7 @@ public class UsersActivity extends AppCompatActivity {
         swipeController = new SwipeController(new SwipeControllerActions() {
             @Override
             public void onRightClicked (int position) {
+                deleteUserByEmail(UsersActivity.this, userAdapter.getUsers().get(position));
                 userAdapter.getUsers().remove(position);
                 userAdapter.notifyItemRemoved(position);
                 userAdapter.notifyItemRangeChanged(position, userAdapter.getItemCount());
@@ -230,6 +235,7 @@ public class UsersActivity extends AppCompatActivity {
                             .addOnCompleteListener(authTask -> {
                                 if (authTask.isSuccessful()) {
                                     Toast.makeText(UsersActivity.this, R.string.add_user_successful_message, Toast.LENGTH_SHORT).show();
+                                    auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
                                 } else {
                                     Toast.makeText(UsersActivity.this, R.string.add_user_failure_message, Toast.LENGTH_SHORT).show();
                                     Log.d("FailureAddUser", authTask.getException().getMessage());
@@ -242,6 +248,95 @@ public class UsersActivity extends AppCompatActivity {
                     Log.d("FailureAddUser", task.getException().getMessage());
                 }
             });
+        }
+    }
+
+    private void getUserByEmail(String userEmail) {
+        Query query = userDbReference.orderByChild("email").equalTo(userEmail);
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // User found
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        // Access user data
+                        User authenticatedUserFromDb = snapshot.getValue(User.class);
+                        if (authenticatedUserFromDb != null){
+                            currentUser = authenticatedUserFromDb;
+                        }
+                    }
+                } else {
+                    // User not found
+                    Log.d("User Data", "User not found for email: " + userEmail);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("Error", "Failed to read user data.", databaseError.toException());
+            }
+        });
+    }
+
+    public void deleteUserByEmail(Context context, User userToDelete) {
+        // Obțineți instanța autentificării Firebase
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+
+        // Obțineți utilizatorul curent
+        FirebaseUser firebaseUser = auth.getCurrentUser();
+        getUserByEmail(firebaseUser.getEmail());
+
+        // Asigurați-vă că utilizatorul curent există și nu este utilizatorul pe care încercați să-l ștergeți
+        if (!firebaseUser.getEmail().equals(userToDelete.getEmail())) {
+            // Autentificați-vă cu adresa de e-mail a utilizatorului pe care doriți să-l ștergeți
+            auth.signInWithEmailAndPassword(userToDelete.getEmail(), userToDelete.getPassword())
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            FirebaseUser user = task.getResult().getUser();
+                            user.delete();
+
+                            // Căutați utilizatorul în baza de date după adresa de e-mail
+                            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
+                            Query query = databaseReference.orderByChild("email").equalTo(userToDelete.getEmail());
+                            query.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                                        // Obțineți cheia utilizatorului găsit și ștergeți-l din baza de date
+                                        String userKey = snapshot.getKey();
+                                        DatabaseReference userReference = databaseReference.child(userKey);
+                                        userReference.removeValue()
+                                                .addOnSuccessListener(aVoid -> {
+                                                    // Utilizatorul a fost șters cu succes din baza de date
+                                                    String message = "User " + userToDelete.getFirstName() + " " +
+                                                            userToDelete.getLastName() + " has been successfully deleted";
+                                                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                                                    auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
+                                                })
+                                                .addOnFailureListener(e -> {
+                                                    // Tratarea erorii la ștergerea din Realtime Database
+                                                    Toast.makeText(context, "Error deleting user from database", Toast.LENGTH_LONG).show();
+                                                });
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                                    // Tratarea erorii la interogarea bazei de date
+                                    Toast.makeText(context, "Database query error", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        } else {
+                            // Tratarea erorii la autentificarea în contul utilizatorului
+                            Toast.makeText(context, "Authentication error", Toast.LENGTH_SHORT).show();
+                            auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
+                        }
+                    });
+        } else {
+            // Tratarea cazului în care utilizatorul curent este null sau este utilizatorul curent
+            Toast.makeText(context, "Cannot delete current user", Toast.LENGTH_SHORT).show();
+            auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
         }
     }
 
