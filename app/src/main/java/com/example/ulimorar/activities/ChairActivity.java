@@ -3,6 +3,7 @@ package com.example.ulimorar.activities;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -19,6 +21,8 @@ import com.example.ulimorar.adapters.ChairAdapter;
 import com.example.ulimorar.entities.Chair;
 import com.example.ulimorar.entities.Faculty;
 import com.example.ulimorar.utils.GetDialogsStandardButtons;
+import com.example.ulimorar.utils.controllers.SwipeController;
+import com.example.ulimorar.utils.controllers.SwipeControllerActions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -38,6 +42,7 @@ public class ChairActivity extends AppCompatActivity {
     private TextView titleTextView;
     private TextInputLayout chairNameTextInput;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private SwipeController swipeController;
 
     private Faculty currentFaculty;
     private boolean isAdmin;
@@ -69,12 +74,8 @@ public class ChairActivity extends AppCompatActivity {
         addChairButton = findViewById(R.id.addChairFloatingButton);
 
         titleTextView = findViewById(R.id.titleTextView);
-        chairRecyclerView = findViewById(R.id.chairRecycleView);
-        chairAdapter = new ChairAdapter(chairsList, this, currentFaculty);
-        chairRecyclerView.setHasFixedSize(true);
-        chairRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        chairRecyclerView.setAdapter(chairAdapter);
-        chairAdapter.setAdmin(true);
+
+        setupRecyclerView();
 
         if (currentFaculty != null){
             titleTextView.setText(currentFaculty.getFacultyName());
@@ -101,6 +102,37 @@ public class ChairActivity extends AppCompatActivity {
         });
 
     }
+
+    private void setupRecyclerView(){
+        chairRecyclerView = findViewById(R.id.chairRecycleView);
+        chairAdapter = new ChairAdapter(chairsList, this, currentFaculty);
+        chairRecyclerView.setHasFixedSize(true);
+        chairRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        chairRecyclerView.setAdapter(chairAdapter);
+        chairAdapter.setAdmin(true);
+
+        if (isAdmin){
+            swipeController = new SwipeController(new SwipeControllerActions() {
+                @Override
+                public void onRightClicked (int position) {
+                    chairAdapter.getChairs().remove(position);
+                    chairAdapter.notifyItemRemoved(position);
+                    chairAdapter.notifyItemRangeChanged(position, chairAdapter.getItemCount());
+                }
+            });
+            ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+            itemTouchhelper.attachToRecyclerView(chairRecyclerView);
+
+            chairRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+                @Override
+                public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                    swipeController.onDraw(c);
+                }
+            });
+        }
+
+    }
+
 
     private void openDialog(int dialogTitle) {
         View alertDialogCustomView = LayoutInflater.from(this).inflate(R.layout.add_edit_chair_dialog, null);

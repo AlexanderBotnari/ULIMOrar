@@ -46,6 +46,10 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHol
         this.authenticatedUserEmail = authenticatedUserEmail;
     }
 
+    public List<Group> getGroups() {
+        return groups;
+    }
+
     @NonNull
     @NotNull
     @Override

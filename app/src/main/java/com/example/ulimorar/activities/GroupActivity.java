@@ -3,6 +3,7 @@ package com.example.ulimorar.activities;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -21,6 +23,8 @@ import com.example.ulimorar.entities.Chair;
 import com.example.ulimorar.entities.Faculty;
 import com.example.ulimorar.entities.Group;
 import com.example.ulimorar.utils.GetDialogsStandardButtons;
+import com.example.ulimorar.utils.controllers.SwipeController;
+import com.example.ulimorar.utils.controllers.SwipeControllerActions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -41,6 +45,7 @@ public class GroupActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefreshLayout;
     private TextInputLayout groupNameTextInput;
     private TextInputLayout groupSymbolTextInput;
+    private SwipeController swipeController;
 
     private Chair currentChair;
     private Faculty currentFaculty;
@@ -76,12 +81,8 @@ public class GroupActivity extends AppCompatActivity {
 
         titleTextView = findViewById(R.id.titleTextView);
         addGroupButton = findViewById(R.id.addGroupFloatingButton);
-        recyclerView = findViewById(R.id.groupRecycleView);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        groupAdapter = new GroupAdapter(groupList, this, currentFaculty, currentChair, currentChairKey);
-        recyclerView.setAdapter(groupAdapter);
-        groupAdapter.setAdmin(true);
+
+        setupRecyclerView();
 
         if (currentChair != null){
             titleTextView.setText(currentChair.getChairName());
@@ -107,6 +108,35 @@ public class GroupActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void setupRecyclerView(){
+        recyclerView = findViewById(R.id.groupRecycleView);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        groupAdapter = new GroupAdapter(groupList, this, currentFaculty, currentChair, currentChairKey);
+        recyclerView.setAdapter(groupAdapter);
+        groupAdapter.setAdmin(true);
+
+        if (isAdmin){
+            swipeController = new SwipeController(new SwipeControllerActions() {
+                @Override
+                public void onRightClicked (int position) {
+                    groupAdapter.getGroups().remove(position);
+                    groupAdapter.notifyItemRemoved(position);
+                    groupAdapter.notifyItemRangeChanged(position, groupAdapter.getItemCount());
+                }
+            });
+            ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+            itemTouchhelper.attachToRecyclerView(recyclerView);
+
+            recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+                @Override
+                public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                    swipeController.onDraw(c);
+                }
+            });
+        }
     }
 
     private void openDialog(int dialogTitle) {

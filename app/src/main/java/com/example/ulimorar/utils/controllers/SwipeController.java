@@ -1,14 +1,19 @@
 package com.example.ulimorar.utils.controllers;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.view.MotionEvent;
 import android.view.View;
 import static androidx.recyclerview.widget.ItemTouchHelper.*;
+
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+import com.example.ulimorar.R;
 
 enum ButtonsState {
     GONE,
@@ -156,32 +161,35 @@ public class SwipeController extends Callback {
         Paint p = new Paint();
 
         RectF leftButton = new RectF(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + buttonWidthWithoutPadding, itemView.getBottom());
-        p.setColor(Color.BLUE);
+        p.setColor(ContextCompat.getColor(viewHolder.itemView.getContext(), R.color.edit_background_color));
         c.drawRoundRect(leftButton, corners, corners, p);
-        drawText("EDIT", c, leftButton, p);
+        drawIcon(R.drawable.ic_edit_white, c, leftButton, p, viewHolder.itemView.getContext());
 
         RectF rightButton = new RectF(itemView.getRight() - buttonWidthWithoutPadding, itemView.getTop(), itemView.getRight(), itemView.getBottom());
-        p.setColor(Color.RED);
+        p.setColor(ContextCompat.getColor(viewHolder.itemView.getContext(), R.color.delete_background_color));
         c.drawRoundRect(rightButton, corners, corners, p);
-        drawText("DELETE", c, rightButton, p);
+        drawIcon(R.drawable.ic_delete_white, c, rightButton, p, viewHolder.itemView.getContext());
 
         buttonInstance = null;
         if (buttonShowedState == ButtonsState.LEFT_VISIBLE) {
             buttonInstance = leftButton;
-        }
-        else if (buttonShowedState == ButtonsState.RIGHT_VISIBLE) {
+        } else if (buttonShowedState == ButtonsState.RIGHT_VISIBLE) {
             buttonInstance = rightButton;
         }
     }
 
-    private void drawText(String text, Canvas c, RectF button, Paint p) {
-        float textSize = 60;
-        p.setColor(Color.WHITE);
-        p.setAntiAlias(true);
-        p.setTextSize(textSize);
-
-        float textWidth = p.measureText(text);
-        c.drawText(text, button.centerX()-(textWidth/2), button.centerY()+(textSize/2), p);
+    private void drawIcon(int drawableResId, Canvas c, RectF button, Paint p, Context context) {
+        Drawable icon = ContextCompat.getDrawable(context, drawableResId);
+        if (icon != null) {
+            int iconSize = Math.min(icon.getIntrinsicWidth(), icon.getIntrinsicHeight());
+            icon.setBounds(
+                    (int) (button.centerX() - iconSize / 2),
+                    (int) (button.centerY() - iconSize / 2),
+                    (int) (button.centerX() + iconSize / 2),
+                    (int) (button.centerY() + iconSize / 2)
+            );
+            icon.draw(c);
+        }
     }
 
     public void onDraw(Canvas c) {

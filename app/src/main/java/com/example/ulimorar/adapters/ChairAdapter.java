@@ -40,6 +40,10 @@ public class ChairAdapter extends RecyclerView.Adapter<ChairAdapter.ChairViewHol
         this.authenticatedUserEmail = authenticatedUserEmail;
     }
 
+    public List<Chair> getChairs() {
+        return chairs;
+    }
+
     @NonNull
     @NotNull
     @Override
