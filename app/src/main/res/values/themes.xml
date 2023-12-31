@@ -16,7 +16,7 @@
         <item name="materialButtonOutlinedStyle">@style/Widget.App.Button.OutlinedButton</item>
     </style>
 
-    <style name="Theme.ULIMNoActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.ULIMNoActionBar" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/white</item>
         <item name="colorPrimaryVariant">@color/background_dark_theme</item>

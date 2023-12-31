@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.ulimorar.R;
@@ -25,10 +26,15 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
 
     private List<Timetable> timetables;
     private Context context;
+    private boolean isAdmin;
 
     public TimetableAdapter(List<Timetable> timetables, Context context) {
         this.timetables = timetables;
         this.context = context;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
     }
 
     @NonNull
@@ -61,6 +67,28 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
                 context.startActivity(intent);
             }
         });
+
+        if (isAdmin){
+            holder.editTimetableButton.setVisibility(View.VISIBLE);
+            holder.deleteTimetableButton.setVisibility(View.VISIBLE);
+
+            holder.editTimetableButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(context, "Edit timetable!", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            holder.deleteTimetableButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(context, "Delete timetable!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }else{
+            holder.editTimetableButton.setVisibility(View.GONE);
+            holder.deleteTimetableButton.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -74,6 +102,8 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
         private TextView sessionNameTextView;
         private TextView timetableDateTextView;
         private Button viewButton;
+        private Button editTimetableButton;
+        private Button deleteTimetableButton;
 
         public TimetableViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
@@ -81,6 +111,9 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
             sessionNameTextView = itemView.findViewById(R.id.sessionNameTextView);
             timetableDateTextView = itemView.findViewById(R.id.timetableDateTextView);
             viewButton = itemView.findViewById(R.id.viewButton);
+            editTimetableButton = itemView.findViewById(R.id.editTimetableButton);
+            deleteTimetableButton = itemView.findViewById(R.id.deleteTimetableButton);
+
         }
     }
 }

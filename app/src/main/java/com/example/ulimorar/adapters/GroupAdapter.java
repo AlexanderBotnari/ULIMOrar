@@ -27,6 +27,8 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHol
     private Faculty currentFaculty;
     private Chair currentChair;
     private String chairIndex;
+    private boolean isAdmin;
+    private String authenticatedUserEmail;
 
     public GroupAdapter(List<Group> groups, Context context, Faculty currentFaculty, Chair currentChair, String chairIndex) {
         this.groups = groups;
@@ -34,6 +36,14 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHol
         this.currentFaculty = currentFaculty;
         this.currentChair = currentChair;
         this.chairIndex = chairIndex;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
+
+    public void setAuthenticatedUserEmail(String authenticatedUserEmail) {
+        this.authenticatedUserEmail = authenticatedUserEmail;
     }
 
     @NonNull
@@ -62,6 +72,8 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHol
                 intent.putExtra("currentChair", currentChair);
                 intent.putExtra("chairIndex", chairIndex);
                 intent.putExtra("groupIndex", String.valueOf(position));
+                intent.putExtra("userIsAdmin", isAdmin);
+                intent.putExtra("currentUserEmail", authenticatedUserEmail);
                 context.startActivity(intent);
             }
         });

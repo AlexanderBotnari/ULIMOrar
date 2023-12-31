@@ -67,9 +67,6 @@ public class ChairActivity extends AppCompatActivity {
         facultiesDatabaseReference = FirebaseDatabase.getInstance().getReference().child("faculties");
 
         addChairButton = findViewById(R.id.addChairFloatingButton);
-        if (!isAdmin){
-            addChairButton.setVisibility(View.GONE);
-        }
 
         titleTextView = findViewById(R.id.titleTextView);
         chairRecyclerView = findViewById(R.id.chairRecycleView);
@@ -77,10 +74,17 @@ public class ChairActivity extends AppCompatActivity {
         chairRecyclerView.setHasFixedSize(true);
         chairRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         chairRecyclerView.setAdapter(chairAdapter);
+        chairAdapter.setAdmin(true);
 
         if (currentFaculty != null){
             titleTextView.setText(currentFaculty.getFacultyName());
         }
+
+        if (!isAdmin){
+            addChairButton.setVisibility(View.GONE);
+            chairAdapter.setAdmin(false);
+        }
+
         addChairButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -165,6 +169,7 @@ public class ChairActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        chairAdapter.setAuthenticatedUserEmail(authenticatedUserEmail);
         getChairs();
     }
 
@@ -196,7 +201,7 @@ public class ChairActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home){
-            setResult(RESULT_OK, new Intent(ChairActivity.this, FacultyActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
+            startActivity(new Intent(ChairActivity.this, FacultyActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
             finish();
             return true;
         }

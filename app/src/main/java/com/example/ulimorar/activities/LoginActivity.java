@@ -33,7 +33,11 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTheme(R.style.Theme_ULIMNoActionBar);
-        setContentView(R.layout.activity_login);
+        try {
+            setContentView(R.layout.activity_login);
+        }catch (Exception ignore){
+
+        }
 
         auth = FirebaseAuth.getInstance();
 

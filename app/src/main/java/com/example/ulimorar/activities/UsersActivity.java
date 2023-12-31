@@ -281,6 +281,7 @@ public class UsersActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
+        menu.findItem(R.id.users).setVisible(false);
         return true;
     }
 
@@ -292,9 +293,6 @@ public class UsersActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.faculty:
                 startActivity(new Intent(UsersActivity.this, FacultyActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
-                return true;
-            case R.id.users:
-                startActivity(new Intent(UsersActivity.this, UsersActivity.class));
                 return true;
             case R.id.logout:
                 Toast.makeText(this, R.string.logout_message, Toast.LENGTH_LONG).show();

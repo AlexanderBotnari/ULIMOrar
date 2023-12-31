@@ -320,23 +320,16 @@ public class FacultyActivity extends AppCompatActivity {
                 }).start();
             }
         });
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                swipeRefreshLayout.setRefreshing(true);
-//                getFaculties();
-//            }
-//        }, 2000);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            authenticatedUserEmail = data.getStringExtra("currentUserEmail");
-        }
-    }
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+//            authenticatedUserEmail = data.getStringExtra("currentUserEmail");
+//        }
+//    }
 
     private void getFaculties() {
         Query query = FirebaseDatabase.getInstance().getReference("faculties");

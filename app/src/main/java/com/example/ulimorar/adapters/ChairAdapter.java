@@ -23,11 +23,21 @@ public class ChairAdapter extends RecyclerView.Adapter<ChairAdapter.ChairViewHol
     private List<Chair> chairs;
     private Context context;
     private Faculty currentFaculty;
+    private boolean isAdmin;
+    private String authenticatedUserEmail;
 
     public ChairAdapter(List<Chair> chairs, Context context,  Faculty currentFaculty) {
         this.chairs = chairs;
         this.context = context;
         this.currentFaculty = currentFaculty;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
+
+    public void setAuthenticatedUserEmail(String authenticatedUserEmail) {
+        this.authenticatedUserEmail = authenticatedUserEmail;
     }
 
     @NonNull
@@ -52,6 +62,8 @@ public class ChairAdapter extends RecyclerView.Adapter<ChairAdapter.ChairViewHol
                 intent.putExtra("chairFromIntent", chair);
                 intent.putExtra("currentFaculty", currentFaculty);
                 intent.putExtra("chairIndex", String.valueOf(position));
+                intent.putExtra("userIsAdmin", isAdmin);
+                intent.putExtra("currentUserEmail", authenticatedUserEmail);
                 context.startActivity(intent);
             }
         });

@@ -63,7 +63,7 @@ public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyV
                 intent.putExtra("facultyFromIntent", faculty);
                 intent.putExtra("userIsAdmin", isAdmin);
                 intent.putExtra("currentUserEmail", authenticatedUserEmail);
-                facultyActivity.startActivityForResult(intent, FacultyActivity.REQUEST_CODE);
+                facultyActivity.startActivity(intent);
             }
         });
 

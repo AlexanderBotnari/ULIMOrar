@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.util.Log;
 import android.view.*;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,6 +52,8 @@ public class GroupActivity extends AppCompatActivity {
     private DatabaseReference chairsDatabaseReference;
 
     private String currentChairKey;
+    private boolean isAdmin;
+    private String authenticatedUserEmail;
 
     private AlertDialog alertDialog;
 
@@ -64,6 +67,8 @@ public class GroupActivity extends AppCompatActivity {
         currentChair = (Chair) intent.getSerializableExtra("chairFromIntent");
         currentChairKey = intent.getStringExtra("chairIndex");
         currentFaculty = (Faculty) intent.getSerializableExtra("currentFaculty");
+        isAdmin = intent.getBooleanExtra("userIsAdmin", false);
+        authenticatedUserEmail = intent.getStringExtra("currentUserEmail");
 
         groupList = new ArrayList<>();
 
@@ -76,9 +81,15 @@ public class GroupActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         groupAdapter = new GroupAdapter(groupList, this, currentFaculty, currentChair, currentChairKey);
         recyclerView.setAdapter(groupAdapter);
+        groupAdapter.setAdmin(true);
 
         if (currentChair != null){
             titleTextView.setText(currentChair.getChairName());
+        }
+
+        if (!isAdmin){
+            addGroupButton.setVisibility(View.GONE);
+            groupAdapter.setAdmin(false);
         }
 
         addGroupButton.setOnClickListener(new View.OnClickListener() {
@@ -179,6 +190,7 @@ public class GroupActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        groupAdapter.setAuthenticatedUserEmail(authenticatedUserEmail);
         getGroups();
     }
 
@@ -211,31 +223,12 @@ public class GroupActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return true;
-    }
-
-    @SuppressLint("NonConstantResourceId")
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent;
-        // Handle item selection.
-        switch (item.getItemId()) {
-            case R.id.faculty:
-                startActivity(new Intent(GroupActivity.this, FacultyActivity.class));
-                return true;
-            case R.id.users:
-                startActivity(new Intent(GroupActivity.this, UsersActivity.class));
-                return true;
-            case R.id.logout:
-                Toast.makeText(this, R.string.logout_message, Toast.LENGTH_LONG).show();
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(GroupActivity.this, LoginActivity.class));
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home){
+            startActivity(new Intent(GroupActivity.this, FacultyActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
+            finish();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 }

@@ -61,6 +61,8 @@ public class TimetableActivity extends AppCompatActivity {
     private Chair currentChair;
     private String chairIndex;
     private String groupIndex;
+    private boolean isAdmin;
+    private String authenticatedUserEmail;
 
     private List<Timetable> timetableList;
     private RecyclerView recyclerView;
@@ -83,6 +85,8 @@ public class TimetableActivity extends AppCompatActivity {
         currentChair = (Chair) intent.getSerializableExtra("currentChair");
         chairIndex = intent.getStringExtra("chairIndex");
         groupIndex = intent.getStringExtra("groupIndex");
+        isAdmin = intent.getBooleanExtra("userIsAdmin", false);
+        authenticatedUserEmail = intent.getStringExtra("currentUserEmail");
 
         setTitle(currentGroup.getGroupName());
         setContentView(R.layout.activity_timetable);
@@ -101,8 +105,13 @@ public class TimetableActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(timetableAdapter);
+        timetableAdapter.setAdmin(true);
 
         addTimetableButton = findViewById(R.id.addTimetableFloatingButton);
+        if (!isAdmin){
+            addTimetableButton.setVisibility(View.GONE);
+            timetableAdapter.setAdmin(false);
+        }
         addTimetableButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -277,31 +286,12 @@ public class TimetableActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return true;
-    }
-
-    @SuppressLint("NonConstantResourceId")
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent;
-        // Handle item selection.
-        switch (item.getItemId()) {
-            case R.id.faculty:
-                startActivity(new Intent(TimetableActivity.this, FacultyActivity.class));
-                return true;
-            case R.id.users:
-                startActivity(new Intent(TimetableActivity.this, UsersActivity.class));
-                return true;
-            case R.id.logout:
-                Toast.makeText(this, R.string.logout_message, Toast.LENGTH_LONG).show();
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(TimetableActivity.this, LoginActivity.class));
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home){
+            startActivity(new Intent(TimetableActivity.this, FacultyActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
+            finish();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 }
