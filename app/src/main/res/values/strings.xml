@@ -44,6 +44,7 @@
     <string name="add_group_dialog_title">Add Group</string>
     <string name="add_timetable_dialog_title">Add Timetable</string>
     <string name="add_user_dialog_title">Add User</string>
+    <string name="edit_user_dialog_title">Edit User</string>
 
     <!--    Messages-->
     <string name="password_length_error">Password must be least 7 characters</string>

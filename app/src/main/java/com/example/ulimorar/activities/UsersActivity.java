@@ -23,8 +23,13 @@ import com.example.ulimorar.entities.User;
 import com.example.ulimorar.utils.GetDialogsStandardButtons;
 import com.example.ulimorar.utils.controllers.SwipeController;
 import com.example.ulimorar.utils.controllers.SwipeControllerActions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.*;
@@ -59,6 +64,7 @@ public class UsersActivity extends AppCompatActivity {
     private SwipeController swipeController;
 
     private User currentUser;
+    private User userToUpdate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +85,7 @@ public class UsersActivity extends AppCompatActivity {
         addUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openDialog(R.string.add_user_dialog_title);
+                openDialog(R.string.add_user_dialog_title, true, null);
             }
         });
 
@@ -110,6 +116,11 @@ public class UsersActivity extends AppCompatActivity {
                 userAdapter.notifyItemRemoved(position);
                 userAdapter.notifyItemRangeChanged(position, userAdapter.getItemCount());
             }
+
+            @Override
+            public void onLeftClicked(int position) {
+                openDialog(R.string.edit_user_dialog_title, false, position);
+            }
         });
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
         itemTouchhelper.attachToRecyclerView(userRecyclerView);
@@ -122,7 +133,8 @@ public class UsersActivity extends AppCompatActivity {
         });
     }
 
-    private void openDialog(int dialogTitle) {
+    private void openDialog(int dialogTitle, boolean isAddDialog, Integer itemPosition) {
+
         View alertDialogCustomView = LayoutInflater.from(this).inflate(R.layout.add_edit_user_dialog, null);
 
         TextView titleTextView = alertDialogCustomView.findViewById(R.id.dialogTitleTextView);
@@ -134,7 +146,6 @@ public class UsersActivity extends AppCompatActivity {
         idnpInputLayout = alertDialogCustomView.findViewById(R.id.idnpTextField);
         passwordInputLayout = alertDialogCustomView.findViewById(R.id.passwordTextField);
         confirmPasswordInputLayout = alertDialogCustomView.findViewById(R.id.confirmPasswordTextField);
-
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this,
@@ -155,6 +166,16 @@ public class UsersActivity extends AppCompatActivity {
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         alertDialog.show();
 
+        if (!isAddDialog){
+            userToUpdate = userAdapter.getUsers().get(itemPosition);
+            firstNameInputLayout.getEditText().setText(userToUpdate.getFirstName());
+            lastNameInputLayout.getEditText().setText(userToUpdate.getLastName());
+            emailInputLayout.getEditText().setText(userToUpdate.getEmail());
+            idnpInputLayout.getEditText().setText(userToUpdate.getIdnp());
+            passwordInputLayout.getEditText().setText(userToUpdate.getPassword());
+            confirmPasswordInputLayout.getEditText().setText(userToUpdate.getPassword());
+        }
+
         GetDialogsStandardButtons.getSaveButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -165,7 +186,56 @@ public class UsersActivity extends AppCompatActivity {
                 String role = roleSpinner.getSelectedItem().toString();
                 String password = passwordInputLayout.getEditText().getText().toString();
                 String confirmPassword = confirmPasswordInputLayout.getEditText().getText().toString();
-                addUser(firstName, lastName, email, idnp, role, password, confirmPassword);
+
+                boolean isValid = true;
+
+                if (firstName.equals("")) {
+                    firstNameInputLayout.setError(getString(R.string.first_name_is_empty));
+                    isValid = false; // Mark as invalid
+                }else{
+                    firstNameInputLayout.setError(null);
+                }
+
+                if (lastName.equals("")) {
+                    lastNameInputLayout.setError(getString(R.string.last_name_is_empty));
+                    isValid = false;
+                }else{
+                    lastNameInputLayout.setError(null);
+                }
+
+                if (!email.contains("@") || !email.contains(".")) {
+                    emailInputLayout.setError(getString(R.string.enter_valid_email));
+                    isValid = false;
+                }else{
+                    emailInputLayout.setError(null);
+                }
+
+                if (idnp.length() != 13) {
+                    idnpInputLayout.setError(getString(R.string.idnp_length_error));
+                    isValid = false;
+                }else {
+                    idnpInputLayout.setError(null);
+                }
+
+                if (password.length() <= 6) {
+                    passwordInputLayout.setError(getString(R.string.password_length_error));
+                    isValid = false;
+                } else if (!password.equals(confirmPassword)) {
+                    passwordInputLayout.setError(getString(R.string.no_match_password_message));
+                    confirmPasswordInputLayout.setError(getString(R.string.no_match_password_message));
+                    isValid = false;
+                }else {
+                    passwordInputLayout.setError(null);
+                    confirmPasswordInputLayout.setError(null);
+                }
+
+                if (isValid){
+                    if (isAddDialog){
+                        addUser(firstName, lastName, email, idnp, role, password);
+                    }else{
+                        editUser(userToUpdate.getId(), firstName, lastName, email, idnp, role, password);
+                    }
+                }
             }
         });
 
@@ -175,80 +245,6 @@ public class UsersActivity extends AppCompatActivity {
                 alertDialog.cancel();
             }
         });
-    }
-
-    public void addUser(String firstName, String lastName, String email, String idnp, String role, String password, String confirmPassword) {
-        // Validate input data
-        boolean isValid = true; // Add a flag to track overall validity
-
-        if (firstName.equals("")) {
-            firstNameInputLayout.setError(getString(R.string.first_name_is_empty));
-            isValid = false; // Mark as invalid
-        }else{
-            firstNameInputLayout.setError(null);
-        }
-
-        if (lastName.equals("")) {
-            lastNameInputLayout.setError(getString(R.string.last_name_is_empty));
-            isValid = false;
-        }else{
-            lastNameInputLayout.setError(null);
-        }
-
-        if (!email.contains("@") || !email.contains(".")) {
-            emailInputLayout.setError(getString(R.string.enter_valid_email));
-            isValid = false;
-        }else{
-            emailInputLayout.setError(null);
-        }
-
-        if (idnp.length() != 13) {
-            idnpInputLayout.setError(getString(R.string.idnp_length_error));
-            isValid = false;
-        }else {
-            idnpInputLayout.setError(null);
-        }
-
-        if (password.length() <= 6) {
-            passwordInputLayout.setError(getString(R.string.password_length_error));
-            isValid = false;
-        } else if (!password.equals(confirmPassword)) {
-            passwordInputLayout.setError(getString(R.string.no_match_password_message));
-            confirmPasswordInputLayout.setError(getString(R.string.no_match_password_message));
-            isValid = false;
-        }else {
-            passwordInputLayout.setError(null);
-            confirmPasswordInputLayout.setError(null);
-        }
-
-        if (isValid) { // Proceed only if all input is valid
-            // Generate unique ID for user
-            String userId = userDbReference.push().getKey();
-
-            User user = new User(userId, firstName, lastName, email, idnp, role, password);
-
-            // Add the user to the database
-            userDbReference.child(userId).setValue(user).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    // If user added successfully, add the same user credentials to Firebase Authentication
-                    auth.createUserWithEmailAndPassword(email, password)
-                            .addOnCompleteListener(authTask -> {
-                                if (authTask.isSuccessful()) {
-                                    Toast.makeText(UsersActivity.this, R.string.add_user_successful_message, Toast.LENGTH_SHORT).show();
-                                    auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
-                                } else {
-                                    Toast.makeText(UsersActivity.this, R.string.add_user_failure_message, Toast.LENGTH_SHORT).show();
-                                    Log.d("FailureAddUser", authTask.getException().getMessage());
-                                }
-                            });
-
-                    alertDialog.dismiss();
-                } else {
-                    Toast.makeText(UsersActivity.this, R.string.add_user_failure_message, Toast.LENGTH_SHORT).show();
-                    Log.d("FailureAddUser", task.getException().getMessage());
-                }
-            });
-        }
     }
 
     private void getUserByEmail(String userEmail) {
@@ -279,11 +275,65 @@ public class UsersActivity extends AppCompatActivity {
         });
     }
 
-    public void deleteUserByEmail(Context context, User userToDelete) {
-        // Obțineți instanța autentificării Firebase
-        FirebaseAuth auth = FirebaseAuth.getInstance();
+    private void getUsers() {
+        Query query = FirebaseDatabase.getInstance().getReference("users");
+        query.addValueEventListener(new ValueEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                users.clear();  // because everytime when data updates in your firebase database it creates the list with updated items
+                // so to avoid duplicate fields we clear the list everytime
+                if (snapshot.exists()) {
+                    for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                        User user = userSnapshot.getValue(User.class);
 
-        // Obțineți utilizatorul curent
+                        users.add(user);
+                    }
+                    userAdapter.notifyDataSetChanged();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void addUser(String firstName, String lastName, String email, String idnp, String role, String password) {
+
+        FirebaseUser firebaseUser = auth.getCurrentUser();
+        getUserByEmail(firebaseUser.getEmail());
+
+            String userId = userDbReference.push().getKey();
+
+            User user = new User(userId, firstName, lastName, email, idnp, role, password);
+
+            // Add the user to the database
+            userDbReference.child(userId).setValue(user).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    // If user added successfully, add the same user credentials to Firebase Authentication
+                    auth.createUserWithEmailAndPassword(email, password)
+                            .addOnCompleteListener(authTask -> {
+                                if (authTask.isSuccessful()) {
+                                    Toast.makeText(UsersActivity.this, R.string.add_user_successful_message, Toast.LENGTH_SHORT).show();
+                                    auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
+                                } else {
+                                    Toast.makeText(UsersActivity.this, R.string.add_user_failure_message, Toast.LENGTH_SHORT).show();
+                                    Log.d("FailureAddUser", authTask.getException().getMessage());
+                                }
+                            });
+
+                    alertDialog.dismiss();
+                } else {
+                    Toast.makeText(UsersActivity.this, R.string.add_user_failure_message, Toast.LENGTH_SHORT).show();
+                    Log.d("FailureAddUser", task.getException().getMessage());
+                }
+            });
+    }
+
+    public void deleteUserByEmail(Context context, User userToDelete) {
         FirebaseUser firebaseUser = auth.getCurrentUser();
         getUserByEmail(firebaseUser.getEmail());
 
@@ -340,36 +390,41 @@ public class UsersActivity extends AppCompatActivity {
         }
     }
 
+    public void editUser(String userId, String firstName, String lastName, String email, String idnp, String role, String password){
+
+        FirebaseUser firebaseUser = auth.getCurrentUser();
+        getUserByEmail(firebaseUser.getEmail());
+
+        User newUser = new User(userId, firstName, lastName, email, idnp, role, password);
+
+            userDbReference.child(userId).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull @NotNull Task<Void> task) {
+                    auth.signInWithEmailAndPassword(userToUpdate.getEmail(), userToUpdate.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
+                            if (task.isSuccessful()){
+                                FirebaseUser firebaseUser = auth.getCurrentUser();
+                                firebaseUser.updateEmail(email);
+                                firebaseUser.updatePassword(password);
+                                Toast.makeText(UsersActivity.this, "Successful updated user", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                    alertDialog.dismiss();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull @NotNull Exception e) {
+                    Toast.makeText(UsersActivity.this, "Failure to update user", Toast.LENGTH_SHORT).show();
+                }
+            });
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
         getUsers();
-    }
-
-    private void getUsers() {
-        Query query = FirebaseDatabase.getInstance().getReference("users");
-        query.addValueEventListener(new ValueEventListener() {
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                users.clear();  // because everytime when data updates in your firebase database it creates the list with updated items
-                // so to avoid duplicate fields we clear the list everytime
-                if (snapshot.exists()) {
-                    for (DataSnapshot userSnapshot : snapshot.getChildren()) {
-                        User user = userSnapshot.getValue(User.class);
-
-                        users.add(user);
-                    }
-                    userAdapter.notifyDataSetChanged();
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull @NotNull DatabaseError error) {
-
-            }
-        });
     }
 
     @Override

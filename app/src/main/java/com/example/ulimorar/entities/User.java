@@ -1,6 +1,11 @@
 package com.example.ulimorar.entities;
 
 import com.example.ulimorar.entities.enums.UserRole;
+import com.google.firebase.database.Exclude;
+
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class User {
 
@@ -25,12 +30,13 @@ public class User {
         this.role = role;
     }
 
-    public User(String userId, String firstName, String lastName, String email, String idnp) {
+    public User(String userId, String firstName, String lastName, String email, String idnp, String password) {
         this.id = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.idnp = idnp;
+        this.password = password;
     }
 
     public String getId() {
@@ -87,5 +93,24 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @Exclude
+    public LinkedHashMap<String, Object> toMap() {
+       LinkedHashMap<String, Object> result = new LinkedHashMap<>();
+        if(firstName != null)
+            result.put("firstName", firstName);
+        if(lastName != null)
+            result.put("lastName", lastName);
+        if(email != null)
+            result.put("email", email);
+        if(idnp != null)
+            result.put("idnp", idnp);
+        if(role != null)
+            result.put("role", role);
+        if(password != null)
+            result.put("password", password);
+
+        return result;
     }
 }
