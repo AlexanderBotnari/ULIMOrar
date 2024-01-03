@@ -122,6 +122,7 @@ public class UsersActivity extends AppCompatActivity {
                 openDialog(R.string.edit_user_dialog_title, false, position);
             }
         });
+
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
         itemTouchhelper.attachToRecyclerView(userRecyclerView);
 
@@ -359,14 +360,14 @@ public class UsersActivity extends AppCompatActivity {
                                         userReference.removeValue()
                                                 .addOnSuccessListener(aVoid -> {
                                                     // Utilizatorul a fost șters cu succes din baza de date
-                                                    String message = "User " + userToDelete.getFirstName() + " " +
-                                                            userToDelete.getLastName() + " has been successfully deleted";
+                                                    String message = R.string.user + " " + userToDelete.getFirstName() + " " +
+                                                            userToDelete.getLastName() + " " + R.string.delete_user_success;
                                                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                                                     auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
                                                 })
                                                 .addOnFailureListener(e -> {
                                                     // Tratarea erorii la ștergerea din Realtime Database
-                                                    Toast.makeText(context, "Error deleting user from database", Toast.LENGTH_LONG).show();
+                                                    Toast.makeText(context, R.string.delete_user_from_db_fail, Toast.LENGTH_LONG).show();
                                                 });
                                     }
                                 }
@@ -374,18 +375,18 @@ public class UsersActivity extends AppCompatActivity {
                                 @Override
                                 public void onCancelled(@NonNull DatabaseError databaseError) {
                                     // Tratarea erorii la interogarea bazei de date
-                                    Toast.makeText(context, "Database query error", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(context, R.string.database_query_error, Toast.LENGTH_SHORT).show();
                                 }
                             });
                         } else {
                             // Tratarea erorii la autentificarea în contul utilizatorului
-                            Toast.makeText(context, "Authentication error", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, R.string.authentication_error, Toast.LENGTH_SHORT).show();
                             auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
                         }
                     });
         } else {
             // Tratarea cazului în care utilizatorul curent este null sau este utilizatorul curent
-            Toast.makeText(context, "Cannot delete current user", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.delete_current_user_error, Toast.LENGTH_SHORT).show();
             auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
         }
     }
@@ -404,10 +405,15 @@ public class UsersActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
                             if (task.isSuccessful()){
-                                FirebaseUser firebaseUser = auth.getCurrentUser();
-                                firebaseUser.updateEmail(email);
-                                firebaseUser.updatePassword(password);
-                                Toast.makeText(UsersActivity.this, "Successful updated user", Toast.LENGTH_SHORT).show();
+                                FirebaseUser oldUser = auth.getCurrentUser();
+                                oldUser.delete();
+                                auth.createUserWithEmailAndPassword(newUser.getEmail(), newUser.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
+                                        Toast.makeText(UsersActivity.this, R.string.update_user_success_message, Toast.LENGTH_SHORT).show();
+                                        auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
+                                    }
+                                });
                             }
                         }
                     });
@@ -416,7 +422,7 @@ public class UsersActivity extends AppCompatActivity {
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull @NotNull Exception e) {
-                    Toast.makeText(UsersActivity.this, "Failure to update user", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(UsersActivity.this, R.string.update_user_failure, Toast.LENGTH_SHORT).show();
                 }
             });
     }

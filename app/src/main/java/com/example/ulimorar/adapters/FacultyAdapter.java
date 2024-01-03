@@ -40,6 +40,10 @@ public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyV
         this.authenticatedUserEmail = authenticatedUserEmail;
     }
 
+    public List<Faculty> getFaculties() {
+        return faculties;
+    }
+
     @NonNull
     @NotNull
     @Override
@@ -73,14 +77,14 @@ public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyV
             holder.editFacultyButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Toast.makeText(facultyActivity, "Edit Faculty clicked!", Toast.LENGTH_SHORT).show();
+                    facultyActivity.openDialog(R.string.edit_faculty_dialog_title, false, position);
                 }
             });
 
             holder.deleteFacultyButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Toast.makeText(facultyActivity, "Delete faulty clicked!", Toast.LENGTH_SHORT).show();
+                    facultyActivity.deleteFaculty(faculty);
                 }
             });
         }else{

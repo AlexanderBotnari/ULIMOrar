@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -20,17 +21,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.ulimorar.R;
 import com.example.ulimorar.adapters.FacultyAdapter;
+import com.example.ulimorar.adapters.UserAdapter;
 import com.example.ulimorar.entities.Faculty;
 import com.example.ulimorar.entities.User;
 import com.example.ulimorar.entities.enums.UserRole;
 import com.example.ulimorar.utils.GetDialogsStandardButtons;
+import com.example.ulimorar.utils.controllers.SwipeController;
+import com.example.ulimorar.utils.controllers.SwipeControllerActions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -45,9 +52,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FacultyActivity extends AppCompatActivity {
-
-    public static final int PICK_IMAGE_REQUEST = 1;
-    public static final int REQUEST_CODE = 1;
 
     private ActivityResultLauncher<Intent> imagePickerLauncher;
 
@@ -75,6 +79,8 @@ public class FacultyActivity extends AppCompatActivity {
 
     private boolean isAdminFlag = false;
 
+    private Faculty facultyToUpdate;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,7 +107,7 @@ public class FacultyActivity extends AppCompatActivity {
         addFacultyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openDialog(R.string.add_faculty_dialog_title);
+                openDialog(R.string.add_faculty_dialog_title, true, null);
             }
         });
 
@@ -126,7 +132,7 @@ public class FacultyActivity extends AppCompatActivity {
 
     }
 
-    private void openDialog(int dialogTitle) {
+    public void openDialog(int dialogTitle, boolean isAddDialog, Integer itemPosition) {
         View alertDialogCustomView = LayoutInflater.from(this).inflate(R.layout.add_edit_faculty_dialog, null);
 
         TextView titleTextView = alertDialogCustomView.findViewById(R.id.dialogTitleTextView);
@@ -150,12 +156,41 @@ public class FacultyActivity extends AppCompatActivity {
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         alertDialog.show();
 
+        if (!isAddDialog){
+            facultyToUpdate = facultyAdapter.getFaculties().get(itemPosition);
+            facultyNameInputLayout.getEditText().setText(facultyToUpdate.getFacultyName());
+            facultyDescriptionInputLayout.getEditText().setText(facultyToUpdate.getFacultyDescription());
+        }
+
         GetDialogsStandardButtons.getSaveButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String facultyName = facultyNameInputLayout.getEditText().getText().toString();
                 String facultyDescription = facultyDescriptionInputLayout.getEditText().getText().toString();
-                addFaculty(facultyName, facultyDescription);
+
+                boolean isValid = true;
+
+                if (facultyName.isEmpty()){
+                    facultyNameInputLayout.setError(getString(R.string.empty_faculty_name_error));
+                    isValid = false;
+                }else {
+                    facultyNameInputLayout.setError(null);
+                }
+
+                if (facultyDescription.isEmpty()){
+                    facultyDescriptionInputLayout.setError(getString(R.string.empty_faculty_description_error));
+                    isValid = false;
+                }else{
+                    facultyDescriptionInputLayout.setError(null);
+                }
+
+                if (isValid) {
+                    if (isAddDialog){
+                        addFaculty(facultyName, facultyDescription);
+                    }else{
+                        editFaculty(facultyToUpdate.getId(), facultyName, facultyDescription);
+                    }
+                }
             }
         });
 
@@ -201,24 +236,6 @@ public class FacultyActivity extends AppCompatActivity {
     }
 
     private void addFaculty(String facultyName, String facultyDescription) {
-
-        boolean isValid = true;
-
-        if (facultyName.isEmpty()){
-            facultyNameInputLayout.setError(getString(R.string.empty_faculty_name_error));
-            isValid = false;
-        }else {
-            facultyNameInputLayout.setError(null);
-        }
-
-        if (facultyDescription.isEmpty()){
-            facultyDescriptionInputLayout.setError(getString(R.string.empty_faculty_description_error));
-            isValid = false;
-        }else{
-            facultyDescriptionInputLayout.setError(null);
-        }
-
-        if (isValid) {
             // Generate unique ID for faculty
             String facultyId = facultiesDatabaseReference.push().getKey();
 
@@ -239,7 +256,6 @@ public class FacultyActivity extends AppCompatActivity {
             // Upload the selected image to Firebase Storage or perform other actions
             uploadImageToFirebaseStorage(selectedImageUri, facultyId);
             selectedImageUri = null;
-        }
     }
 
     private boolean userIsAdmin(User user){
@@ -286,6 +302,70 @@ public class FacultyActivity extends AppCompatActivity {
         });
     }
 
+    private void getFaculties() {
+        Query query = FirebaseDatabase.getInstance().getReference("faculties");
+        query.addValueEventListener(new ValueEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                faculties.clear();  // because everytime when data updates in your firebase database it creates the list with updated items
+                // so to avoid duplicate fields we clear the list everytime
+                if (snapshot.exists()) {
+                    for (DataSnapshot facultySnapshot : snapshot.getChildren()) {
+                        Faculty faculty = facultySnapshot.getValue(Faculty.class);
+                        faculties.add(faculty);
+                    }
+                    facultyAdapter.notifyDataSetChanged();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public void deleteFaculty(Faculty facultyToDelete){
+        facultiesDatabaseReference.child(facultyToDelete.getId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<Void> task) {
+                storageReference.child("faculties/" + facultyToDelete.getId() + ".jpg").delete();
+                Toast.makeText(FacultyActivity.this, R.string.delete_faculty_success, Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull @NotNull Exception e) {
+                Toast.makeText(FacultyActivity.this, R.string.delete_faculty_failure, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void editFaculty(String facultyId, String facultyName, String facultyDescription){
+
+        Faculty faculty = new Faculty(facultyId, facultyName, facultyDescription);
+        faculty.setChairs(facultyToUpdate.getChairs());
+
+        if (selectedImageUri != null){
+            storageReference.child("faculties/" + facultyId + ".jpg").delete();
+            uploadImageToFirebaseStorage(selectedImageUri, facultyId);
+            selectedImageUri = null;
+        }else{
+            faculty.setFacultyPosterPath(facultyToUpdate.getFacultyPosterPath());
+        }
+
+        facultiesDatabaseReference.child(facultyId).setValue(faculty).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(FacultyActivity.this, R.string.update_faculty_success, Toast.LENGTH_SHORT).show();
+                alertDialog.dismiss();
+            } else {
+                Toast.makeText(FacultyActivity.this, R.string.update_faculty_failure, Toast.LENGTH_SHORT).show();
+                Log.d("FailureAddFaculty", task.getException().getMessage());
+            }
+        });
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -318,40 +398,6 @@ public class FacultyActivity extends AppCompatActivity {
                         });
                     }
                 }).start();
-            }
-        });
-    }
-
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-//            authenticatedUserEmail = data.getStringExtra("currentUserEmail");
-//        }
-//    }
-
-    private void getFaculties() {
-        Query query = FirebaseDatabase.getInstance().getReference("faculties");
-        query.addValueEventListener(new ValueEventListener() {
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                faculties.clear();  // because everytime when data updates in your firebase database it creates the list with updated items
-                // so to avoid duplicate fields we clear the list everytime
-                if (snapshot.exists()) {
-                    for (DataSnapshot facultySnapshot : snapshot.getChildren()) {
-                        Faculty faculty = facultySnapshot.getValue(Faculty.class);
-                        faculties.add(faculty);
-                    }
-                    facultyAdapter.notifyDataSetChanged();
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull @NotNull DatabaseError error) {
-
             }
         });
     }

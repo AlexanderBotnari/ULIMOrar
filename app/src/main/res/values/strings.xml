@@ -45,6 +45,7 @@
     <string name="add_timetable_dialog_title">Add Timetable</string>
     <string name="add_user_dialog_title">Add User</string>
     <string name="edit_user_dialog_title">Edit User</string>
+    <string name="edit_faculty_dialog_title">Edit Faculty</string>
 
     <!--    Messages-->
     <string name="password_length_error">Password must be least 7 characters</string>
@@ -76,5 +77,16 @@
     <string name="empty_timetable_name_error">Please input a timetable name</string>
     <string name="image_uploaded_successful_message">Image uploaded successfully</string>
     <string name="failure_image_upload">Failed to upload image</string>
+    <string name="update_user_success_message">Successful updated user</string>
+    <string name="update_user_failure">Failure to update user</string>
+    <string name="user">User</string>
+    <string name="delete_user_success">has been successfully deleted</string>
+    <string name="delete_user_from_db_fail">Error deleting user from database</string>
+    <string name="delete_current_user_error">Cannot delete current user</string>
+    <string name="database_query_error">Database query error</string>
+    <string name="delete_faculty_success">Faculty is successful deleted</string>
+    <string name="delete_faculty_failure">Failed to delete faculty</string>
+    <string name="update_faculty_success">Successful edited user</string>
+    <string name="update_faculty_failure">Failure to edit user</string>
 
 </resources>

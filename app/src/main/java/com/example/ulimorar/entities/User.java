@@ -95,22 +95,4 @@ public class User {
         this.password = password;
     }
 
-    @Exclude
-    public LinkedHashMap<String, Object> toMap() {
-       LinkedHashMap<String, Object> result = new LinkedHashMap<>();
-        if(firstName != null)
-            result.put("firstName", firstName);
-        if(lastName != null)
-            result.put("lastName", lastName);
-        if(email != null)
-            result.put("email", email);
-        if(idnp != null)
-            result.put("idnp", idnp);
-        if(role != null)
-            result.put("role", role);
-        if(password != null)
-            result.put("password", password);
-
-        return result;
-    }
 }
