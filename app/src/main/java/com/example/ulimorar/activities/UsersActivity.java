@@ -360,8 +360,8 @@ public class UsersActivity extends AppCompatActivity {
                                         userReference.removeValue()
                                                 .addOnSuccessListener(aVoid -> {
                                                     // Utilizatorul a fost șters cu succes din baza de date
-                                                    String message = R.string.user + " " + userToDelete.getFirstName() + " " +
-                                                            userToDelete.getLastName() + " " + R.string.delete_user_success;
+                                                    String message = getText(R.string.user) + " " + userToDelete.getFirstName() + " " +
+                                                            userToDelete.getLastName() + " " + getText(R.string.delete_user_success);
                                                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                                                     auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
                                                 })
@@ -447,6 +447,8 @@ public class UsersActivity extends AppCompatActivity {
         Intent intent;
         // Handle item selection.
         switch (item.getItemId()) {
+            case android.R.id.home: finish();
+                return true;
             case R.id.faculty:
                 startActivity(new Intent(UsersActivity.this, FacultyActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
                 return true;

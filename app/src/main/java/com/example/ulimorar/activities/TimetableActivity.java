@@ -48,7 +48,6 @@ import java.util.List;
 
 public class TimetableActivity extends AppCompatActivity {
 
-    private static final int PICK_IMAGE_REQUEST = 2;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
     private Uri selectedImageUri;
 
@@ -286,12 +285,32 @@ public class TimetableActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        menu.findItem(R.id.users).setVisible(isAdmin);
+        return true;
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home){
-            startActivity(new Intent(TimetableActivity.this, FacultyActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
-            finish();
-            return true;
+        switch(item.getItemId()){
+            case android.R.id.home: finish();
+                return true;
+            case R.id.users:
+                startActivity(new Intent(TimetableActivity.this, UsersActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
+                return true;
+            case R.id.faculty:
+                startActivity(new Intent(TimetableActivity.this, FacultyActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
+                return true;
+            case R.id.logout:
+                Toast.makeText(this, R.string.logout_message, Toast.LENGTH_LONG).show();
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(TimetableActivity.this, LoginActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 }

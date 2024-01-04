@@ -17,7 +17,8 @@
                 android:exported="true"/>
         <activity
                 android:name=".activities.UsersActivity"
-                android:exported="true"/>
+                android:exported="true"
+                android:parentActivityName=".activities.FacultyActivity"/>
         <activity
                 android:name=".activities.TimetableActivity"
                 android:exported="true"
