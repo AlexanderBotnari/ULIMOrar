@@ -22,6 +22,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import static androidx.core.content.res.TypedArrayUtils.getText;
+
 public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.TimetableViewHolder> {
 
     private List<Timetable> timetables;
@@ -45,6 +47,7 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
         return new TimetableViewHolder(view);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull @NotNull TimetableAdapter.TimetableViewHolder holder, int position) {
 
@@ -57,7 +60,7 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
 
         Picasso.get().load(timetable.getImageUrl()).placeholder(R.drawable.ulim_logo).into(holder.timetableImageView);
         holder.sessionNameTextView.setText(timetable.getTimetableName());
-        holder.timetableDateTextView.setText(strDate);
+        holder.timetableDateTextView.setText(context.getText(R.string.last_update) + " " + strDate);
 
         holder.viewButton.setOnClickListener(new View.OnClickListener() {
             @Override

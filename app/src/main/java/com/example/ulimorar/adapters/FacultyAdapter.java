@@ -1,6 +1,6 @@
 package com.example.ulimorar.adapters;
 
-import android.content.Context;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,24 +8,26 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.ulimorar.R;
+import com.example.ulimorar.fragments.interfaces.BottomSheetListener;
 import com.example.ulimorar.activities.ChairActivity;
+import com.example.ulimorar.fragments.DeleteBottomSheetFragment;
 import com.example.ulimorar.activities.FacultyActivity;
 import com.example.ulimorar.entities.Faculty;
 import com.squareup.picasso.Picasso;
 import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
-public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyViewHolder> {
+public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyViewHolder> implements BottomSheetListener {
 
     private List<Faculty> faculties;
     private FacultyActivity facultyActivity;
     private boolean isAdmin;
     private String authenticatedUserEmail;
+    private DeleteBottomSheetFragment bottomSheetFragment;
+    private Faculty faculty;
 
     public FacultyAdapter(List<Faculty> faculties, FacultyActivity facultyActivity) {
         this.faculties = faculties;
@@ -53,8 +55,8 @@ public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyV
     }
 
     @Override
-    public void onBindViewHolder(@NonNull @NotNull FacultyAdapter.FacultyViewHolder holder, int position) {
-        Faculty faculty = faculties.get(position);
+    public void onBindViewHolder(@NonNull @NotNull FacultyAdapter.FacultyViewHolder holder, @SuppressLint("RecyclerView") int position) {
+        faculty = faculties.get(position);
 
         Picasso.get().load(faculty.getFacultyPosterPath()).placeholder(R.drawable.ulim_logo).into(holder.facultyImageView);
         holder.facultyNameTextView.setText(faculty.getFacultyName());
@@ -84,7 +86,9 @@ public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyV
             holder.deleteFacultyButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    facultyActivity.deleteFaculty(faculty);
+                    bottomSheetFragment = new DeleteBottomSheetFragment();
+                    bottomSheetFragment.show(facultyActivity.getSupportFragmentManager(), bottomSheetFragment.getTag());
+                    bottomSheetFragment.setBottomSheetListener(FacultyAdapter.this);
                 }
             });
         }else{
@@ -97,6 +101,16 @@ public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyV
     @Override
     public int getItemCount() {
         return faculties.size();
+    }
+
+    @Override
+    public void onButtonCancel() {
+        bottomSheetFragment.dismiss();
+    }
+
+    @Override
+    public void onButtonDelete() {
+        facultyActivity.deleteFaculty(faculty);
     }
 
     public static class FacultyViewHolder extends RecyclerView.ViewHolder{
