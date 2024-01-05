@@ -129,7 +129,6 @@ public class ChairActivity extends AppCompatActivity implements BottomSheetListe
 
                 @Override
                 public void onLeftClicked(int position) {
-                    chairPositionToDelete = position;
                     openDialog(R.string.edit_chair_dialog_title, false, position);
                 }
 

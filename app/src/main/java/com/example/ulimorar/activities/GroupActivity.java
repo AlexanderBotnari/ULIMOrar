@@ -22,6 +22,8 @@ import com.example.ulimorar.adapters.GroupAdapter;
 import com.example.ulimorar.entities.Chair;
 import com.example.ulimorar.entities.Faculty;
 import com.example.ulimorar.entities.Group;
+import com.example.ulimorar.fragments.DeleteBottomSheetFragment;
+import com.example.ulimorar.fragments.interfaces.BottomSheetListener;
 import com.example.ulimorar.utils.GetDialogsStandardButtons;
 import com.example.ulimorar.utils.controllers.SwipeController;
 import com.example.ulimorar.utils.controllers.SwipeControllerActions;
@@ -38,7 +40,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GroupActivity extends AppCompatActivity {
+public class GroupActivity extends AppCompatActivity implements BottomSheetListener {
 
     private FloatingActionButton addGroupButton;
     private TextView titleTextView;
@@ -61,6 +63,11 @@ public class GroupActivity extends AppCompatActivity {
     private String authenticatedUserEmail;
 
     private AlertDialog alertDialog;
+
+    private Group groupToUpdate;
+    private int groupPositionToDelete;
+
+    private DeleteBottomSheetFragment bottomSheetFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +103,7 @@ public class GroupActivity extends AppCompatActivity {
         addGroupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openDialog(R.string.add_group_dialog_title);
+                openDialog(R.string.add_group_dialog_title, true, null);
             }
         });
 
@@ -122,9 +129,15 @@ public class GroupActivity extends AppCompatActivity {
             swipeController = new SwipeController(new SwipeControllerActions() {
                 @Override
                 public void onRightClicked (int position) {
-                    groupAdapter.getGroups().remove(position);
-                    groupAdapter.notifyItemRemoved(position);
-                    groupAdapter.notifyItemRangeChanged(position, groupAdapter.getItemCount());
+                    groupPositionToDelete = position;
+                    bottomSheetFragment = new DeleteBottomSheetFragment();
+                    bottomSheetFragment.show(getSupportFragmentManager(), bottomSheetFragment.getTag());
+                    bottomSheetFragment.setBottomSheetListener(GroupActivity.this);
+                }
+
+                @Override
+                public void onLeftClicked(int position) {
+                    openDialog(R.string.edit_group_dialog_title, false, position);
                 }
             });
             ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
@@ -139,7 +152,7 @@ public class GroupActivity extends AppCompatActivity {
         }
     }
 
-    private void openDialog(int dialogTitle) {
+    private void openDialog(int dialogTitle, boolean isAddDialog, Integer itemPosition) {
         View alertDialogCustomView = LayoutInflater.from(this).inflate(R.layout.add_edit_group_dialog, null);
 
         TextView titleTextView = alertDialogCustomView.findViewById(R.id.dialogTitleTextView);
@@ -158,11 +171,45 @@ public class GroupActivity extends AppCompatActivity {
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         alertDialog.show();
 
+        if (!isAddDialog){
+            groupToUpdate = groupAdapter.getGroups().get(itemPosition);
+            groupNameTextInput.getEditText().setText(groupToUpdate.getGroupName());
+            groupSymbolTextInput.getEditText().setText(groupToUpdate.getGroupSymbol());
+        }
+
         GetDialogsStandardButtons.getSaveButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addNewGroupToChair(groupNameEditText.getText().toString(),
-                                    groupSymbolEditText.getText().toString());
+                String groupName = groupNameEditText.getText().toString();
+                String groupSymbol = groupSymbolEditText.getText().toString();
+
+                boolean isValid = true;
+
+                if (groupName.isEmpty()){
+                    groupNameTextInput.setError(getText(R.string.empty_group_name_error));
+                    isValid = false;
+                }else {
+                    groupNameTextInput.setError(null);
+                }
+
+                if (groupSymbol.isEmpty()){
+                    groupSymbolTextInput.setError(getText(R.string.empty_group_symbol_error));
+                    isValid = false;
+                }else {
+                    groupSymbolTextInput.setError(null);
+                }
+
+                if (isValid) {
+                    if (groupSymbol.length() <= 3) {
+                        if (isAddDialog){
+                            addNewGroupToChair(groupName, groupSymbol);
+                        }else {
+                            editGroup(itemPosition, groupName, groupSymbol);
+                        }
+                    }else {
+                        groupSymbolTextInput.setError(getText(R.string.group_symbol_max_length));
+                    }
+                }
             }
         });
 
@@ -175,25 +222,6 @@ public class GroupActivity extends AppCompatActivity {
     }
 
     private void addNewGroupToChair(String groupName, String groupSymbol) {
-
-        boolean isValid = true;
-
-        if (groupName.isEmpty()){
-            groupNameTextInput.setError(getText(R.string.empty_group_name_error));
-            isValid = false;
-        }else {
-            groupNameTextInput.setError(null);
-        }
-
-        if (groupSymbol.isEmpty()){
-            groupSymbolTextInput.setError(getText(R.string.empty_group_symbol_error));
-            isValid = false;
-        }else {
-            groupSymbolTextInput.setError(null);
-        }
-
-        if (isValid){
-            if (groupSymbol.length() <= 3) {
                 Group group = new Group(groupName, groupSymbol);
                 groupList.add(group);
 
@@ -213,15 +241,6 @@ public class GroupActivity extends AppCompatActivity {
                         }
                     });
                 }
-            }
-        }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        groupAdapter.setAuthenticatedUserEmail(authenticatedUserEmail);
-        getGroups();
     }
 
     private void getGroups() {
@@ -252,6 +271,49 @@ public class GroupActivity extends AppCompatActivity {
         }
     }
 
+    public void editGroup(int groupPositionToUpdate, String groupName, String groupSymbol){
+        Group newGroup = new Group(groupName, groupSymbol);
+        newGroup.setTimetables(groupToUpdate.getTimetables());
+
+        chairsDatabaseReference.child(currentChairKey).child("groups").
+                child(String.valueOf(groupPositionToUpdate)).setValue(newGroup).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+                        Toast.makeText(GroupActivity.this, R.string.update_group_success, Toast.LENGTH_SHORT).show();
+                        alertDialog.dismiss();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull @NotNull Exception e) {
+                        Toast.makeText(GroupActivity.this, R.string.update_group_success, Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    public void deleteGroup(int groupPositionToDelete){
+        chairsDatabaseReference.child(currentChairKey).child("groups")
+                .child(String.valueOf(groupPositionToDelete)).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+                        Toast.makeText(GroupActivity.this, R.string.delete_group_success, Toast.LENGTH_SHORT).show();
+                        bottomSheetFragment.dismiss();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull @NotNull Exception e) {
+                        Toast.makeText(GroupActivity.this, R.string.delete_group_failure, Toast.LENGTH_SHORT).show();
+                        bottomSheetFragment.dismiss();
+                    }
+                });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        groupAdapter.setAuthenticatedUserEmail(authenticatedUserEmail);
+        getGroups();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -280,5 +342,15 @@ public class GroupActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onButtonCancel() {
+        bottomSheetFragment.dismiss();
+    }
+
+    @Override
+    public void onButtonDelete() {
+        deleteGroup(groupPositionToDelete);
     }
 }
