@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import androidx.annotation.NonNull;
@@ -20,6 +19,8 @@ import com.example.ulimorar.R;
 import com.example.ulimorar.adapters.ChairAdapter;
 import com.example.ulimorar.entities.Chair;
 import com.example.ulimorar.entities.Faculty;
+import com.example.ulimorar.fragments.DeleteBottomSheetFragment;
+import com.example.ulimorar.fragments.interfaces.BottomSheetListener;
 import com.example.ulimorar.utils.GetDialogsStandardButtons;
 import com.example.ulimorar.utils.controllers.SwipeController;
 import com.example.ulimorar.utils.controllers.SwipeControllerActions;
@@ -36,7 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChairActivity extends AppCompatActivity {
+public class ChairActivity extends AppCompatActivity implements BottomSheetListener {
 
     private FloatingActionButton addChairButton;
     private TextView titleTextView;
@@ -55,6 +56,11 @@ public class ChairActivity extends AppCompatActivity {
     private DatabaseReference facultiesDatabaseReference;
 
     private AlertDialog alertDialog;
+
+    private Chair chairToUpdate;
+    private int chairPositionToDelete;
+
+    private DeleteBottomSheetFragment bottomSheetFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +95,7 @@ public class ChairActivity extends AppCompatActivity {
         addChairButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openDialog(R.string.add_chair_dialog_title);
+                openDialog(R.string.add_chair_dialog_title, true, null);
             }
         });
 
@@ -115,10 +121,18 @@ public class ChairActivity extends AppCompatActivity {
             swipeController = new SwipeController(new SwipeControllerActions() {
                 @Override
                 public void onRightClicked (int position) {
-                    chairAdapter.getChairs().remove(position);
-                    chairAdapter.notifyItemRemoved(position);
-                    chairAdapter.notifyItemRangeChanged(position, chairAdapter.getItemCount());
+                    chairPositionToDelete = position;
+                    bottomSheetFragment = new DeleteBottomSheetFragment();
+                    bottomSheetFragment.show(getSupportFragmentManager(), bottomSheetFragment.getTag());
+                    bottomSheetFragment.setBottomSheetListener(ChairActivity.this);
                 }
+
+                @Override
+                public void onLeftClicked(int position) {
+                    chairPositionToDelete = position;
+                    openDialog(R.string.edit_chair_dialog_title, false, position);
+                }
+
             });
             ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
             itemTouchhelper.attachToRecyclerView(chairRecyclerView);
@@ -133,8 +147,7 @@ public class ChairActivity extends AppCompatActivity {
 
     }
 
-
-    private void openDialog(int dialogTitle) {
+    private void openDialog(int dialogTitle, boolean isAddDialog, Integer itemPosition) {
         View alertDialogCustomView = LayoutInflater.from(this).inflate(R.layout.add_edit_chair_dialog, null);
 
         TextView titleTextView = alertDialogCustomView.findViewById(R.id.dialogTitleTextView);
@@ -151,10 +164,32 @@ public class ChairActivity extends AppCompatActivity {
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         alertDialog.show();
 
+        if (!isAddDialog){
+            chairToUpdate = chairAdapter.getChairs().get(itemPosition);
+            chairNameTextInput.getEditText().setText(chairToUpdate.getChairName());
+        }
+
         GetDialogsStandardButtons.getSaveButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addNewChairToFaculty(chairNameEditText.getText().toString());
+                String chairName = chairNameEditText.getText().toString();
+
+                boolean isValid = true;
+
+                if (chairName.isEmpty()){
+                    chairNameTextInput.setError(getText(R.string.empty_chair_name_error));
+                    isValid = false;
+                }else {
+                    chairNameTextInput.setError(null);
+                }
+
+                if (isValid){
+                    if (isAddDialog){
+                        addNewChairToFaculty(chairName);
+                    }else{
+                        editChair(itemPosition, chairName);
+                    }
+                }
             }
         });
 
@@ -167,17 +202,6 @@ public class ChairActivity extends AppCompatActivity {
     }
 
     private void addNewChairToFaculty(String chairName) {
-
-        boolean isValid = true;
-
-        if (chairName.isEmpty()){
-            chairNameTextInput.setError(getText(R.string.empty_chair_name_error));
-            isValid = false;
-        }else {
-            chairNameTextInput.setError(null);
-        }
-
-        if (isValid){
             Chair chair = new Chair(chairName, String.valueOf(chairName.charAt(0)));
             chairsList.add(chair);
 
@@ -195,14 +219,42 @@ public class ChairActivity extends AppCompatActivity {
                     Toast.makeText(ChairActivity.this, R.string.failure_add_chair_error, Toast.LENGTH_LONG).show();
                 }
             });
-        }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        chairAdapter.setAuthenticatedUserEmail(authenticatedUserEmail);
-        getChairs();
+    public void deleteChair(int chairPositionToDelete){
+        facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs").
+                child(String.valueOf(chairPositionToDelete)).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<Void> task) {
+                Toast.makeText(ChairActivity.this, R.string.delete_chair_success, Toast.LENGTH_SHORT).show();
+                bottomSheetFragment.dismiss();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull @NotNull Exception e) {
+                Toast.makeText(ChairActivity.this, R.string.delete_chair_failure, Toast.LENGTH_SHORT).show();
+                bottomSheetFragment.dismiss();
+            }
+        });
+    }
+
+    public void editChair(int chairPositionToUpdate, String chairName){
+        Chair newChair = new Chair(chairName, String.valueOf(chairName.charAt(0)));
+        newChair.setGroups(chairToUpdate.getGroups());
+
+        facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs").
+                child(String.valueOf(chairPositionToUpdate)).setValue(newChair).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+                        Toast.makeText(ChairActivity.this, R.string.update_chair_success, Toast.LENGTH_SHORT).show();
+                        alertDialog.dismiss();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull @NotNull Exception e) {
+                        Toast.makeText(ChairActivity.this, R.string.update_chair_failure, Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void getChairs() {
@@ -228,6 +280,13 @@ public class ChairActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        chairAdapter.setAuthenticatedUserEmail(authenticatedUserEmail);
+        getChairs();
     }
 
     @Override
@@ -260,4 +319,13 @@ public class ChairActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onButtonCancel() {
+        bottomSheetFragment.dismiss();
+    }
+
+    @Override
+    public void onButtonDelete() {
+        deleteChair(chairPositionToDelete);
+    }
 }

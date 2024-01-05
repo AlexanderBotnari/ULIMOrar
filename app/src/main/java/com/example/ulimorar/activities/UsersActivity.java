@@ -18,8 +18,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.ulimorar.R;
+import com.example.ulimorar.adapters.FacultyAdapter;
 import com.example.ulimorar.adapters.UserAdapter;
+import com.example.ulimorar.entities.Faculty;
 import com.example.ulimorar.entities.User;
+import com.example.ulimorar.fragments.DeleteBottomSheetFragment;
+import com.example.ulimorar.fragments.interfaces.BottomSheetListener;
 import com.example.ulimorar.utils.GetDialogsStandardButtons;
 import com.example.ulimorar.utils.controllers.SwipeController;
 import com.example.ulimorar.utils.controllers.SwipeControllerActions;
@@ -37,8 +41,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class UsersActivity extends AppCompatActivity {
+public class UsersActivity extends AppCompatActivity implements BottomSheetListener {
 
     private AlertDialog alertDialog;
 
@@ -65,6 +70,8 @@ public class UsersActivity extends AppCompatActivity {
 
     private User currentUser;
     private User userToUpdate;
+    private DeleteBottomSheetFragment bottomSheetFragment;
+    private User userToDelete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,11 +117,11 @@ public class UsersActivity extends AppCompatActivity {
 
         swipeController = new SwipeController(new SwipeControllerActions() {
             @Override
-            public void onRightClicked (int position) {
-                deleteUserByEmail(UsersActivity.this, userAdapter.getUsers().get(position));
-                userAdapter.getUsers().remove(position);
-                userAdapter.notifyItemRemoved(position);
-                userAdapter.notifyItemRangeChanged(position, userAdapter.getItemCount());
+            public void onRightClicked (int position){
+                userToDelete = userAdapter.getUsers().get(position);
+                bottomSheetFragment = new DeleteBottomSheetFragment();
+                bottomSheetFragment.show(getSupportFragmentManager(), bottomSheetFragment.getTag());
+                bottomSheetFragment.setBottomSheetListener(UsersActivity.this);
             }
 
             @Override
@@ -287,8 +294,12 @@ public class UsersActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     for (DataSnapshot userSnapshot : snapshot.getChildren()) {
                         User user = userSnapshot.getValue(User.class);
-
-                        users.add(user);
+                        assert user != null;
+                        if (user.getEmail() != null){
+                            if (!user.getEmail().equals(Objects.requireNonNull(auth.getCurrentUser()).getEmail())){
+                                users.add(user);
+                            }
+                        }
                     }
                     userAdapter.notifyDataSetChanged();
                     swipeRefreshLayout.setRefreshing(false);
@@ -364,6 +375,7 @@ public class UsersActivity extends AppCompatActivity {
                                                             userToDelete.getLastName() + " " + getText(R.string.delete_user_success);
                                                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                                                     auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
+                                                    bottomSheetFragment.dismiss();
                                                 })
                                                 .addOnFailureListener(e -> {
                                                     // Tratarea erorii la ștergerea din Realtime Database
@@ -460,5 +472,15 @@ public class UsersActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onButtonCancel() {
+        bottomSheetFragment.dismiss();
+    }
+
+    @Override
+    public void onButtonDelete() {
+        deleteUserByEmail(UsersActivity.this, userToDelete);
     }
 }
