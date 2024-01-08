@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.ulimorar.R;
 import com.example.ulimorar.entities.User;
 import com.example.ulimorar.entities.enums.UserRole;
+import com.google.android.material.snackbar.Snackbar;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -51,6 +52,15 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         holder.lastNameTextView.setText(user.getLastName());
         holder.emailTextView.setText(user.getEmail());
         holder.idnpTextView.setText(user.getIdnp());
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String message = "Password for user: "+user.getEmail()+" is : "+user.getPassword();
+                Snackbar snackbar = Snackbar.make(view, message, 5000);
+                snackbar.show();
+            }
+        });
     }
 
     @Override
