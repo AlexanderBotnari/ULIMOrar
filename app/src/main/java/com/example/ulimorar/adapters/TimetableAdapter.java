@@ -1,7 +1,6 @@
 package com.example.ulimorar.adapters;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,12 +8,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.ulimorar.R;
+import com.example.ulimorar.activities.TimetableActivity;
 import com.example.ulimorar.activities.TimetableFullscreenActivity;
 import com.example.ulimorar.entities.Timetable;
+import com.example.ulimorar.fragments.DeleteBottomSheetFragment;
+import com.example.ulimorar.fragments.interfaces.BottomSheetListener;
 import com.squareup.picasso.Picasso;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,36 +23,40 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import static androidx.core.content.res.TypedArrayUtils.getText;
-
-public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.TimetableViewHolder> {
+public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.TimetableViewHolder> implements BottomSheetListener {
 
     private List<Timetable> timetables;
-    private Context context;
+    private TimetableActivity timetableActivity;
     private boolean isAdmin;
+    private DeleteBottomSheetFragment bottomSheetFragment;
+    private Timetable timetable;
+    private String timetablePositionToDelete;
 
-    public TimetableAdapter(List<Timetable> timetables, Context context) {
+    public TimetableAdapter(List<Timetable> timetables, TimetableActivity timetableActivity) {
         this.timetables = timetables;
-        this.context = context;
+        this.timetableActivity = timetableActivity;
     }
 
     public void setAdmin(boolean admin) {
         isAdmin = admin;
     }
 
+    public List<Timetable> getTimetables() {
+        return timetables;
+    }
+
     @NonNull
     @NotNull
     @Override
     public TimetableViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.timetable_list_item, parent, false);
+        View view = LayoutInflater.from(timetableActivity).inflate(R.layout.timetable_list_item, parent, false);
         return new TimetableViewHolder(view);
     }
 
     @SuppressLint("SetTextI18n")
     @Override
-    public void onBindViewHolder(@NonNull @NotNull TimetableAdapter.TimetableViewHolder holder, int position) {
-
-        Timetable timetable = timetables.get(position);
+    public void onBindViewHolder(@NonNull @NotNull TimetableAdapter.TimetableViewHolder holder, @SuppressLint("RecyclerView") int position) {
+        timetable = timetables.get(position);
 
         Date date = new Date(timetable.getUpdateTime());
         @SuppressLint("SimpleDateFormat")
@@ -60,14 +65,14 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
 
         Picasso.get().load(timetable.getImageUrl()).placeholder(R.drawable.ulim_logo).into(holder.timetableImageView);
         holder.sessionNameTextView.setText(timetable.getTimetableName());
-        holder.timetableDateTextView.setText(context.getText(R.string.last_update) + " " + strDate);
+        holder.timetableDateTextView.setText(timetableActivity.getText(R.string.last_update) + " " + strDate);
 
         holder.viewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context, TimetableFullscreenActivity.class);
+                Intent intent = new Intent(timetableActivity, TimetableFullscreenActivity.class);
                 intent.putExtra("photoUrl", timetable.getImageUrl());
-                context.startActivity(intent);
+                timetableActivity.startActivity(intent);
             }
         });
 
@@ -78,14 +83,17 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
             holder.editTimetableButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Toast.makeText(context, "Edit timetable!", Toast.LENGTH_SHORT).show();
+                    timetableActivity.openDialog(R.string.edit_timetable_dialog_title, false, position);
                 }
             });
 
             holder.deleteTimetableButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Toast.makeText(context, "Delete timetable!", Toast.LENGTH_SHORT).show();
+                    timetablePositionToDelete = String.valueOf(position);
+                    bottomSheetFragment = new DeleteBottomSheetFragment();
+                    bottomSheetFragment.show(timetableActivity.getSupportFragmentManager(), bottomSheetFragment.getTag());
+                    bottomSheetFragment.setBottomSheetListener(TimetableAdapter.this);
                 }
             });
         }else{
@@ -97,6 +105,16 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
     @Override
     public int getItemCount() {
         return timetables.size();
+    }
+
+    @Override
+    public void onButtonCancel() {
+        bottomSheetFragment.dismiss();
+    }
+
+    @Override
+    public void onButtonDelete() {
+        timetableActivity.deleteTimetable(timetablePositionToDelete, timetable);
     }
 
     public static class TimetableViewHolder extends RecyclerView.ViewHolder{

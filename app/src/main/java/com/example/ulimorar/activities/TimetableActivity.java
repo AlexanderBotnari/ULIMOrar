@@ -23,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.ulimorar.R;
 import com.example.ulimorar.adapters.TimetableAdapter;
-import com.example.ulimorar.entities.Chair;
 import com.example.ulimorar.entities.Faculty;
 import com.example.ulimorar.entities.Group;
 import com.example.ulimorar.entities.Timetable;
@@ -46,7 +45,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class TimetableActivity extends AppCompatActivity {
+public class TimetableActivity extends AppCompatActivity{
 
     private ActivityResultLauncher<Intent> imagePickerLauncher;
     private Uri selectedImageUri;
@@ -57,7 +56,6 @@ public class TimetableActivity extends AppCompatActivity {
 
     private Group currentGroup;
     private Faculty currentFaculty;
-    private Chair currentChair;
     private String chairIndex;
     private String groupIndex;
     private boolean isAdmin;
@@ -70,9 +68,10 @@ public class TimetableActivity extends AppCompatActivity {
     private AlertDialog alertDialog;
 
     private DatabaseReference groupsDatabaseReference;
-    private FirebaseAuth auth;
     private FirebaseStorage storage;
     private StorageReference storageReference;
+
+    private Timetable timetableToUpdate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +80,6 @@ public class TimetableActivity extends AppCompatActivity {
         Intent intent = getIntent();
         currentGroup = (Group) intent.getSerializableExtra("groupFromIntent");
         currentFaculty = (Faculty) intent.getSerializableExtra("currentFaculty");
-        currentChair = (Chair) intent.getSerializableExtra("currentChair");
         chairIndex = intent.getStringExtra("chairIndex");
         groupIndex = intent.getStringExtra("groupIndex");
         isAdmin = intent.getBooleanExtra("userIsAdmin", false);
@@ -95,7 +93,6 @@ public class TimetableActivity extends AppCompatActivity {
         groupsDatabaseReference = FirebaseDatabase.getInstance().getReference("faculties")
                 .child(currentFaculty.getId()).child("chairs")
                 .child(chairIndex).child("groups");
-        auth = FirebaseAuth.getInstance();
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
 
@@ -114,7 +111,7 @@ public class TimetableActivity extends AppCompatActivity {
         addTimetableButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openDialog(R.string.add_timetable_dialog_title);
+                openDialog(R.string.add_timetable_dialog_title, true, null);
             }
         });
 
@@ -139,7 +136,7 @@ public class TimetableActivity extends AppCompatActivity {
 
     }
 
-    private void openDialog(int dialogTitle) {
+    public void openDialog(int dialogTitle, boolean isAddDialog, Integer itemPosition) {
         View alertDialogCustomView = LayoutInflater.from(this).inflate(R.layout.add_edit_timetable_dialog, null);
 
         TextView titleTextView = alertDialogCustomView.findViewById(R.id.dialogTitleTextView);
@@ -165,10 +162,32 @@ public class TimetableActivity extends AppCompatActivity {
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         alertDialog.show();
 
+        if (!isAddDialog){
+            timetableToUpdate = timetableAdapter.getTimetables().get(itemPosition);
+            timetableNameTextInput.getEditText().setText(timetableToUpdate.getTimetableName());
+        }
+
         GetDialogsStandardButtons.getSaveButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addNewTimetableToGroup(timetableNameEditText.getText().toString());
+                String timetableName = timetableNameEditText.getText().toString();
+
+                boolean isValid = true;
+
+                if (timetableName.isEmpty()){
+                    timetableNameTextInput.setError(getText(R.string.empty_timetable_name_error));
+                    isValid = false;
+                }else{
+                    timetableNameTextInput.setError(null);
+                }
+
+                if (isValid){
+                    if (isAddDialog){
+                        addNewTimetableToGroup(timetableName);
+                    }else{
+                        editTimetable(itemPosition, timetableName);
+                    }
+                }
             }
         });
 
@@ -213,51 +232,6 @@ public class TimetableActivity extends AppCompatActivity {
         }
     }
 
-    private void addNewTimetableToGroup(String timetableName) {
-
-        boolean isValid = true;
-
-        if (timetableName.isEmpty()){
-            timetableNameTextInput.setError(getText(R.string.empty_timetable_name_error));
-            isValid = false;
-        }else{
-            timetableNameTextInput.setError(null);
-        }
-
-        if (isValid){
-
-            Timetable timetable = new Timetable(timetableName, new Date().getTime());
-
-            timetableList.add(timetable);
-            currentGroup.setTimetables(timetableList);
-
-            groupsDatabaseReference.child(groupIndex).setValue(currentGroup).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull @NotNull Task<Void> task) {
-                            Toast.makeText(TimetableActivity.this, R.string.add_timetable_successful_message, Toast.LENGTH_SHORT).show();
-                            alertDialog.dismiss();
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull @NotNull Exception e) {
-                            Toast.makeText(TimetableActivity.this, R.string.failure_add_timetable_error, Toast.LENGTH_SHORT).show();
-                            Log.d("FailureAddTimetable", e.getMessage());
-                        }
-                    });
-
-            // Upload the selected image to Firebase Storage or perform other actions
-            uploadImageToFirebaseStorage(selectedImageUri, timetable.getTimetableName(), timetable.getUpdateTime(), String.valueOf(timetableList.indexOf(timetable)));
-            selectedImageUri = null;
-        }
-
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        getTimetables();
-    }
-
     private void getTimetables() {
         Query query = FirebaseDatabase.getInstance().getReference("faculties").child(currentFaculty.getId())
                 .child("chairs").child(chairIndex).child("groups").child(groupIndex).child("timetables");
@@ -282,6 +256,80 @@ public class TimetableActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void addNewTimetableToGroup(String timetableName) {
+            Timetable timetable = new Timetable(timetableName, new Date().getTime());
+
+            timetableList.add(timetable);
+            currentGroup.setTimetables(timetableList);
+
+            groupsDatabaseReference.child(groupIndex).setValue(currentGroup).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull @NotNull Task<Void> task) {
+                            Toast.makeText(TimetableActivity.this, R.string.add_timetable_successful_message, Toast.LENGTH_SHORT).show();
+                            alertDialog.dismiss();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull @NotNull Exception e) {
+                            Toast.makeText(TimetableActivity.this, R.string.failure_add_timetable_error, Toast.LENGTH_SHORT).show();
+                            Log.d("FailureAddTimetable", e.getMessage());
+                        }
+                    });
+
+            // Upload the selected image to Firebase Storage or perform other actions
+            uploadImageToFirebaseStorage(selectedImageUri, timetable.getTimetableName(), timetable.getUpdateTime(), String.valueOf(timetableList.indexOf(timetable)));
+            selectedImageUri = null;
+    }
+
+    public void editTimetable(Integer itemPosition, String timetableName){
+        Timetable newTimetable = new Timetable(timetableName,  new Date().getTime());
+
+        if (selectedImageUri != null){
+            storageReference.child("timetables/" + currentGroup.getGroupName() + "-" +
+                    timetableToUpdate.getTimetableName() + "-" + timetableToUpdate.getUpdateTime() + ".jpg").delete();
+            uploadImageToFirebaseStorage(selectedImageUri, newTimetable.getTimetableName(), newTimetable.getUpdateTime(), String.valueOf(itemPosition));
+            selectedImageUri = null;
+        }else{
+            newTimetable.setImageUrl(timetableToUpdate.getImageUrl());
+        }
+
+        groupsDatabaseReference.child(groupIndex).child("timetables").child(String.valueOf(itemPosition))
+                .setValue(newTimetable).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<Void> task) {
+                Toast.makeText(TimetableActivity.this, R.string.update_timetable_success, Toast.LENGTH_SHORT).show();
+                alertDialog.dismiss();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull @NotNull Exception e) {
+                        Toast.makeText(TimetableActivity.this, R.string.update_timetable_failure, Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    public void deleteTimetable(String timetablePosition ,Timetable timetableToDelete){
+        groupsDatabaseReference.child(groupIndex).child("timetables").child(timetablePosition).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<Void> task) {
+                storageReference.child("timetables/" + currentGroup.getGroupName() + "-" +
+                        timetableToDelete.getTimetableName() + "-" + timetableToDelete.getUpdateTime() + ".jpg").delete();
+                Toast.makeText(TimetableActivity.this, R.string.delete_timetable_success, Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull @NotNull Exception e) {
+                Toast.makeText(TimetableActivity.this, R.string.delete_timetable_failure, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        getTimetables();
     }
 
     @Override
@@ -313,4 +361,5 @@ public class TimetableActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
 }

@@ -17,6 +17,10 @@ public class Timetable implements Serializable {
         this.updateTime = updateTime;
     }
 
+    public Timetable(String timetableName){
+        this.timetableName = timetableName;
+    }
+
     public String getTimetableName() {
         return timetableName;
     }

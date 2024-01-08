@@ -48,6 +48,7 @@
     <string name="edit_faculty_dialog_title">Edit Faculty</string>
     <string name="edit_chair_dialog_title">Edit Chair</string>
     <string name="edit_group_dialog_title">Edit Group</string>
+    <string name="edit_timetable_dialog_title">Edit Timetable</string>
 
     <!--    Messages-->
     <string name="password_length_error">Password must be least 7 characters</string>
@@ -102,4 +103,8 @@
     <string name="delete_group_success">Group successful deleted</string>
     <string name="delete_group_failure">Failure to delete group</string>
     <string name="group_symbol_max_length">Max length 3 symbols</string>
+    <string name="delete_timetable_success">Timetable successful deleted</string>
+    <string name="delete_timetable_failure">Failure to delete timetable</string>
+    <string name="update_timetable_success">Successful updated timetable</string>
+    <string name="update_timetable_failure">Failure to delete timetable</string>
 </resources>
