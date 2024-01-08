@@ -417,10 +417,8 @@ public class FacultyActivity extends AppCompatActivity {
             case R.id.users:
                 startActivity(new Intent(FacultyActivity.this, UsersActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
                 return true;
-            case R.id.logout:
-                Toast.makeText(this, R.string.logout_message, Toast.LENGTH_LONG).show();
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(FacultyActivity.this, LoginActivity.class));
+            case R.id.account:
+                startActivity(new Intent(FacultyActivity.this, AccountActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

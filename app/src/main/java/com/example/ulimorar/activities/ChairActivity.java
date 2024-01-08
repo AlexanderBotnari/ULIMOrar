@@ -308,10 +308,8 @@ public class ChairActivity extends AppCompatActivity implements BottomSheetListe
             case R.id.faculty:
                 startActivity(new Intent(ChairActivity.this, FacultyActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
                 return true;
-            case R.id.logout:
-                Toast.makeText(this, R.string.logout_message, Toast.LENGTH_LONG).show();
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(ChairActivity.this, LoginActivity.class));
+            case R.id.account:
+                startActivity(new Intent(ChairActivity.this, AccountActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

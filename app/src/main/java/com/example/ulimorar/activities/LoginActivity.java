@@ -58,7 +58,8 @@ public class LoginActivity extends AppCompatActivity {
         forgotTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(LoginActivity.this, R.string.forgot_password_message, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(LoginActivity.this, R.string.forgot_password_message, Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class));
             }
         });
     }

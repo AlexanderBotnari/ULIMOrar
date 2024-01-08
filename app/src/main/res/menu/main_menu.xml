@@ -6,8 +6,8 @@
             android:title="@string/faculty_menu_item"/>
 
     <item
-            android:id="@+id/logout"
-            android:title="@string/logout_menu_item"/>
+            android:id="@+id/account"
+            android:title="@string/account_menu_item"/>
 
     <item
             android:id="@+id/users"

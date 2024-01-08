@@ -1,6 +1,5 @@
 package com.example.ulimorar.adapters;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.ulimorar.R;
+import com.example.ulimorar.activities.UsersActivity;
 import com.example.ulimorar.entities.User;
 import com.example.ulimorar.entities.enums.UserRole;
 import com.google.android.material.snackbar.Snackbar;
@@ -18,11 +18,11 @@ import java.util.List;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
 
-    private Context context;
+    private UsersActivity usersActivity;
     private List<User> users;
 
-    public UserAdapter(Context context, List<User> users) {
-        this.context = context;
+    public UserAdapter(UsersActivity usersActivity, List<User> users) {
+        this.usersActivity = usersActivity;
         this.users = users;
     }
 
@@ -34,7 +34,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     @NotNull
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.user_list_item, parent, false);
+        View view = LayoutInflater.from(usersActivity).inflate(R.layout.user_list_item, parent, false);
         return new UserViewHolder(view);
     }
 
@@ -56,7 +56,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String message = "Password for user: "+user.getEmail()+" is : "+user.getPassword();
+                String message = usersActivity.getText(R.string.password_for_user)+user.getEmail()+usersActivity.getText(R.string.is)+user.getPassword();
                 Snackbar snackbar = Snackbar.make(view, message, 5000);
                 snackbar.show();
             }

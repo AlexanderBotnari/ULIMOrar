@@ -464,10 +464,8 @@ public class UsersActivity extends AppCompatActivity implements BottomSheetListe
             case R.id.faculty:
                 startActivity(new Intent(UsersActivity.this, FacultyActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
                 return true;
-            case R.id.logout:
-                Toast.makeText(this, R.string.logout_message, Toast.LENGTH_LONG).show();
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(UsersActivity.this, LoginActivity.class));
+            case R.id.account:
+                startActivity(new Intent(UsersActivity.this, AccountActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

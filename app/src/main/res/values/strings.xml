@@ -5,14 +5,12 @@
     <string name="chairs_activity_title">ULIM Chairs</string>
     <string name="groups_activity_title">ULIM Groups</string>
     <string name="users_activity_title">ULIM Users</string>
+    <string name="account_activity_title">Account</string>
 
     <!--    Menu items-->
     <string name="faculty_menu_item">Faculties</string>
-    <string name="chair_menu_item">Chairs</string>
-    <string name="group_menu_item">Groups</string>
-    <string name="timetable_menu_item">Timetables</string>
     <string name="user_menu_item">Users</string>
-    <string name="logout_menu_item">Logout</string>
+    <string name="account_menu_item">Account</string>
 
     <!--    Edit texts-->
     <string name="login_label">Email</string>
@@ -37,6 +35,8 @@
     </string>
     <string name="cancel_button">Cancel</string>
     <string name="save_button">Save</string>
+    <string name="send_button">Send</string>
+    <string name="logout_button">Logout</string>
 
     <!--    Dialogs-->
     <string name="add_faculty_dialog_title">Add Faculty</string>
@@ -49,6 +49,10 @@
     <string name="edit_chair_dialog_title">Edit Chair</string>
     <string name="edit_group_dialog_title">Edit Group</string>
     <string name="edit_timetable_dialog_title">Edit Timetable</string>
+
+    <!--    Snack bar-->
+    <string name="password_for_user">Password for user:</string>
+    <string name="is">is :</string>
 
     <!--    Messages-->
     <string name="password_length_error">Password must be least 7 characters</string>

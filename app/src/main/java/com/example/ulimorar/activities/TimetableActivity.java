@@ -356,10 +356,8 @@ public class TimetableActivity extends AppCompatActivity{
             case R.id.faculty:
                 startActivity(new Intent(TimetableActivity.this, FacultyActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
                 return true;
-            case R.id.logout:
-                Toast.makeText(this, R.string.logout_message, Toast.LENGTH_LONG).show();
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(TimetableActivity.this, LoginActivity.class));
+            case R.id.account:
+                startActivity(new Intent(TimetableActivity.this, AccountActivity.class).putExtra("currentUserEmail", authenticatedUserEmail));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
