@@ -60,7 +60,7 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
 
         Date date = new Date(timetable.getUpdateTime());
         @SuppressLint("SimpleDateFormat")
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
         String strDate = formatter.format(date);
 
         Picasso.get().load(timetable.getImageUrl()).placeholder(R.drawable.ulim_logo).into(holder.timetableImageView);

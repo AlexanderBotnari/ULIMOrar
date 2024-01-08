@@ -51,6 +51,7 @@ public class TimetableActivity extends AppCompatActivity{
     private Uri selectedImageUri;
 
     private FloatingActionButton addTimetableButton;
+    private ImageButton addTimetableImageButton;
     private SwipeRefreshLayout swipeRefreshLayout;
     private TextInputLayout timetableNameTextInput;
 
@@ -119,10 +120,13 @@ public class TimetableActivity extends AppCompatActivity{
         imagePickerLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
+                        addTimetableImageButton.setImageResource(R.drawable.ic_succes);
                         Intent data = result.getData();
                         if (data != null) {
                             selectedImageUri = data.getData();
                         }
+                    }else{
+                        addTimetableImageButton.setImageResource(R.drawable.ic_failed);
                     }
                 });
 
@@ -143,7 +147,7 @@ public class TimetableActivity extends AppCompatActivity{
         titleTextView.setText(dialogTitle);
         timetableNameTextInput = alertDialogCustomView.findViewById(R.id.timetableNameTextInput);
         TextInputEditText timetableNameEditText = (TextInputEditText) timetableNameTextInput.getEditText();
-        ImageButton addTimetableImageButton = alertDialogCustomView.findViewById(R.id.timetableAddImageButton);
+        addTimetableImageButton = alertDialogCustomView.findViewById(R.id.timetableAddImageButton);
 
         addTimetableImageButton.setOnClickListener(new View.OnClickListener() {
             @Override

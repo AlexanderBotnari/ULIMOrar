@@ -68,11 +68,12 @@
             <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_arrow"
-                    android:id="@+id/arrowImageView"
+                    app:srcCompat="@drawable/ic_users"
+                    android:id="@+id/iconImageView"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="16dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginEnd="16dp"
                     app:layout_constraintStart_toEndOf="@+id/userLastNameTextView" android:layout_marginStart="32dp"
                     app:layout_constraintHorizontal_bias="1.0"/>
 

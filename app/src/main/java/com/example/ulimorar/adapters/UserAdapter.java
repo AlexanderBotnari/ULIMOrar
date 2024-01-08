@@ -4,11 +4,13 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.ulimorar.R;
 import com.example.ulimorar.entities.User;
+import com.example.ulimorar.entities.enums.UserRole;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -39,6 +41,12 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     public void onBindViewHolder(@NonNull @NotNull UserAdapter.UserViewHolder holder, int position) {
         User user = users.get(position);
 
+        if (user.getRole().equals(UserRole.ADMIN.toString())){
+            holder.iconImageView.setImageResource(R.drawable.ic_admin);
+        }else{
+            holder.iconImageView.setImageResource(R.drawable.ic_users);
+        }
+
         holder.firstNameTextView.setText(user.getFirstName());
         holder.lastNameTextView.setText(user.getLastName());
         holder.emailTextView.setText(user.getEmail());
@@ -56,6 +64,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         private TextView lastNameTextView;
         private TextView emailTextView;
         private TextView idnpTextView;
+        private ImageView iconImageView;
 
         public UserViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
@@ -63,6 +72,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             lastNameTextView = itemView.findViewById(R.id.userLastNameTextView);
             emailTextView = itemView.findViewById(R.id.emailTextView);
             idnpTextView = itemView.findViewById(R.id.idnpTextView);
+            iconImageView = itemView.findViewById(R.id.iconImageView);
         }
     }
 }
