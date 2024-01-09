@@ -17,9 +17,6 @@
                 android:exported="true"
                 android:parentActivityName=".activities.FacultyActivity"/>
         <activity
-                android:name=".activities.ForgotPasswordActivity"
-                android:exported="true"/>
-        <activity
                 android:name=".activities.TimetableFullscreenActivity"
                 android:exported="true"/>
         <activity
@@ -48,9 +45,8 @@
                 android:name=".activities.SplashScreenActivity"
                 android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>
 

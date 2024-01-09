@@ -51,8 +51,10 @@
     <string name="edit_timetable_dialog_title">Edit Timetable</string>
 
     <!--    Snack bar-->
-    <string name="password_for_user">Password for user:</string>
-    <string name="is">is :</string>
+    <string name="password_for_user">Password for user: </string>
+    <string name="is"> is :</string>
+    <string name="email_sent_to">Email sent to </string>
+    <string name="please_click_link_in_email">Please click link from inbox.</string>
 
     <!--    Messages-->
     <string name="password_length_error">Password must be least 7 characters</string>
@@ -111,4 +113,7 @@
     <string name="delete_timetable_failure">Failure to delete timetable</string>
     <string name="update_timetable_success">Successful updated timetable</string>
     <string name="update_timetable_failure">Failure to delete timetable</string>
+    <string name="email_signin_failed">Email link sign-in failed or expired link</string>
+    <string name="invalid_email_link">Invalid email link!</string>
+    <string name="error_to_send_link">Error to send link to email. Please try later.</string>
 </resources>
