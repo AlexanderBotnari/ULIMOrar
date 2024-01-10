@@ -116,4 +116,7 @@
     <string name="email_signin_failed">Email link sign-in failed or expired link</string>
     <string name="invalid_email_link">Invalid email link!</string>
     <string name="error_to_send_link">Error to send link to email. Please try later.</string>
+    <string name="error_signin_with_new_credentials">Error sign in with new credentials</string>
+    <string name="error_create_user_in_auth">Error create user in authentication</string>
+    <string name="user_data_changed">You change a user data. Please login with new credentials!</string>
 </resources>

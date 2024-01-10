@@ -21,6 +21,7 @@ import com.example.ulimorar.entities.enums.UserRole;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -174,73 +175,83 @@ public class AccountActivity extends AppCompatActivity {
 
         if (isValid) {
             getUserByEmail(authenticatedUserEmail);
+            String oldPassword = authenticatedUser.getPassword();
+            String newPassword = email;
+
             User newUser = new User(authenticatedUser.getId(), firstName, lastName, email,
                     authenticatedUser.getIdnp(), authenticatedUser.getRole(), password);
 
-            userDbReference.child(authenticatedUser.getId()).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull @NotNull Task<Void> task) {
-                    makeFieldsEditable(false);
+            // if update only email or email and password
+            if (!authenticatedUser.getEmail().equals(newUser.getEmail()) |
+                    (!authenticatedUser.getEmail().equals(newUser.getEmail()) && !authenticatedUser.getPassword().equals(newUser.getPassword()))) {
 
-                    auth.signInWithEmailAndPassword(authenticatedUser.getEmail(), authenticatedUser.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
-                            if (task.isSuccessful()){
-                                FirebaseUser oldUser = auth.getCurrentUser();
-                                oldUser.delete();
-                                auth.createUserWithEmailAndPassword(newUser.getEmail(), newUser.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                    @Override
-                                    public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
-                                        Toast.makeText(AccountActivity.this, R.string.update_user_success_message, Toast.LENGTH_SHORT).show();
-                                        auth.signInWithEmailAndPassword(newUser.getEmail(), newUser.getPassword()).addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull @NotNull Exception e) {
-                                                Toast.makeText(AccountActivity.this, "Error sign in with new credentials", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull @NotNull Exception e) {
-                                        Toast.makeText(AccountActivity.this, "Error create user in auth", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            }
-                        }
-                    });
+                userDbReference.child(authenticatedUser.getId()).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<Void> task) {
 
-                    swipeRefreshLayout.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            swipeRefreshLayout.setRefreshing(true);
+                        createNewUserInAuth(newUser);
 
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        Thread.sleep(2000);
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
-                                    getUserByEmail(authenticatedUserEmail);
-                                    runOnUiThread(new Runnable() {
+                        deleteOldUserAndSignInWithNew(authenticatedUser, newUser);
+
+                        makeFieldsEditable(false);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull @NotNull Exception e) {
+                        Toast.makeText(AccountActivity.this, R.string.update_user_failure, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                // if update only password
+            }
+
+            if (!authenticatedUser.getPassword().equals(newUser.getPassword())){
+                userDbReference.child(authenticatedUser.getId()).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+                        auth.signInWithEmailAndPassword(authenticatedUser.getEmail(), oldPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+                                    FirebaseUser oldUser = auth.getCurrentUser();
+                                    assert oldUser != null;
+                                    oldUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
-                                        public void run() {
-                                            swipeRefreshLayout.setRefreshing(false);
+                                        public void onComplete(@NonNull @NotNull Task<Void> task) {
+
+                                            createNewUserInAuth(newUser);
+
+                                            signInWithNewDataAndReload(newUser);
                                         }
                                     });
                                 }
-                            }).start();
-                        }
-                    });
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull @NotNull Exception e) {
+                                Toast.makeText(AccountActivity.this, "Authentication data error", Toast.LENGTH_SHORT).show();
+                            }
+                        });
 
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull @NotNull Exception e) {
-                    Toast.makeText(AccountActivity.this, R.string.update_user_failure, Toast.LENGTH_SHORT).show();
-                }
-            });
+                        makeFieldsEditable(false);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull @NotNull Exception e) {
+                        Toast.makeText(AccountActivity.this, R.string.update_user_failure, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+                // update user data without newEmail and newPassword
+                userDbReference.child(authenticatedUser.getId()).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+                        Toast.makeText(AccountActivity.this, R.string.update_user_success_message, Toast.LENGTH_SHORT).show();
+                        makeFieldsEditable(false);
+                    }
+                });
+
         }
     }
 
@@ -279,6 +290,61 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 Log.e("Error", "Failed to read user data.", databaseError.toException());
+            }
+        });
+    }
+
+    private void createNewUserInAuth(User newUser){
+        auth.createUserWithEmailAndPassword(newUser.getEmail(), newUser.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull @NotNull Exception e) {
+                Toast.makeText(AccountActivity.this, R.string.error_create_user_in_auth, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void signInWithNewDataAndReload(User newUser){
+        auth.signInWithEmailAndPassword(newUser.getEmail(), newUser.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
+                Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), getText(R.string.user_data_changed), 3000);
+                snackbar.show();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(4000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        auth.signOut();
+                        startActivity(new Intent(AccountActivity.this, LoginActivity.class));
+                        finish();
+                    }
+                }).start();
+            }
+        });
+//                .addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull @NotNull Exception e) {
+//                Toast.makeText(AccountActivity.this, R.string.error_signin_with_new_credentials, Toast.LENGTH_SHORT).show();
+//            }
+//        });
+    }
+
+    private void deleteOldUserAndSignInWithNew(User oldUser, User newUser){
+        auth.signInWithEmailAndPassword(oldUser.getEmail(), oldUser.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    FirebaseUser oldUser = auth.getCurrentUser();
+                    oldUser.delete();
+                    signInWithNewDataAndReload(newUser);
+                }
             }
         });
     }

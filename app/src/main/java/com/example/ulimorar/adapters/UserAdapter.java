@@ -53,14 +53,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         holder.emailTextView.setText(user.getEmail());
         holder.idnpTextView.setText(user.getIdnp());
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String message = usersActivity.getText(R.string.password_for_user)+" "+user.getEmail()+" "+usersActivity.getText(R.string.is)+" "+user.getPassword();
-                Snackbar snackbar = Snackbar.make(view, message, 5000);
-                snackbar.show();
-            }
-        });
     }
 
     @Override
