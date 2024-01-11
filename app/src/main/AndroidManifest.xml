@@ -13,6 +13,12 @@
             android:supportsRtl="true"
             android:theme="@style/Theme.ULIMOrar">
         <activity
+                android:name=".activities.ChangePasswordActivity"
+                android:exported="true"/>
+        <activity
+                android:name=".activities.ChangeEmailActivity"
+                android:exported="true"/>
+        <activity
                 android:name=".activities.AccountActivity"
                 android:exported="true"
                 android:parentActivityName=".activities.FacultyActivity"/>
@@ -46,6 +52,7 @@
                 android:exported="true">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER"/>
+
                 <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>

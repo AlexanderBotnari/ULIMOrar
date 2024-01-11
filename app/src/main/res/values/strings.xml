@@ -26,6 +26,8 @@
     <string name="group_name">Group name</string>
     <string name="group_symbol">Group symbol</string>
     <string name="role_spinner_title">Role</string>
+    <string name="new_email">Enter a new email</string>
+    <string name="new_password">Enter a new password</string>
 
     <!--    Buttons-->
     <string name="login_button">LOGIN</string>
@@ -51,9 +53,9 @@
     <string name="edit_timetable_dialog_title">Edit Timetable</string>
 
     <!--    Snack bar-->
-    <string name="password_for_user">Password for user: </string>
-    <string name="is"> is :</string>
-    <string name="email_sent_to">Email sent to </string>
+    <string name="password_for_user">Password for user:</string>
+    <string name="is">is :</string>
+    <string name="email_sent_to">Email sent to</string>
     <string name="please_click_link_in_email">Please click link from inbox.</string>
 
     <!--    Messages-->

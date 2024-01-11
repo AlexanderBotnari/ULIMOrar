@@ -9,6 +9,7 @@
         <entry key="app/src/main/res/drawable-night/ic_arrow.xml" value="0.228125" />
         <entry key="app/src/main/res/drawable-night/ic_delete.xml" value="0.4166666666666667" />
         <entry key="app/src/main/res/drawable-night/ic_edit.xml" value="0.4166666666666667" />
+        <entry key="app/src/main/res/drawable-night/ic_hide_password.xml" value="0.4166666666666667" />
         <entry key="app/src/main/res/drawable-night/ic_users.xml" value="0.4166666666666667" />
         <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.228125" />
         <entry key="app/src/main/res/drawable/dialog_bg.xml" value="0.415625" />
@@ -19,14 +20,20 @@
         <entry key="app/src/main/res/drawable/ic_edit.xml" value="0.228125" />
         <entry key="app/src/main/res/drawable/ic_edit_white.xml" value="0.228125" />
         <entry key="app/src/main/res/drawable/ic_failed.xml" value="0.228125" />
+        <entry key="app/src/main/res/drawable/ic_hide_password.xml" value="0.4166666666666667" />
+        <entry key="app/src/main/res/drawable/ic_hide_password_white.xml" value="0.4166666666666667" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.228125" />
         <entry key="app/src/main/res/drawable/ic_plus.xml" value="0.228125" />
         <entry key="app/src/main/res/drawable/ic_succes.xml" value="0.228125" />
         <entry key="app/src/main/res/drawable/ic_users.xml" value="0.4166666666666667" />
+        <entry key="app/src/main/res/drawable/ic_view_password.xml" value="0.4166666666666667" />
+        <entry key="app/src/main/res/drawable/ic_view_password_white.xml" value="0.4166666666666667" />
         <entry key="app/src/main/res/font/roboto.xml" value="0.2421875" />
         <entry key="app/src/main/res/font/roboto_thin.xml" value="0.2421875" />
-        <entry key="app/src/main/res/layout/activity_account.xml" value="0.3845108695652174" />
+        <entry key="app/src/main/res/layout/activity_account.xml" value="0.33" />
         <entry key="app/src/main/res/layout/activity_chair.xml" value="0.3591485507246377" />
+        <entry key="app/src/main/res/layout/activity_change_email.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/activity_change_password.xml" value="0.38645833333333335" />
         <entry key="app/src/main/res/layout/activity_faculty.xml" value="0.3591485507246377" />
         <entry key="app/src/main/res/layout/activity_forgot_password.xml" value="0.3845108695652174" />
         <entry key="app/src/main/res/layout/activity_group.xml" value="0.3591485507246377" />

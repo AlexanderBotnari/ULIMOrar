@@ -39,10 +39,10 @@ public class AccountActivity extends AppCompatActivity {
 
     private TextInputLayout firstNameTextField;
     private TextInputLayout lastNameTextField;
-    private TextInputLayout emailTextField;
+//    private TextInputLayout emailTextField;
     private TextView idnpTextView;
-    private TextInputLayout passwordTextField;
-    private TextInputLayout confirmPasswordTextField;
+//    private TextInputLayout passwordTextField;
+//    private TextInputLayout confirmPasswordTextField;
     private Button editButton;
     private Button saveButton;
     private Button logoutButton;
@@ -63,9 +63,9 @@ public class AccountActivity extends AppCompatActivity {
 
         firstNameTextField = findViewById(R.id.firstNameTextField);
         lastNameTextField = findViewById(R.id.lastNameTextField);
-        emailTextField = findViewById(R.id.emailTextField);
-        passwordTextField = findViewById(R.id.passwordTextField);
-        confirmPasswordTextField = findViewById(R.id.confirmPasswordTextField);
+//        emailTextField = findViewById(R.id.emailTextField);
+//        passwordTextField = findViewById(R.id.passwordTextField);
+//        confirmPasswordTextField = findViewById(R.id.confirmPasswordTextField);
         idnpTextView = findViewById(R.id.idnpTextView);
 
         logoutButton = findViewById(R.id.logoutButton);
@@ -114,17 +114,17 @@ public class AccountActivity extends AppCompatActivity {
         lastNameTextField.setEnabled(isEditable);
         lastNameTextField.getEditText().setCursorVisible(isEditable);
 
-        emailTextField.setFocusable(isEditable);
-        emailTextField.setEnabled(isEditable);
-        emailTextField.getEditText().setCursorVisible(isEditable);
-
-        passwordTextField.setFocusable(isEditable);
-        passwordTextField.setEnabled(isEditable);
-        passwordTextField.getEditText().setCursorVisible(isEditable);
-
-        confirmPasswordTextField.setFocusable(isEditable);
-        confirmPasswordTextField.setEnabled(isEditable);
-        confirmPasswordTextField.getEditText().setCursorVisible(isEditable);
+//        emailTextField.setFocusable(isEditable);
+//        emailTextField.setEnabled(isEditable);
+//        emailTextField.getEditText().setCursorVisible(isEditable);
+//
+//        passwordTextField.setFocusable(isEditable);
+//        passwordTextField.setEnabled(isEditable);
+//        passwordTextField.getEditText().setCursorVisible(isEditable);
+//
+//        confirmPasswordTextField.setFocusable(isEditable);
+//        confirmPasswordTextField.setEnabled(isEditable);
+//        confirmPasswordTextField.getEditText().setCursorVisible(isEditable);
 
         saveButton.setFocusable(isEditable);
         saveButton.setEnabled(isEditable);
@@ -134,9 +134,9 @@ public class AccountActivity extends AppCompatActivity {
     private void saveUser() {
         String firstName = firstNameTextField.getEditText().getText().toString();
         String lastName = lastNameTextField.getEditText().getText().toString();
-        String email = emailTextField.getEditText().getText().toString();
-        String password = passwordTextField.getEditText().getText().toString();
-        String confirmPassword = confirmPasswordTextField.getEditText().getText().toString();
+//        String email = emailTextField.getEditText().getText().toString();
+//        String password = passwordTextField.getEditText().getText().toString();
+//        String confirmPassword = confirmPasswordTextField.getEditText().getText().toString();
 
         boolean isValid = true;
 
@@ -154,103 +154,99 @@ public class AccountActivity extends AppCompatActivity {
             lastNameTextField.setError(null);
         }
 
-        if (!email.contains("@") || !email.contains(".")) {
-            emailTextField.setError(getString(R.string.enter_valid_email));
-            isValid = false;
-        }else{
-            emailTextField.setError(null);
-        }
-
-        if (password.length() <= 6) {
-            passwordTextField.setError(getString(R.string.password_length_error));
-            isValid = false;
-        } else if (!password.equals(confirmPassword)) {
-            passwordTextField.setError(getString(R.string.no_match_password_message));
-            confirmPasswordTextField.setError(getString(R.string.no_match_password_message));
-            isValid = false;
-        }else {
-            passwordTextField.setError(null);
-            confirmPasswordTextField.setError(null);
-        }
+//        if (!email.contains("@") || !email.contains(".")) {
+//            emailTextField.setError(getString(R.string.enter_valid_email));
+//            isValid = false;
+//        }else{
+//            emailTextField.setError(null);
+//        }
+//
+//        if (password.length() <= 6) {
+//            passwordTextField.setError(getString(R.string.password_length_error));
+//            isValid = false;
+//        } else if (!password.equals(confirmPassword)) {
+//            passwordTextField.setError(getString(R.string.no_match_password_message));
+//            confirmPasswordTextField.setError(getString(R.string.no_match_password_message));
+//            isValid = false;
+//        }else {
+//            passwordTextField.setError(null);
+//            confirmPasswordTextField.setError(null);
+//        }
 
         if (isValid) {
             getUserByEmail(authenticatedUserEmail);
-            String oldPassword = authenticatedUser.getPassword();
-            String newPassword = email;
+//            String oldPassword = authenticatedUser.getPassword();
 
-            User newUser = new User(authenticatedUser.getId(), firstName, lastName, email,
-                    authenticatedUser.getIdnp(), authenticatedUser.getRole(), password);
 
-            // if update only email or email and password
-            if (!authenticatedUser.getEmail().equals(newUser.getEmail()) |
-                    (!authenticatedUser.getEmail().equals(newUser.getEmail()) && !authenticatedUser.getPassword().equals(newUser.getPassword()))) {
+            // if update only email
+//            if (!authenticatedUser.getEmail().equals(email)) {
+//                User newUser = new User(authenticatedUser.getId(), authenticatedUser.getFirstName(),
+//                        authenticatedUser.getLastName(), email, authenticatedUser.getIdnp(),
+//                        authenticatedUser.getRole(), authenticatedUser.getPassword());
+//
+//                createNewUserInAuth(newUser, authenticatedUser.getId());
+//                deleteOldUserAndSignInWithNew(authenticatedUser, newUser);
+//                makeFieldsEditable(false);
+//
+//            }
 
-                userDbReference.child(authenticatedUser.getId()).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+            // if update email and password
+//            if (!authenticatedUser.getPassword().equals(password) && !authenticatedUser.getEmail().equals(email)) {
+//                User newUser = new User(authenticatedUser.getId(), authenticatedUser.getFirstName(),
+//                        authenticatedUser.getLastName(), email, authenticatedUser.getIdnp(),
+//                        authenticatedUser.getRole(), password);
+//
+//                createNewUserInAuth(newUser, authenticatedUser.getId());
+//                deleteOldUserAndSignInWithNew(authenticatedUser, newUser);
+//                makeFieldsEditable(false);
+//
+//            }
 
-                        createNewUserInAuth(newUser);
+//            // if update only password
+//            if (!authenticatedUser.getPassword().equals(password)){
+//                User newUser = new User(authenticatedUser.getId(), authenticatedUser.getFirstName(),
+//                        authenticatedUser.getLastName(), authenticatedUser.getEmail(),
+//                        authenticatedUser.getIdnp(), authenticatedUser.getRole(), password);
+//
+//                        auth.signInWithEmailAndPassword(authenticatedUser.getEmail(), oldPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+//                            @Override
+//                            public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
+//                                if (task.isSuccessful()) {
+//                                    FirebaseUser oldUser = auth.getCurrentUser();
+//                                    assert oldUser != null;
+//                                    oldUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                        @Override
+//                                        public void onComplete(@NonNull @NotNull Task<Void> task) {
+//
+//                                            createNewUserInAuth(newUser, authenticatedUser.getId());
+//
+//                                            signInWithNewDataAndReload(newUser);
+//                                        }
+//                                    });
+//                                }
+//                            }
+//                        }).addOnFailureListener(new OnFailureListener() {
+//                            @Override
+//                            public void onFailure(@NonNull @NotNull Exception e) {
+//                                Toast.makeText(AccountActivity.this, "Authentication data error", Toast.LENGTH_SHORT).show();
+//                            }
+//                        });
+//
+//                        makeFieldsEditable(false);
+//            }
 
-                        deleteOldUserAndSignInWithNew(authenticatedUser, newUser);
 
-                        makeFieldsEditable(false);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull @NotNull Exception e) {
-                        Toast.makeText(AccountActivity.this, R.string.update_user_failure, Toast.LENGTH_SHORT).show();
-                    }
-                });
+            User newUser = new User(authenticatedUser.getId(), firstName, lastName, authenticatedUser.getEmail(),
+                    authenticatedUser.getIdnp(), authenticatedUser.getRole(), authenticatedUser.getPassword());
 
-                // if update only password
-            }
+            userDbReference.child(authenticatedUser.getId()).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull @NotNull Task<Void> task) {
+                    Toast.makeText(AccountActivity.this, R.string.update_user_success_message, Toast.LENGTH_SHORT).show();
+                    makeFieldsEditable(false);
+                }
+            });
 
-            if (!authenticatedUser.getPassword().equals(newUser.getPassword())){
-                userDbReference.child(authenticatedUser.getId()).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull @NotNull Task<Void> task) {
-                        auth.signInWithEmailAndPassword(authenticatedUser.getEmail(), oldPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    FirebaseUser oldUser = auth.getCurrentUser();
-                                    assert oldUser != null;
-                                    oldUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull @NotNull Task<Void> task) {
-
-                                            createNewUserInAuth(newUser);
-
-                                            signInWithNewDataAndReload(newUser);
-                                        }
-                                    });
-                                }
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull @NotNull Exception e) {
-                                Toast.makeText(AccountActivity.this, "Authentication data error", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-
-                        makeFieldsEditable(false);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull @NotNull Exception e) {
-                        Toast.makeText(AccountActivity.this, R.string.update_user_failure, Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-
-                // update user data without newEmail and newPassword
-                userDbReference.child(authenticatedUser.getId()).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull @NotNull Task<Void> task) {
-                        Toast.makeText(AccountActivity.this, R.string.update_user_success_message, Toast.LENGTH_SHORT).show();
-                        makeFieldsEditable(false);
-                    }
-                });
 
         }
     }
@@ -273,10 +269,10 @@ public class AccountActivity extends AppCompatActivity {
 
                         firstNameTextField.getEditText().setText(authenticatedUser.getFirstName());
                         lastNameTextField.getEditText().setText(authenticatedUser.getLastName());
-                        emailTextField.getEditText().setText(authenticatedUser.getEmail());
+//                        emailTextField.getEditText().setText(authenticatedUser.getEmail());
                         idnpTextView.setText(authenticatedUser.getIdnp());
-                        passwordTextField.getEditText().setText(authenticatedUser.getPassword());
-                        confirmPasswordTextField.getEditText().setText(authenticatedUser.getPassword());
+//                        passwordTextField.getEditText().setText(authenticatedUser.getPassword());
+//                        confirmPasswordTextField.getEditText().setText(authenticatedUser.getPassword());
 
                     }
 
@@ -294,10 +290,21 @@ public class AccountActivity extends AppCompatActivity {
         });
     }
 
-    private void createNewUserInAuth(User newUser){
+    private void createNewUserInAuth(User newUser, String userId){
         auth.createUserWithEmailAndPassword(newUser.getEmail(), newUser.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
+                userDbReference.child(userId).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+//                        Toast.makeText(AccountActivity.this, R.string.update_user_success_message, Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull @NotNull Exception e) {
+                        Toast.makeText(AccountActivity.this, R.string.update_user_failure, Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -321,19 +328,18 @@ public class AccountActivity extends AppCompatActivity {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        auth.signOut();
+                        FirebaseAuth.getInstance().signOut();
                         startActivity(new Intent(AccountActivity.this, LoginActivity.class));
                         finish();
                     }
                 }).start();
             }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull @NotNull Exception e) {
+                Toast.makeText(AccountActivity.this, R.string.error_signin_with_new_credentials, Toast.LENGTH_SHORT).show();
+            }
         });
-//                .addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull @NotNull Exception e) {
-//                Toast.makeText(AccountActivity.this, R.string.error_signin_with_new_credentials, Toast.LENGTH_SHORT).show();
-//            }
-//        });
     }
 
     private void deleteOldUserAndSignInWithNew(User oldUser, User newUser){
