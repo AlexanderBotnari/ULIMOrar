@@ -41,6 +41,7 @@ android:layout_height="match_parent">
                         android:id="@+id/firstNameEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textCursorDrawable="@null"
                         android:inputType="text"
                 />
 
@@ -63,6 +64,7 @@ android:layout_height="match_parent">
                         android:id="@+id/lastNameEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textCursorDrawable="@null"
                         android:inputType="text"
                 />
 
@@ -83,6 +85,7 @@ android:layout_height="match_parent">
                         android:id="@+id/emailEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textCursorDrawable="@null"
                         android:inputType="textEmailAddress"
                 />
 
@@ -105,6 +108,7 @@ android:layout_height="match_parent">
                         android:id="@+id/idnpEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textCursorDrawable="@null"
                         android:inputType="number"
                 />
             </com.google.android.material.textfield.TextInputLayout>
@@ -144,6 +148,7 @@ android:layout_height="match_parent">
                         android:id="@+id/passwordEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textCursorDrawable="@null"
                         android:inputType="textPassword"
                 />
 
@@ -164,6 +169,7 @@ android:layout_height="match_parent">
                         android:id="@+id/confirmPasswordEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textCursorDrawable="@null"
                         android:inputType="textPassword"
                 />
 
