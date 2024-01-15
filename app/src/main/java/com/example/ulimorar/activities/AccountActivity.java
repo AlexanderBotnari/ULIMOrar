@@ -3,12 +3,15 @@ package com.example.ulimorar.activities;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
+import android.text.InputType;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -41,11 +44,17 @@ public class AccountActivity extends AppCompatActivity {
     private TextInputLayout lastNameTextField;
 //    private TextInputLayout emailTextField;
     private TextView idnpTextView;
+    private TextView passwordTextView;
+    private TextView emailTextView;
 //    private TextInputLayout passwordTextField;
 //    private TextInputLayout confirmPasswordTextField;
     private Button editButton;
     private Button saveButton;
     private Button logoutButton;
+    private ImageButton editEmailImageButton;
+    private ImageButton editPasswordImageButton;
+    private ImageButton seePasswordImageButton;
+    private ImageButton hidePasswordImageButton;
 
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -67,10 +76,17 @@ public class AccountActivity extends AppCompatActivity {
 //        passwordTextField = findViewById(R.id.passwordTextField);
 //        confirmPasswordTextField = findViewById(R.id.confirmPasswordTextField);
         idnpTextView = findViewById(R.id.idnpTextView);
+        passwordTextView = findViewById(R.id.passwordTextView);
+        emailTextView = findViewById(R.id.emailTextView);
 
         logoutButton = findViewById(R.id.logoutButton);
         editButton = findViewById(R.id.editButton);
         saveButton = findViewById(R.id.saveButton);
+
+        editEmailImageButton = findViewById(R.id.editEmailImageButton);
+        editPasswordImageButton = findViewById(R.id.editPasswordImageButton);
+        seePasswordImageButton = findViewById(R.id.seePasswordImageButton);
+        hidePasswordImageButton = findViewById(R.id.hidePasswordImageButton);
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -103,6 +119,38 @@ public class AccountActivity extends AppCompatActivity {
             }
         });
 
+        editEmailImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(AccountActivity.this, ChangeEmailActivity.class).putExtra("currentUser", authenticatedUser));
+            }
+        });
+
+        editPasswordImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(AccountActivity.this, ChangePasswordActivity.class).putExtra("currentUser", authenticatedUser));
+            }
+        });
+
+        seePasswordImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                passwordTextView.setTransformationMethod(null);
+                hidePasswordImageButton.setVisibility(View.VISIBLE);
+                seePasswordImageButton.setVisibility(View.GONE);
+            }
+        });
+
+        hidePasswordImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                passwordTextView.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                seePasswordImageButton.setVisibility(View.VISIBLE);
+                hidePasswordImageButton.setVisibility(View.GONE);
+            }
+        });
+
     }
 
     private void makeFieldsEditable(boolean isEditable){
@@ -114,18 +162,6 @@ public class AccountActivity extends AppCompatActivity {
         lastNameTextField.setEnabled(isEditable);
         lastNameTextField.getEditText().setCursorVisible(isEditable);
 
-//        emailTextField.setFocusable(isEditable);
-//        emailTextField.setEnabled(isEditable);
-//        emailTextField.getEditText().setCursorVisible(isEditable);
-//
-//        passwordTextField.setFocusable(isEditable);
-//        passwordTextField.setEnabled(isEditable);
-//        passwordTextField.getEditText().setCursorVisible(isEditable);
-//
-//        confirmPasswordTextField.setFocusable(isEditable);
-//        confirmPasswordTextField.setEnabled(isEditable);
-//        confirmPasswordTextField.getEditText().setCursorVisible(isEditable);
-
         saveButton.setFocusable(isEditable);
         saveButton.setEnabled(isEditable);
 
@@ -134,9 +170,6 @@ public class AccountActivity extends AppCompatActivity {
     private void saveUser() {
         String firstName = firstNameTextField.getEditText().getText().toString();
         String lastName = lastNameTextField.getEditText().getText().toString();
-//        String email = emailTextField.getEditText().getText().toString();
-//        String password = passwordTextField.getEditText().getText().toString();
-//        String confirmPassword = confirmPasswordTextField.getEditText().getText().toString();
 
         boolean isValid = true;
 
@@ -154,12 +187,6 @@ public class AccountActivity extends AppCompatActivity {
             lastNameTextField.setError(null);
         }
 
-//        if (!email.contains("@") || !email.contains(".")) {
-//            emailTextField.setError(getString(R.string.enter_valid_email));
-//            isValid = false;
-//        }else{
-//            emailTextField.setError(null);
-//        }
 //
 //        if (password.length() <= 6) {
 //            passwordTextField.setError(getString(R.string.password_length_error));
@@ -271,12 +298,15 @@ public class AccountActivity extends AppCompatActivity {
                         lastNameTextField.getEditText().setText(authenticatedUser.getLastName());
 //                        emailTextField.getEditText().setText(authenticatedUser.getEmail());
                         idnpTextView.setText(authenticatedUser.getIdnp());
+                        emailTextView.setText(authenticatedUser.getEmail());
+                        passwordTextView.setText(authenticatedUser.getPassword());
 //                        passwordTextField.getEditText().setText(authenticatedUser.getPassword());
 //                        confirmPasswordTextField.getEditText().setText(authenticatedUser.getPassword());
 
                     }
 
                     swipeRefreshLayout.setRefreshing(false);
+                    makeFieldsEditable(false);
                 } else {
                     // User not found
                     Log.d("User Data", "User not found for email: " + userEmail);

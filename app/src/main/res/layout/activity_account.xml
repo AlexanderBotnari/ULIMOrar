@@ -6,6 +6,7 @@
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
 <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -13,6 +14,7 @@
     <ScrollView android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:ignore="UselessParent">
+
         <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
@@ -72,7 +74,7 @@
                     android:text="IDNP"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="20sp"
+                    android:textSize="16sp"
                     android:paddingLeft="8dp"
                     android:textStyle="bold"
                     android:id="@+id/idnpTitleTextView"/>
@@ -81,20 +83,21 @@
                     android:text="651235317537263"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="20sp"
+                    android:textSize="16sp"
                     android:padding="8dp"
                     android:id="@+id/idnpTextView"/>
 
             <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
                     android:orientation="horizontal">
 
                 <TextView
                         android:text="Email"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="20sp"
+                        android:textSize="16sp"
                         android:paddingLeft="8dp"
                         android:paddingTop="8dp"
                         android:textStyle="bold"
@@ -102,6 +105,7 @@
 
                 <ImageButton
                         android:layout_height="wrap_content"
+                        android:layout_width="0dp"
                         app:srcCompat="@drawable/ic_edit"
                         android:id="@+id/editEmailImageButton"
                         android:layout_marginLeft="16dp"
@@ -112,20 +116,21 @@
                         android:text="sandubotnari99@gmail.com"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="20sp"
+                        android:textSize="16sp"
                         android:padding="8dp"
                         android:id="@+id/emailTextView"/>
 
         <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:orientation="horizontal">
 
             <TextView
                     android:text="Password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="20sp"
+                    android:textSize="16sp"
                     android:paddingLeft="8dp"
                     android:paddingTop="8dp"
                     android:textStyle="bold"
@@ -133,6 +138,7 @@
 
             <ImageButton
                     android:layout_height="wrap_content"
+                    android:layout_width="0dp"
                     app:srcCompat="@drawable/ic_edit"
                     android:id="@+id/editPasswordImageButton"
                     android:layout_marginLeft="16dp"
@@ -145,19 +151,39 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
             <TextView
-                    android:inputType="numberPassword"
+                    android:inputType="textPassword"
                     android:text="sandubotnari99@gmail.com"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="20sp"
+                    android:textSize="16sp"
                     android:padding="8dp"
                     android:id="@+id/passwordTextView"/>
-            <ImageButton
-                    android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_view_password"
-                    android:id="@+id/viewPasswordImageButton"
-                    android:layout_marginLeft="16dp"
-                    android:layout_weight="1"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                <ImageButton
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/ic_view_password"
+                        android:id="@+id/seePasswordImageButton"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        android:layout_width="wrap_content"/>
+
+                <ImageButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        app:srcCompat="@drawable/ic_hide_password"
+                        android:id="@+id/hidePasswordImageButton"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
 

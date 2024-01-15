@@ -6,6 +6,8 @@
     <string name="groups_activity_title">ULIM Groups</string>
     <string name="users_activity_title">ULIM Users</string>
     <string name="account_activity_title">Account</string>
+    <string name="change_password">Change password</string>
+    <string name="change_email">Change email</string>
 
     <!--    Menu items-->
     <string name="faculty_menu_item">Faculties</string>
@@ -121,4 +123,5 @@
     <string name="error_signin_with_new_credentials">Error sign in with new credentials</string>
     <string name="error_create_user_in_auth">Error create user in authentication</string>
     <string name="user_data_changed">You change a user data. Please login with new credentials!</string>
+    <string name="this_is_your_current_email">This is your current email</string>
 </resources>

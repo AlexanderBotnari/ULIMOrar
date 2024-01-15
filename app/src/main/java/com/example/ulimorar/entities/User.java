@@ -3,11 +3,12 @@ package com.example.ulimorar.entities;
 import com.example.ulimorar.entities.enums.UserRole;
 import com.google.firebase.database.Exclude;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class User {
+public class User implements Serializable {
 
     private String id;
     private String firstName;
