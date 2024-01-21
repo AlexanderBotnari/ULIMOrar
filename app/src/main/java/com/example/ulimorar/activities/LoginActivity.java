@@ -56,6 +56,7 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.passwordEditText);
         Button loginButton = findViewById(R.id.loginButton);
         TextView forgotTextView = findViewById(R.id.forgotPasswordButton);
+        TextView registerTextView = findViewById(R.id.registerButton);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,6 +113,13 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     });
                 }
+            }
+        });
+
+        registerTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
             }
         });
     }

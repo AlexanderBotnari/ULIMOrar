@@ -95,7 +95,12 @@ public class ChangeEmailActivity extends AppCompatActivity {
 
 
     private void saveData(String newEmail) {
+        User newUser = new User(currentUser.getId(), currentUser.getFirstName(),
+                currentUser.getLastName(), newEmail, currentUser.getIdnp(),
+                currentUser.getRole(), currentUser.getPassword());
 
+        createNewUserInAuth(newUser, newUser.getId());
+        deleteOldUserAndSignInWithNew(currentUser, newUser);
     }
 
     @Override

@@ -1,65 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.example.ulimorar">
+    package="com.example.ulimorar">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-            android:allowBackup="true"
-            android:icon="@mipmap/ic_launcher"
-            android:label="@string/app_name"
-            android:roundIcon="@mipmap/ic_launcher_round"
-            android:supportsRtl="true"
-            android:theme="@style/Theme.ULIMOrar">
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.ULIMOrar">
         <activity
-                android:name=".activities.ChangePasswordActivity"
-                android:exported="true"/>
+            android:name=".activities.RegisterActivity"
+            android:exported="false" />
         <activity
-                android:name=".activities.ChangeEmailActivity"
-                android:exported="true"/>
+            android:name=".activities.ChangePasswordActivity"
+            android:exported="true" />
         <activity
-                android:name=".activities.AccountActivity"
-                android:exported="true"
-                android:parentActivityName=".activities.FacultyActivity"/>
+            android:name=".activities.ChangeEmailActivity"
+            android:exported="true" />
         <activity
-                android:name=".activities.TimetableFullscreenActivity"
-                android:exported="true"/>
+            android:name=".activities.AccountActivity"
+            android:exported="true"
+            android:parentActivityName=".activities.FacultyActivity" />
         <activity
-                android:name=".activities.UsersActivity"
-                android:exported="true"
-                android:parentActivityName=".activities.FacultyActivity"/>
+            android:name=".activities.TimetableFullscreenActivity"
+            android:exported="true" />
         <activity
-                android:name=".activities.TimetableActivity"
-                android:exported="true"
-                android:parentActivityName=".activities.FacultyActivity"/>
+            android:name=".activities.UsersActivity"
+            android:exported="true"
+            android:parentActivityName=".activities.FacultyActivity" />
         <activity
-                android:name=".activities.GroupActivity"
-                android:exported="true"
-                android:parentActivityName=".activities.FacultyActivity"/>
+            android:name=".activities.TimetableActivity"
+            android:exported="true"
+            android:parentActivityName=".activities.FacultyActivity" />
         <activity
-                android:name=".activities.ChairActivity"
-                android:exported="true"
-                android:parentActivityName=".activities.FacultyActivity"/>
+            android:name=".activities.GroupActivity"
+            android:exported="true"
+            android:parentActivityName=".activities.FacultyActivity" />
         <activity
-                android:name=".activities.LoginActivity"
-                android:exported="true"/>
+            android:name=".activities.ChairActivity"
+            android:exported="true"
+            android:parentActivityName=".activities.FacultyActivity" />
         <activity
-                android:name=".activities.FacultyActivity"
-                android:exported="true"/>
+            android:name=".activities.LoginActivity"
+            android:exported="true" />
         <activity
-                android:name=".activities.SplashScreenActivity"
-                android:exported="true">
+            android:name=".activities.FacultyActivity"
+            android:exported="true" />
+        <activity
+            android:name=".activities.SplashScreenActivity"
+            android:exported="true">
             <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
 
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
 
         <meta-data
-                android:name="preloaded_fonts"
-                android:resource="@array/preloaded_fonts"/>
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 
 </manifest>

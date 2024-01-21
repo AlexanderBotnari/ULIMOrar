@@ -88,8 +88,23 @@
             android:textColor="@color/blue"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/forgotPasswordButton"
+            app:layout_constraintBottom_toTopOf="@+id/registerButton"
             android:layout_marginBottom="19dp"/>
+
+    <TextView
+        android:id="@+id/registerButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:fontFamily="@font/roboto"
+        android:minHeight="48dp"
+        android:text="@string/register_button"
+        android:textColor="?android:textColorPrimary"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/forgotPasswordButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <TextView
             android:text="@string/forgot_password_button"
             android:layout_width="wrap_content"

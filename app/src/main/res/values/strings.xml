@@ -8,6 +8,7 @@
     <string name="account_activity_title">Account</string>
     <string name="change_password">Change password</string>
     <string name="change_email">Change email</string>
+    <string name="register">Register</string>
 
     <!--    Menu items-->
     <string name="faculty_menu_item">Faculties</string>
@@ -30,6 +31,7 @@
     <string name="role_spinner_title">Role</string>
     <string name="new_email">Enter a new email</string>
     <string name="new_password">Enter a new password</string>
+    <string name="enter_your_idnp">Enter your idnp from passport</string>
 
     <!--    Buttons-->
     <string name="login_button">LOGIN</string>
@@ -37,10 +39,12 @@
     <string name="forgot_password_button">
         <u>FORGOT PASSWORD</u>
     </string>
+    <string name="register_button"><u>REGISTER</u></string>
     <string name="cancel_button">Cancel</string>
     <string name="save_button">Save</string>
     <string name="send_button">Send</string>
     <string name="logout_button">Logout</string>
+    <string name="next_button">Next</string>
 
     <!--    Dialogs-->
     <string name="add_faculty_dialog_title">Add Faculty</string>
@@ -124,4 +128,8 @@
     <string name="error_create_user_in_auth">Error create user in authentication</string>
     <string name="user_data_changed">You change a user data. Please login with new credentials!</string>
     <string name="this_is_your_current_email">This is your current email</string>
+    <string name="this_is_your_old_password">This is your old password</string>
+    <string name="passport_id_is_not_supported">Passport id is not valid for our system</string>
+    <string name="successful_registration">You are successful registered in app</string>
+    <string name="registration_failure">Fail to register</string>
 </resources>
