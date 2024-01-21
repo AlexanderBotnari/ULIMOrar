@@ -36,7 +36,7 @@ public class DeleteBottomSheetFragment extends BottomSheetDialogFragment {
             @Override
             public void onClick(View view) {
                 if (bottomSheetListener != null) {
-                    bottomSheetListener.onButtonDelete();
+                    bottomSheetListener.onButtonDelete(view);
                 }
                 dismiss();
             }

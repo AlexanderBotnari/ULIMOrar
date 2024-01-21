@@ -52,4 +52,9 @@
         <item name="android:background">@color/background_dark_theme</item>
     </style>
 
+    <style name="AlertDialogCustomStyle" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="android:backgroundTint">@color/background_dark_theme</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
 </resources>

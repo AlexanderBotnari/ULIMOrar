@@ -109,7 +109,7 @@ public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyV
     }
 
     @Override
-    public void onButtonDelete() {
+    public void onButtonDelete(View view) {
         facultyActivity.deleteFaculty(faculty);
     }
 

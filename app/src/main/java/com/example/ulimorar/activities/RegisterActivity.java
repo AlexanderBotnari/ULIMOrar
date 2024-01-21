@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ulimorar.R;
+import com.example.ulimorar.activities.fragments.PassportIdsForUserRegistrationFragment;
 import com.example.ulimorar.entities.User;
 import com.example.ulimorar.entities.enums.UserRole;
 import com.example.ulimorar.utils.GetDialogsStandardButtons;
@@ -27,10 +28,15 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class RegisterActivity extends AppCompatActivity {
+
+    private static final String TEMP_EMAIL = "register@gmail.com";
+    private static final String TEMP_PASSWORD = "register";
 
     private TextInputLayout idnpTextInputLayout;
     private TextInputLayout firstNameInputLayout;
@@ -85,20 +91,24 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void checkPassportId(String passportId){
-        idnpsDatabaseReference.child(passportId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+        // Check if the passport ID already exists in the database
+        idnpsDatabaseReference.child(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if (task.isSuccessful()){
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // Passport ID already exists
                     openRegisterForm(passportId);
+                } else {
+                    // Passport ID does not exist
+                    idnpTextInputLayout.setError(getText(R.string.passport_id_is_not_supported));
                 }
             }
-        }).addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onFailure(@NonNull Exception e) {
-                idnpTextInputLayout.setError(getText(R.string.passport_id_is_not_supported));
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle the error if necessary
+                Log.e("DatabaseError", "Error checking passport ID existence: " + databaseError.getMessage());
             }
         });
-
     }
 
     private void openRegisterForm(String passportId) {
@@ -192,17 +202,10 @@ public class RegisterActivity extends AppCompatActivity {
                         .addOnCompleteListener(authTask -> {
                             if (authTask.isSuccessful()) {
                                 Toast.makeText(RegisterActivity.this, R.string.successful_registration, Toast.LENGTH_SHORT).show();
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            Thread.sleep(4000);
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace();
-                                        }
-                                        finish();
-                                    }
-                                }).start();
+                                startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                                finish();
+                                deletePassportIdFromDb(passportId);
+                                auth.signOut();
                             } else {
                                 Toast.makeText(RegisterActivity.this, R.string.registration_failure, Toast.LENGTH_SHORT).show();
                                 Log.d("FailureAddUser", authTask.getException().getMessage());
@@ -213,6 +216,34 @@ public class RegisterActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(RegisterActivity.this, R.string.registration_failure, Toast.LENGTH_SHORT).show();
                 Log.d("FailureAddUser", task.getException().getMessage());
+            }
+        });
+    }
+
+    public void deletePassportIdFromDb(String passportId){
+        idnpsDatabaseReference.child(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    idnpsDatabaseReference.child(passportId).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                        }
+                    });
+
+                } else {
+                    Toast.makeText(RegisterActivity.this, R.string.passport_not_exists, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle the error if necessary
+                Log.e("DatabaseError", "Error checking passport ID existence: " + databaseError.getMessage());
             }
         });
     }

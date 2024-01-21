@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.ulimorar.R;
 import com.example.ulimorar.activities.UsersActivity;
+import com.example.ulimorar.activities.fragments.RegisteredUsersFragment;
 import com.example.ulimorar.entities.User;
 import com.example.ulimorar.entities.enums.UserRole;
 import com.google.android.material.snackbar.Snackbar;
@@ -18,11 +19,11 @@ import java.util.List;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
 
-    private UsersActivity usersActivity;
+    private RegisteredUsersFragment registeredUsersFragment;
     private List<User> users;
 
-    public UserAdapter(UsersActivity usersActivity, List<User> users) {
-        this.usersActivity = usersActivity;
+    public UserAdapter(RegisteredUsersFragment registeredUsersFragment, List<User> users) {
+        this.registeredUsersFragment = registeredUsersFragment;
         this.users = users;
     }
 
@@ -34,7 +35,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     @NotNull
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(usersActivity).inflate(R.layout.user_list_item, parent, false);
+        View view = LayoutInflater.from(registeredUsersFragment.getContext()).inflate(R.layout.user_list_item, parent, false);
         return new UserViewHolder(view);
     }
 

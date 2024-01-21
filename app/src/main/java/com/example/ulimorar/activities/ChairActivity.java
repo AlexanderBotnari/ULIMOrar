@@ -322,7 +322,7 @@ public class ChairActivity extends AppCompatActivity implements BottomSheetListe
     }
 
     @Override
-    public void onButtonDelete() {
+    public void onButtonDelete(View view) {
         deleteChair(chairPositionToDelete);
     }
 }

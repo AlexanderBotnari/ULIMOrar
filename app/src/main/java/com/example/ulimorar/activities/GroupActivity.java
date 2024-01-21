@@ -348,7 +348,7 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
     }
 
     @Override
-    public void onButtonDelete() {
+    public void onButtonDelete(View view) {
         deleteGroup(groupPositionToDelete);
     }
 }

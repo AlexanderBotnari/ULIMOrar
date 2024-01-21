@@ -45,6 +45,8 @@
     <string name="send_button">Send</string>
     <string name="logout_button">Logout</string>
     <string name="next_button">Next</string>
+    <string name="registered_fragment_button">Registered</string>
+    <string name="to_register_fragment_button">To Register</string>
 
     <!--    Dialogs-->
     <string name="add_faculty_dialog_title">Add Faculty</string>
@@ -57,6 +59,7 @@
     <string name="edit_chair_dialog_title">Edit Chair</string>
     <string name="edit_group_dialog_title">Edit Group</string>
     <string name="edit_timetable_dialog_title">Edit Timetable</string>
+    <string name="add_passport_id">Add passport id for future students</string>
 
     <!--    Snack bar-->
     <string name="password_for_user">Password for user:</string>
@@ -132,4 +135,10 @@
     <string name="passport_id_is_not_supported">Passport id is not valid for our system</string>
     <string name="successful_registration">You are successful registered in app</string>
     <string name="registration_failure">Fail to register</string>
+    <string name="passport_is_added">Passport added successful</string>
+    <string name="add_passport_fail">Add passport failed</string>
+    <string name="passport_is_removed">Passport is removed successful</string>
+    <string name="passport_remove_fail">Failure to remove passport</string>
+    <string name="passport_already_exists">Passport already exists</string>
+    <string name="passport_not_exists">Passport id not exists</string>
 </resources>
