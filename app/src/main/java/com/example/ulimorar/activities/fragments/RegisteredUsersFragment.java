@@ -83,6 +83,9 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
     private DeleteBottomSheetFragment bottomSheetFragment;
     private User userToDelete;
 
+    private boolean emailExist = true;
+    private boolean passportIdExist = true;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,6 +122,34 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
         });
         // Inflate the layout for this fragment
         return view;
+    }
+
+    private void getUserByEmail(String userEmail) {
+        Query query = userDbReference.orderByChild("email").equalTo(userEmail);
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // User found
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        // Access user data
+                        User authenticatedUserFromDb = snapshot.getValue(User.class);
+                        if (authenticatedUserFromDb != null){
+                            currentUser = authenticatedUserFromDb;
+                        }
+                    }
+                } else {
+                    // User not found
+                    Log.d("User Data", "User not found for email: " + userEmail);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("Error", "Failed to read user data.", databaseError.toException());
+            }
+        });
     }
 
     private void setupRecyclerView(View view) {
@@ -190,6 +221,8 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
         alertDialog.show();
 
         if (!isAddDialog){
+            emailInputLayout.setVisibility(View.GONE);
+            idnpInputLayout.setVisibility(View.GONE);
             userToUpdate = userAdapter.getUsers().get(itemPosition);
             firstNameInputLayout.getEditText().setText(userToUpdate.getFirstName());
             lastNameInputLayout.getEditText().setText(userToUpdate.getLastName());
@@ -252,11 +285,16 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
                     confirmPasswordInputLayout.setError(null);
                 }
 
+                checkEmail(email);
+                checkPassport(idnp);
                 if (isValid){
                     if (isAddDialog){
-                        addUser(view, firstName, lastName, email, idnp, role, password);
+                        if (!emailExist && !passportIdExist){
+                            addUser(view, firstName, lastName, email, idnp, role, password);
+                        }
                     }else{
-                        editUser(view, userToUpdate.getId(), firstName, lastName, email, idnp, role, password);
+                        editUser(view, userToUpdate.getId(), firstName, lastName,
+                                userToUpdate.getEmail(), userToUpdate.getIdnp(), role, password);
                     }
                 }
             }
@@ -270,30 +308,40 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
         });
     }
 
-    private void getUserByEmail(String userEmail) {
-        Query query = userDbReference.orderByChild("email").equalTo(userEmail);
-
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+    private void checkEmail(String email){
+        userDbReference.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    // User found
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        // Access user data
-                        User authenticatedUserFromDb = snapshot.getValue(User.class);
-                        if (authenticatedUserFromDb != null){
-                            currentUser = authenticatedUserFromDb;
-                        }
-                    }
-                } else {
-                    // User not found
-                    Log.d("User Data", "User not found for email: " + userEmail);
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    emailInputLayout.setError(getText(R.string.email_already_registered));
+                    emailExist = false;
+                }else{
+                    emailInputLayout.setError(null);
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e("Error", "Failed to read user data.", databaseError.toException());
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void checkPassport(String passportId){
+        userDbReference.orderByChild("idnp").equalTo(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    idnpInputLayout.setError(getText(R.string.passport_already_exists));
+                    passportIdExist = false;
+                }else{
+                    idnpInputLayout.setError(null);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }

@@ -31,12 +31,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 public class RegisterActivity extends AppCompatActivity {
-
-    private static final String TEMP_EMAIL = "register@gmail.com";
-    private static final String TEMP_PASSWORD = "register";
 
     private TextInputLayout idnpTextInputLayout;
     private TextInputLayout firstNameInputLayout;
@@ -54,6 +52,8 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth auth;
 
     private AlertDialog alertDialog;
+
+    private boolean emailExist = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +107,25 @@ public class RegisterActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 // Handle the error if necessary
                 Log.e("DatabaseError", "Error checking passport ID existence: " + databaseError.getMessage());
+            }
+        });
+    }
+
+    private void checkEmail(String email){
+        usersDatabaseReference.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    emailInputLayout.setError(getText(R.string.email_already_registered));
+                    emailExist = false;
+                }else{
+                    emailInputLayout.setError(null);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }
@@ -174,7 +193,9 @@ public class RegisterActivity extends AppCompatActivity {
                     confirmPasswordInputLayout.setError(null);
                 }
 
-                if (isValid){
+                checkEmail(email);
+
+                if (isValid && !emailExist){
                     addUser(firstName, lastName, email, passportId, password);
                 }
             }

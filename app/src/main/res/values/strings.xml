@@ -141,4 +141,5 @@
     <string name="passport_remove_fail">Failure to remove passport</string>
     <string name="passport_already_exists">Passport already exists</string>
     <string name="passport_not_exists">Passport id not exists</string>
+    <string name="email_already_registered">Email is already registered</string>
 </resources>

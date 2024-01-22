@@ -32,6 +32,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -56,10 +57,13 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
     private AlertDialog alertDialog;
 
     private DatabaseReference passportIdsDbReference;
+    private DatabaseReference userDbReference;
 
     private TextInputLayout passportIdInputLayout;
 
     private SwipeRefreshLayout swipeRefreshLayout;
+
+    private boolean passportIdExist = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,6 +76,7 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
         View view = inflater.inflate(R.layout.fragment_passport_ids_for_user_registration, container, false);
 
         passportIdsDbReference = FirebaseDatabase.getInstance().getReference("passportIds");
+        userDbReference = FirebaseDatabase.getInstance().getReference("users");
 
         passportIds = new ArrayList<>();
 
@@ -88,7 +93,7 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
         addPassportIdButton = view.findViewById(R.id.addPassportIdFloatingButton);
         addPassportIdButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View viewOnclick) {
                 showAddDialog(R.string.add_passport_id, view);
             }
         });
@@ -151,7 +156,7 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
 
         GetDialogsStandardButtons.getSaveButton(alertDialogCustomView).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View viewOnclick) {
 
                 String passportId = passportIdInputLayout.getEditText().getText().toString().trim();
 
@@ -165,7 +170,10 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
                 }
 
                 if (isValid){
-                    addPassport(view, passportId);
+                    checkPassport(view, passportId);
+                    if (!passportIdExist){
+                        addPassport(view, passportId);
+                    }
                 }
             }
         });
@@ -178,33 +186,52 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
         });
     }
 
-    private void addPassport(View view, String passportId) {
-        // Check if the passport ID already exists in the database
-        passportIdsDbReference.child(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
+    private void checkPassport(View view, String passportId){
+        userDbReference.orderByChild("idnp").equalTo(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    // Passport ID already exists
-                    Toast.makeText(view.getContext(), R.string.passport_already_exists, Toast.LENGTH_SHORT).show();
-                } else {
-                    // Passport ID does not exist, add it to the database
-                    passportIdsDbReference.child(passportId).setValue(passportId).addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(view.getContext(), R.string.passport_is_added, Toast.LENGTH_SHORT).show();
-                            alertDialog.dismiss();
-                        } else {
-                            Toast.makeText(view.getContext(), R.string.add_passport_fail, Toast.LENGTH_SHORT).show();
-                            Log.d("FailureAddPassport", task.getException().getMessage());
-                        }
-                    });
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    Snackbar snackbar = Snackbar.make(view, getText(R.string.passport_already_exists), 4000);
+                    snackbar.show();
+                    passportIdExist = false;
+                    alertDialog.dismiss();
                 }
             }
+
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle the error if necessary
-                Log.e("DatabaseError", "Error checking passport ID existence: " + databaseError.getMessage());
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
+    }
+
+    private void addPassport(View view, String passportId) {
+        // Check if the passport ID already exists in the database
+            passportIdsDbReference.child(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        // Passport ID already exists
+                        Toast.makeText(view.getContext(), R.string.passport_already_exists, Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Passport ID does not exist, add it to the database
+                        passportIdsDbReference.child(passportId).setValue(passportId).addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(view.getContext(), R.string.passport_is_added, Toast.LENGTH_SHORT).show();
+                                alertDialog.dismiss();
+                            } else {
+                                Toast.makeText(view.getContext(), R.string.add_passport_fail, Toast.LENGTH_SHORT).show();
+                                Log.d("FailureAddPassport", task.getException().getMessage());
+                            }
+                        });
+                    }
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // Handle the error if necessary
+                    Log.e("DatabaseError", "Error checking passport ID existence: " + databaseError.getMessage());
+                }
+            });
     }
 
     private void showDeleteConfirmationDialog(final int position, View view) {
