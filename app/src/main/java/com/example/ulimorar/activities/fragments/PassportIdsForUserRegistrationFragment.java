@@ -22,19 +22,12 @@ import android.widget.Toast;
 
 import com.example.ulimorar.R;
 import com.example.ulimorar.adapters.PassportIdAdapter;
-import com.example.ulimorar.entities.User;
-import com.example.ulimorar.fragments.DeleteBottomSheetFragment;
-import com.example.ulimorar.fragments.interfaces.BottomSheetListener;
 import com.example.ulimorar.utils.GetDialogsStandardButtons;
-import com.example.ulimorar.utils.controllers.SwipeController;
-import com.example.ulimorar.utils.controllers.SwipeControllerActions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -45,7 +38,6 @@ import com.google.firebase.database.ValueEventListener;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class PassportIdsForUserRegistrationFragment extends Fragment{
 
@@ -62,8 +54,6 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
     private TextInputLayout passportIdInputLayout;
 
     private SwipeRefreshLayout swipeRefreshLayout;
-
-    private boolean passportIdExist = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -170,10 +160,11 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
                 }
 
                 if (isValid){
-                    checkPassport(view, passportId);
-                    if (!passportIdExist){
-                        addPassport(view, passportId);
-                    }
+                    checkPassportExistence(passportId, exists -> {
+                        if (!exists) {
+                            addPassport(view, passportId);
+                        }
+                    });
                 }
             }
         });
@@ -186,27 +177,30 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
         });
     }
 
-    private void checkPassport(View view, String passportId){
+    private interface PassportExistCallback {
+        void onResult(boolean exists);
+    }
+
+    private void checkPassportExistence(String passportId, PassportExistCallback callback) {
         userDbReference.orderByChild("idnp").equalTo(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    Snackbar snackbar = Snackbar.make(view, getText(R.string.passport_already_exists), 4000);
-                    snackbar.show();
-                    passportIdExist = false;
-                    alertDialog.dismiss();
+                boolean exists = snapshot.exists();
+                if (exists) {
+                    passportIdInputLayout.setError(getString(R.string.passport_already_exists));
                 }
+                callback.onResult(exists);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                callback.onResult(false);
             }
         });
     }
 
     private void addPassport(View view, String passportId) {
-        // Check if the passport ID already exists in the database
+        // Check if the passport ID for user already exists in the database
             passportIdsDbReference.child(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

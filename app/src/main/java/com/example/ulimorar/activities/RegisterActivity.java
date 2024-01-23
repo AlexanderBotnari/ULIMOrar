@@ -11,13 +11,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ulimorar.R;
-import com.example.ulimorar.activities.fragments.PassportIdsForUserRegistrationFragment;
 import com.example.ulimorar.entities.User;
 import com.example.ulimorar.entities.enums.UserRole;
 import com.example.ulimorar.utils.GetDialogsStandardButtons;
@@ -26,12 +23,10 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -52,8 +47,6 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth auth;
 
     private AlertDialog alertDialog;
-
-    private boolean emailExist = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +84,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void checkPassportId(String passportId){
-        // Check if the passport ID already exists in the database
+        // Check if the passport ID already exists in the database to register
         idnpsDatabaseReference.child(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -111,21 +104,23 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    private void checkEmail(String email){
+    private interface EmailExistCallback{
+        void onResult(boolean exists);
+    }
+
+    private void checkEmailExistence(String email, EmailExistCallback callback){
         usersDatabaseReference.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
                     emailInputLayout.setError(getText(R.string.email_already_registered));
-                    emailExist = false;
-                }else{
-                    emailInputLayout.setError(null);
                 }
+                callback.onResult(snapshot.exists());
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                callback.onResult(false);
             }
         });
     }
@@ -192,11 +187,15 @@ public class RegisterActivity extends AppCompatActivity {
                     passwordInputLayout.setError(null);
                     confirmPasswordInputLayout.setError(null);
                 }
-
-                checkEmail(email);
-
-                if (isValid && !emailExist){
-                    addUser(firstName, lastName, email, passportId, password);
+                if (isValid){
+                    checkEmailExistence(email, new EmailExistCallback() {
+                        @Override
+                        public void onResult(boolean exists) {
+                            if (!exists){
+                                addUser(firstName, lastName, email, passportId, password);
+                            }
+                        }
+                    });
                 }
             }
         });

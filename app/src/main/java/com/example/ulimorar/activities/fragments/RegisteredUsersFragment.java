@@ -25,7 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ulimorar.R;
-import com.example.ulimorar.activities.UsersActivity;
 import com.example.ulimorar.adapters.UserAdapter;
 import com.example.ulimorar.entities.User;
 import com.example.ulimorar.fragments.DeleteBottomSheetFragment;
@@ -52,13 +51,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class RegisteredUsersFragment extends Fragment implements BottomSheetListener {
 
     private AlertDialog alertDialog;
 
     private DatabaseReference userDbReference;
+    private DatabaseReference passportIdsDbReference;
     private FirebaseAuth auth;
 
     private TextInputLayout passwordInputLayout;
@@ -83,9 +82,6 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
     private DeleteBottomSheetFragment bottomSheetFragment;
     private User userToDelete;
 
-    private boolean emailExist = true;
-    private boolean passportIdExist = true;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,6 +95,7 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
 
 //      "users" is the name of the module to storage data
         userDbReference = FirebaseDatabase.getInstance().getReference("users");
+        passportIdsDbReference = FirebaseDatabase.getInstance().getReference("passportIds");
 
         auth = FirebaseAuth.getInstance();
 
@@ -285,13 +282,27 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
                     confirmPasswordInputLayout.setError(null);
                 }
 
-                checkEmail(email);
-                checkPassport(idnp);
                 if (isValid){
                     if (isAddDialog){
-                        if (!emailExist && !passportIdExist){
-                            addUser(view, firstName, lastName, email, idnp, role, password);
-                        }
+                        checkEmailExistence(email, new EmailExistCallback() {
+                            @Override
+                            public void onResult(boolean exists) {
+                                if (!exists){
+                                    checkPassportExistence(idnp, new PassportExistCallback() {
+                                        @Override
+                                        public void onResult(boolean exists) {
+                                            if (!exists){
+                                                addUser(view, firstName, lastName, email, idnp, role, password);
+                                            }else {
+                                                idnpInputLayout.setError(getText(R.string.passport_already_exists));
+                                            }
+                                        }
+                                    });
+                                }else{
+                                    emailInputLayout.setError(getText(R.string.email_already_registered));
+                                }
+                            }
+                        });
                     }else{
                         editUser(view, userToUpdate.getId(), firstName, lastName,
                                 userToUpdate.getEmail(), userToUpdate.getIdnp(), role, password);
@@ -308,40 +319,57 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
         });
     }
 
-    private void checkEmail(String email){
+    private interface EmailExistCallback{
+        void onResult(boolean exists);
+    }
+
+    private interface PassportExistCallback{
+        void onResult(boolean exists);
+    }
+
+    private interface PassportToRegisterCallback{
+        void onResult(boolean exists);
+    }
+
+    private void checkEmailExistence(String email, EmailExistCallback callback){
         userDbReference.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    emailInputLayout.setError(getText(R.string.email_already_registered));
-                    emailExist = false;
-                }else{
-                    emailInputLayout.setError(null);
-                }
+                callback.onResult(snapshot.exists());
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                callback.onResult(false);
             }
         });
     }
 
-    private void checkPassport(String passportId){
+    private void checkPassportExistence(String passportId, PassportExistCallback callback){
         userDbReference.orderByChild("idnp").equalTo(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    idnpInputLayout.setError(getText(R.string.passport_already_exists));
-                    passportIdExist = false;
-                }else{
-                    idnpInputLayout.setError(null);
-                }
+                callback.onResult(snapshot.exists());
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                callback.onResult(false);
+            }
+        });
+    }
 
+    private void checkPassportToRegisterExistence(String passportId, PassportToRegisterCallback callback){
+        passportIdsDbReference.child(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                callback.onResult(dataSnapshot.exists());
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                callback.onResult(false);
+                // Handle the error if necessary
+                Log.e("DatabaseError", "Error checking passport ID existence: " + databaseError.getMessage());
             }
         });
     }
@@ -388,6 +416,15 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
         // Add the user to the database
         userDbReference.child(userId).setValue(user).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                checkPassportToRegisterExistence(user.getIdnp(), new PassportToRegisterCallback() {
+                    @Override
+                    public void onResult(boolean exists) {
+                        if (exists){
+                            deletePassportFromToRegister(idnp);
+                        }
+                    }
+                });
+
                 // If user added successfully, add the same user credentials to Firebase Authentication
                 auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(authTask -> {
@@ -498,6 +535,34 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
             @Override
             public void onFailure(@NonNull @NotNull Exception e) {
                 Toast.makeText(view.getContext(), R.string.update_user_failure, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void deletePassportFromToRegister(String passportId){
+        passportIdsDbReference.child(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    passportIdsDbReference.child(passportId).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                        }
+                    });
+
+                } else {
+                    Toast.makeText(getView().getContext(), R.string.passport_not_exists, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle the error if necessary
+                Log.e("DatabaseError", "Error checking passport ID existence: " + databaseError.getMessage());
             }
         });
     }
