@@ -3,6 +3,7 @@ package com.example.ulimorar.activities.fragments;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -20,6 +21,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CursorAdapter;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +39,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -82,6 +86,9 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
     private DeleteBottomSheetFragment bottomSheetFragment;
     private User userToDelete;
 
+    private SearchView searchView;
+    private List<User> searchResults;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,6 +107,7 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
         auth = FirebaseAuth.getInstance();
 
         addUserButton = view.findViewById(R.id.addUserFloatingButton);
+        searchView = view.findViewById(R.id.searchView);
 
         setupRecyclerView(view);
 
@@ -115,6 +123,42 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
             @Override
             public void onRefresh() {
                 getUsers();
+                searchView.clearFocus();
+                searchView.setBackgroundColor(Color.TRANSPARENT);
+                searchView.setQueryHint(getText(R.string.search));
+            }
+        });
+
+        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                searchView.setQueryHint(null);
+                searchView.setBackgroundResource(R.color.background_search);
+            }
+        });
+
+        int closeBtnId = searchView.getContext().getResources().getIdentifier("android:id/search_close_btn", null, null);
+        searchView.findViewById(closeBtnId).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new RegisteredUsersFragment())
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                performSearch(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newQuery) {
+                updateSearchResults(newQuery);
+                return true;
             }
         });
         // Inflate the layout for this fragment
@@ -152,6 +196,7 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
     private void setupRecyclerView(View view) {
         userRecyclerView = view.findViewById(R.id.usersRecyclerView);
         users = new ArrayList<>();
+        searchResults = new ArrayList<>();
         layoutManager = new LinearLayoutManager(view.getContext());
         userRecyclerView.setHasFixedSize(true);
         userRecyclerView.setLayoutManager(layoutManager);
@@ -581,5 +626,53 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
     @Override
     public void onButtonDelete(View view) {
         deleteUserByEmail(view.getContext(), userToDelete);
+    }
+
+    private void performSearch(String query) {
+        // Dummy search operation
+        searchResults.clear();
+        for (User user : users) {
+            if (user.getEmail().toLowerCase().contains(query.toLowerCase())) {
+                searchResults.add(user);
+            }else if (user.getFirstName().toLowerCase().contains(query.toLowerCase())){
+                searchResults.add(user);
+            } else if (user.getLastName().toLowerCase().contains(query.toLowerCase())) {
+                searchResults.add(user);
+            }
+        }
+            // Display search results
+        if (!searchResults.isEmpty()){
+            displayResults(searchResults);
+        }else{
+            Snackbar snackbar = Snackbar.make(getView(), "No results!", 2000);
+            snackbar.show();
+        }
+
+    }
+
+    private void updateSearchResults(String newText) {
+        // Dummy logic to update search results dynamically
+        // based on the user's input
+
+        List<User> updatedResults = new ArrayList<>();
+        for (User user : users) {
+            if (user.getEmail().toLowerCase().contains(newText.toLowerCase())) {
+                updatedResults.add(user);
+            }else if (user.getFirstName().toLowerCase().contains(newText.toLowerCase())){
+                updatedResults.add(user);
+            } else if (user.getLastName().toLowerCase().contains(newText.toLowerCase())) {
+                updatedResults.add(user);
+            }
+        }
+
+        if (!updatedResults.isEmpty()){
+            userAdapter.updateList(updatedResults);
+        }
+
+    }
+
+    private void displayResults(List<User> results) {
+        // Dummy logic to display the search results
+        userAdapter.updateList(results);
     }
 }

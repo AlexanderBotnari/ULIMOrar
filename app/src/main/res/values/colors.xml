@@ -20,4 +20,5 @@
     <color name="black_overlay">#66000000</color>
     <color name="edit_background_color">#4B51AE</color>
     <color name="delete_background_color">#F85252</color>
+    <color name="background_search">#52232323</color>
 </resources>

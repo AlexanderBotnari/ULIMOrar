@@ -32,6 +32,7 @@
     <string name="new_email">Enter a new email</string>
     <string name="new_password">Enter a new password</string>
     <string name="enter_your_idnp">Enter your idnp from passport</string>
+    <string name="search">Search by name, email or passport</string>
 
     <!--    Buttons-->
     <string name="login_button">LOGIN</string>
