@@ -12,12 +12,24 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.ulimorar.R;
+import com.example.ulimorar.entities.User;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PassportIdAdapter extends ArrayAdapter<String> {
+
+    private ArrayList<String> passportIds;
+
     public PassportIdAdapter(Context context, ArrayList<String> passportIds) {
         super(context, 0, passportIds);
+        this.passportIds = passportIds;
+    }
+
+    public void updateList(List<String> newList) {
+        passportIds.clear();
+        passportIds.addAll(newList);
+        notifyDataSetChanged();
     }
 
     @NonNull

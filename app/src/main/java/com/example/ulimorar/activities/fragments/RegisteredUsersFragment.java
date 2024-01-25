@@ -124,7 +124,6 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
             public void onRefresh() {
                 getUsers();
                 searchView.clearFocus();
-                searchView.setBackgroundColor(Color.TRANSPARENT);
                 searchView.setQueryHint(getText(R.string.search));
             }
         });
@@ -133,7 +132,6 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
             @Override
             public void onFocusChange(View view, boolean b) {
                 searchView.setQueryHint(null);
-                searchView.setBackgroundResource(R.color.background_search);
             }
         });
 

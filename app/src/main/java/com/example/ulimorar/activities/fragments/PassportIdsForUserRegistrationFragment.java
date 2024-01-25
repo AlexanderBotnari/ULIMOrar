@@ -17,16 +17,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ulimorar.R;
 import com.example.ulimorar.adapters.PassportIdAdapter;
+import com.example.ulimorar.entities.User;
 import com.example.ulimorar.utils.GetDialogsStandardButtons;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -38,12 +41,16 @@ import com.google.firebase.database.ValueEventListener;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PassportIdsForUserRegistrationFragment extends Fragment{
 
     private FloatingActionButton addPassportIdButton;
 
+    private SearchView searchView;
+
     private ArrayList<String> passportIds;
+    private ArrayList<String> searchResults;
     private PassportIdAdapter adapter;
 
     private AlertDialog alertDialog;
@@ -69,6 +76,7 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
         userDbReference = FirebaseDatabase.getInstance().getReference("users");
 
         passportIds = new ArrayList<>();
+        searchResults = new ArrayList<>();
 
         adapter = new PassportIdAdapter(view.getContext(), passportIds);
         ListView listView = view.findViewById(R.id.listView);
@@ -81,6 +89,7 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
         });
 
         addPassportIdButton = view.findViewById(R.id.addPassportIdFloatingButton);
+        searchView = view.findViewById(R.id.searchView);
         addPassportIdButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View viewOnclick) {
@@ -93,6 +102,38 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
             @Override
             public void onRefresh() {
                 getPassportIds();
+            }
+        });
+
+        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                searchView.setQueryHint(null);
+            }
+        });
+
+        int closeBtnId = searchView.getContext().getResources().getIdentifier("android:id/search_close_btn", null, null);
+        searchView.findViewById(closeBtnId).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new PassportIdsForUserRegistrationFragment())
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                performSearch(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newQuery) {
+                updateSearchResults(newQuery);
+                return true;
             }
         });
 
@@ -280,5 +321,45 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
     public void onStart() {
         super.onStart();
         getPassportIds();
+    }
+
+    private void performSearch(String query) {
+        // Dummy search operation
+        searchResults.clear();
+        for (String passport : passportIds) {
+            if (passport.toLowerCase().contains(query.toLowerCase())) {
+                searchResults.add(passport);
+            }
+        }
+        // Display search results
+        if (!searchResults.isEmpty()){
+            displayResults(searchResults);
+        }else{
+            Snackbar snackbar = Snackbar.make(getView(), "No results!", 2000);
+            snackbar.show();
+        }
+
+    }
+
+    private void updateSearchResults(String newText) {
+        // Dummy logic to update search results dynamically
+        // based on the user's input
+
+        List<String> updatedResults = new ArrayList<>();
+        for (String passport : passportIds) {
+            if (passport.toLowerCase().contains(newText.toLowerCase())) {
+                updatedResults.add(passport);
+            }
+        }
+
+        if (!updatedResults.isEmpty()){
+            adapter.updateList(updatedResults);
+        }
+
+    }
+
+    private void displayResults(List<String> results) {
+        // Dummy logic to display the search results
+        adapter.updateList(results);
     }
 }
