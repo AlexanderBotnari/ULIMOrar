@@ -2,6 +2,7 @@ package com.example.ulimorar.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +28,8 @@ public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyV
     private boolean isAdmin;
     private String authenticatedUserEmail;
     private DeleteBottomSheetFragment bottomSheetFragment;
-    private Faculty faculty;
+
+    private int facultyPositionToDelete;
 
     public FacultyAdapter(List<Faculty> faculties, FacultyActivity facultyActivity) {
         this.faculties = faculties;
@@ -56,7 +58,7 @@ public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyV
 
     @Override
     public void onBindViewHolder(@NonNull @NotNull FacultyAdapter.FacultyViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        faculty = faculties.get(position);
+        Faculty faculty = faculties.get(position);
 
         Picasso.get().load(faculty.getFacultyPosterPath()).placeholder(R.drawable.ulim_logo).into(holder.facultyImageView);
         holder.facultyNameTextView.setText(faculty.getFacultyName());
@@ -65,6 +67,7 @@ public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyV
         holder.viewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d("FacultyView", faculty.getFacultyName()+" "+position);
                 Intent intent = new Intent(facultyActivity, ChairActivity.class);
                 intent.putExtra("facultyFromIntent", faculty);
                 intent.putExtra("userIsAdmin", isAdmin);
@@ -86,6 +89,7 @@ public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyV
             holder.deleteFacultyButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    facultyPositionToDelete = position;
                     bottomSheetFragment = new DeleteBottomSheetFragment();
                     bottomSheetFragment.show(facultyActivity.getSupportFragmentManager(), bottomSheetFragment.getTag());
                     bottomSheetFragment.setBottomSheetListener(FacultyAdapter.this);
@@ -110,7 +114,7 @@ public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyV
 
     @Override
     public void onButtonDelete(View view) {
-        facultyActivity.deleteFaculty(faculty);
+        facultyActivity.deleteFaculty(faculties.get(facultyPositionToDelete));
     }
 
     public static class FacultyViewHolder extends RecyclerView.ViewHolder{
