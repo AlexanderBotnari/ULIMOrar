@@ -67,7 +67,7 @@
     <string name="password_for_user">Password for user:</string>
     <string name="is">is :</string>
     <string name="email_sent_to">Email sent to</string>
-    <string name="please_click_link_in_email">Please click link from inbox.</string>
+    <string name="please_verify_inbox">Please verify your email inbox.</string>
 
     <!--    Messages-->
     <string name="password_length_error">Password must be least 7 characters</string>
@@ -144,4 +144,6 @@
     <string name="passport_already_exists">Passport already exists</string>
     <string name="passport_not_exists">Passport id not exists</string>
     <string name="email_already_registered">Email is already registered</string>
+    <string name="email_not_registered">Email not registered in app</string>
+    <string name="error_send_email">Error to send email. Please contact support!</string>
 </resources>

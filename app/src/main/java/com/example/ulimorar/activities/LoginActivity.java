@@ -12,6 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import com.example.ulimorar.R;
+import com.example.ulimorar.activities.fragments.RegisteredUsersFragment;
+import com.example.ulimorar.entities.User;
+import com.example.ulimorar.utils.EmailSender;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -23,6 +26,11 @@ import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +46,10 @@ public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth auth;
 
+    private DatabaseReference usersDbReference;
+
+    private User userToForgotPassword;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +61,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         auth = FirebaseAuth.getInstance();
+        usersDbReference = FirebaseDatabase.getInstance().getReference("users");
 
         loginInputLayout = findViewById(R.id.emailTextField);
         passwordInputLayout = findViewById(R.id.passwordTextField);
@@ -69,7 +82,8 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 boolean isValid = true;
-                if (!loginEditText.getText().toString().contains("@") || !loginEditText.getText().toString().contains(".")) {
+                String login = loginEditText.getText().toString();
+                if (!login.contains("@") || !login.contains(".")) {
                     loginInputLayout.setError(getString(R.string.enter_valid_email));
                     isValid = false;
                 }else{
@@ -77,39 +91,50 @@ public class LoginActivity extends AppCompatActivity {
                 }
 
                 if (isValid){
-                    ActionCodeSettings actionCodeSettings =
-                            ActionCodeSettings.newBuilder()
-                                    // URL you want to redirect back to. The domain (www.example.com) for this
-                                    // URL must be whitelisted in the Firebase Console.
-                                    .setUrl("https://ulimorar.page.link/emailLinkSignIn")
-                                    // This must be true
-                                    .setHandleCodeInApp(true)
-                                    .setAndroidPackageName(
-                                            getPackageName(),
-                                            true, /* installIfNotAvailable */
-                                            null    /* minimumVersion */)
-                                    .build();
-                    auth.sendSignInLinkToEmail(loginEditText.getText().toString(), actionCodeSettings).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    checkEmailExistence(login, new EmailExistCallback() {
                         @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                String message = getText(R.string.email_sent_to)+ " " + loginEditText.getText().toString()+"\n"
-                                        +getText(R.string.please_click_link_in_email);
-                                Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), message, 10000);
-                                snackbar.show();
-                                // Save email in preferences to access it after click on link from email
-                                SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-                                SharedPreferences.Editor editor = preferences.edit();
-                                editor.putString("ForgotPasswordEmail", loginEditText.getText().toString());
-                                editor.apply();
-
+                        public void onResult(boolean exists) {
+                            if (exists){
+                                EmailSender emailSender = new EmailSender(LoginActivity.this);
+                                emailSender.execute(login, "1111111");
+//                                ActionCodeSettings actionCodeSettings =
+//                                        ActionCodeSettings.newBuilder()
+//                                                // URL you want to redirect back to. The domain (www.example.com) for this
+//                                                // URL must be whitelisted in the Firebase Console.
+//                                                .setUrl("https://ulimorar.page.link/emailLinkSignIn")
+//                                                // This must be true
+//                                                .setHandleCodeInApp(true)
+//                                                .setAndroidPackageName(
+//                                                        getPackageName(),
+//                                                        true, /* installIfNotAvailable */
+//                                                        null    /* minimumVersion */)
+//                                                .build();
+//                                auth.sendSignInLinkToEmail(login, actionCodeSettings).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                    @Override
+//                                    public void onComplete(@NonNull Task<Void> task) {
+//                                        if (task.isSuccessful()) {
+//                                            String message = getText(R.string.email_sent_to)+ " " + loginEditText.getText().toString()+"\n"
+//                                                    +getText(R.string.please_click_link_in_email);
+//                                            Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), message, 10000);
+//                                            snackbar.show();
+//                                            // Save email in preferences to access it after click on link from email
+//                                            SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+//                                            SharedPreferences.Editor editor = preferences.edit();
+//                                            editor.putString("ForgotPasswordEmail", login);
+//                                            editor.apply();
+//
+//                                        }
+//                                    }
+//                                }).addOnFailureListener(new OnFailureListener() {
+//                                    @Override
+//                                    public void onFailure(@NonNull @NotNull Exception e) {
+//                                        Log.d("FailureSendLink", e.getMessage());
+//                                        Toast.makeText(LoginActivity.this, R.string.error_to_send_link, Toast.LENGTH_LONG).show();
+//                                    }
+//                                });
+                            }else {
+                                loginInputLayout.setError(getString(R.string.email_not_registered));
                             }
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull @NotNull Exception e) {
-                            Log.d("FailureSendLink", e.getMessage());
-                            Toast.makeText(LoginActivity.this, R.string.error_to_send_link, Toast.LENGTH_LONG).show();
                         }
                     });
                 }
@@ -120,6 +145,27 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+            }
+        });
+    }
+
+    private interface EmailExistCallback{
+        void onResult(boolean exists);
+    }
+
+    private void checkEmailExistence(String email, EmailExistCallback callback){
+        usersDbReference.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                callback.onResult(snapshot.exists());
+                if (snapshot.exists()){
+                    userToForgotPassword = snapshot.getValue(User.class);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onResult(false);
             }
         });
     }
@@ -197,6 +243,7 @@ public class LoginActivity extends AppCompatActivity {
                             FirebaseUser user = task.getResult().getUser();
                             Log.d("SignInEmailLinkSuccess", "Email link sign-in success. "+ user.getEmail());
                             startActivity(new Intent(LoginActivity.this, FacultyActivity.class).putExtra("currentUserEmail", savedEmail));
+                            auth.signInWithEmailAndPassword(savedEmail, userToForgotPassword.getPassword());
                         } else {
                             Log.e("SignInEmailLinkFailed", "Email link sign-in failed.", task.getException());
                             Toast.makeText(LoginActivity.this, R.string.email_signin_failed, Toast.LENGTH_SHORT).show();

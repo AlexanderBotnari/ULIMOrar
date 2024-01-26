@@ -3,6 +3,13 @@ plugins {
     id("com.google.gms.google-services")
 }
 
+def configProps = new Properties()
+def configPropsFile = rootProject.file("app/config.properties")
+
+if (configPropsFile.exists()) {
+    configProps.load(new FileInputStream(configPropsFile))
+}
+
 android {
     compileSdk 33
 
@@ -14,6 +21,9 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "EMAIL_ADDRESS", "\"${configProps['EMAIL_ADDRESS']}\"")
+        buildConfigField("String", "EMAIL_PASSWORD", "\"${configProps['EMAIL_PASSWORD']}\"")
     }
 
     buildTypes {
@@ -21,6 +31,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -59,5 +70,10 @@ dependencies {
 
 //    Swipe refresh
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01"
+
+//    Email API
+    implementation 'com.sun.mail:android-mail:1.6.5'
+    implementation 'com.sun.mail:android-activation:1.6.5'
+
 
 }

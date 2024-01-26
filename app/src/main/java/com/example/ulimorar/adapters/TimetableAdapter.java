@@ -29,7 +29,6 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
     private TimetableActivity timetableActivity;
     private boolean isAdmin;
     private DeleteBottomSheetFragment bottomSheetFragment;
-    private Timetable timetable;
     private String timetablePositionToDelete;
 
     public TimetableAdapter(List<Timetable> timetables, TimetableActivity timetableActivity) {
@@ -56,7 +55,7 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull @NotNull TimetableAdapter.TimetableViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        timetable = timetables.get(position);
+        Timetable timetable = timetables.get(position);
 
         Date date = new Date(timetable.getUpdateTime());
         @SuppressLint("SimpleDateFormat")
@@ -114,7 +113,7 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
 
     @Override
     public void onButtonDelete(View view) {
-        timetableActivity.deleteTimetable(timetablePositionToDelete, timetable);
+        timetableActivity.deleteTimetable(timetablePositionToDelete, timetables.get(Integer.parseInt(timetablePositionToDelete)));
     }
 
     public static class TimetableViewHolder extends RecyclerView.ViewHolder{
