@@ -37,10 +37,7 @@
 
     <!--    Buttons-->
     <string name="login_button">LOGIN</string>
-    <string name="view_button">VIEW</string>
-    <string name="forgot_password_button">
-        <u>FORGOT PASSWORD</u>
-    </string>
+    <string name="forgot_password_button"><u>FORGOT PASSWORD</u></string>
     <string name="register_button"><u>REGISTER</u></string>
     <string name="cancel_button">Cancel</string>
     <string name="save_button">Save</string>
@@ -49,6 +46,7 @@
     <string name="next_button">Next</string>
     <string name="registered_fragment_button">Registered</string>
     <string name="to_register_fragment_button">To Register</string>
+    <string name="delete_button">DELETE</string>
 
     <!--    Dialogs-->
     <string name="add_faculty_dialog_title">Add Faculty</string>
@@ -70,25 +68,17 @@
 <!--    Email messages-->
     <string name="reset_password_email_title">Reset password</string>
     <string name="email_addressing">Hello dear user,\n\n</string>
-    <string name="somebody_request_password">
-        Somebody requested password for the app ULIM Timetable account associated with
-    </string>
-    <string name="you_can_reset_password">No changes have been made to your account yet.
-
-        You can reset your password in account settings from app.\n
-    </string>
+    <string name="somebody_request_password">Somebody requested password for the app ULIM Timetable account associated with</string>
+    <string name="you_can_reset_password">No changes have been made to your account yet. You can reset your password in account settings from app.\n\n"</string>
     <string name="current_password">Current password is:</string>
-    <string name="false_request_password">
-        If you did not request password, please let us know immediately by replying to this email.\n\n
-    </string>
-    <string name="email_termination">Yours,\nThe ULIM Timetable team</string>
+    <string name="false_request_password">If you did not request password, please let us know immediately by replying to this email.\n\n</string>
+    <string name="email_termination">Yours, The ULIM Timetable team</string>
 
     <!--    Messages-->
     <string name="password_length_error">Password must be least 7 characters</string>
     <string name="empty_email_error">Please input your email</string>
     <string name="enter_valid_email">Enter a valid email</string>
     <string name="authentication_error">Authentication failed. Please verify input data.</string>
-    <string name="forgot_password_message">Please contact your sys admin to recover password!</string>
     <string name="logout_message">Account logged out</string>
     <string name="add_user_successful_message">Successful added user</string>
     <string name="add_user_failure_message">Failure to add user</string>
@@ -125,12 +115,11 @@
     <string name="update_faculty_success">Successful edited user</string>
     <string name="update_faculty_failure">Failure to edit user</string>
     <string name="last_update">Last update:</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="are_you_sure_want_delete">Are you sure you want to delete this?</string>
     <string name="delete_chair_success">Chair successful deleted</string>
     <string name="delete_chair_failure">Cannot delete the chair</string>
     <string name="update_chair_success">Successful updated chair</string>
-    <string name="update_chair_failure">Failure to update chair</string>
+    <string name="update_chair_failure">Кафедра успешно обновлена</string>
     <string name="update_group_success">Successful updated group</string>
     <string name="update_group_failure">Failure to update group</string>
     <string name="delete_group_success">Group successful deleted</string>
@@ -140,9 +129,6 @@
     <string name="delete_timetable_failure">Failure to delete timetable</string>
     <string name="update_timetable_success">Successful updated timetable</string>
     <string name="update_timetable_failure">Failure to delete timetable</string>
-    <string name="email_signin_failed">Email link sign-in failed or expired link</string>
-    <string name="invalid_email_link">Invalid email link!</string>
-    <string name="error_to_send_link">Error to send link to email. Please try later.</string>
     <string name="error_signin_with_new_credentials">Error sign in with new credentials</string>
     <string name="error_create_user_in_auth">Error create user in authentication</string>
     <string name="user_data_changed">You change a user data. Please login with new credentials!</string>

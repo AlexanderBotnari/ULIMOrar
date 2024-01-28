@@ -8,7 +8,7 @@
 
     <Button
         android:id="@+id/registeredButton"
-        android:layout_width="204dp"
+        android:layout_width="207dp"
         android:layout_height="wrap_content"
         android:text="@string/registered_fragment_button"
         style="?attr/materialButtonOutlinedStyle"
