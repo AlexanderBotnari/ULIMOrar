@@ -64,10 +64,24 @@
     <string name="add_passport_id">Add passport id for future students</string>
 
     <!--    Snack bar-->
-    <string name="password_for_user">Password for user:</string>
-    <string name="is">is :</string>
     <string name="email_sent_to">Email sent to</string>
     <string name="please_verify_inbox">Please verify your email inbox.</string>
+
+<!--    Email messages-->
+    <string name="reset_password_email_title">Reset password</string>
+    <string name="email_addressing">Hello dear user,\n\n</string>
+    <string name="somebody_request_password">
+        Somebody requested password for the app ULIM Timetable account associated with
+    </string>
+    <string name="you_can_reset_password">No changes have been made to your account yet.
+
+        You can reset your password in account settings from app.\n
+    </string>
+    <string name="current_password">Current password is:</string>
+    <string name="false_request_password">
+        If you did not request password, please let us know immediately by replying to this email.\n\n
+    </string>
+    <string name="email_termination">Yours,\nThe ULIM Timetable team</string>
 
     <!--    Messages-->
     <string name="password_length_error">Password must be least 7 characters</string>

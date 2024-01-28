@@ -64,8 +64,13 @@ public class EmailSender extends AsyncTask<String, Void, Void> {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(username));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
-            message.setSubject("Resetare parolă");
-            message.setText("Parola dvs. este " + userPassword);
+            message.setSubject(loginActivity.getText(R.string.reset_password_email_title).toString());
+            message.setText(loginActivity.getText(R.string.email_addressing) +
+                    loginActivity.getText(R.string.somebody_request_password).toString()+" "+toEmail+"\n\n"+
+                    loginActivity.getText(R.string.you_can_reset_password) +
+                    loginActivity.getText(R.string.current_password) +" "+userPassword+"\n\n"+
+                    loginActivity.getText(R.string.false_request_password) +
+                    loginActivity.getText(R.string.email_termination));
 
             // Send message
             Transport.send(message);
