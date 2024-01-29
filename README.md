@@ -9,7 +9,7 @@ https://github.com/AlexanderBotnari/ULIMOrar/assets/63365662/33c7f713-6b96-4b4e-
 Note for email notifications!
 To send email on your behalf you must add the file named "config.properties" to the "/app" package,
 and write these 2 lines<br>
-EMAIL_ADDRESS=your email address
+EMAIL_ADDRESS=your email address<br>
 EMAIL_PASSWORD=foreign application password<br>
 The same you need to configure the EmailSender.java class with your email server if it is different from GMail.
 </p>
