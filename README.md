@@ -15,3 +15,4 @@ The same you need to configure the EmailSender.java class with your email server
 </p>
 
 <p>If you are a customer and simply want to run the application on your android system then download a release of the application.</p>
+<p>https://github.com/AlexanderBotnari/ULIMOrar/releases</p>
