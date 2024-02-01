@@ -38,7 +38,7 @@
     <string name="send_button">Отправить</string>
     <string name="logout_button">Выход из системы</string>
     <string name="next_button">Далее</string>
-    <string name="registered_fragment_button">Зарегистрированные</string>
+    <string name="registered_fragment_button">Зарегистрированны</string>
     <string name="to_register_fragment_button">Для регистрации</string>
     <string name="delete_button">УДАЛИТЬ</string>
     <string name="add_faculty_dialog_title">Добавить факультет</string>

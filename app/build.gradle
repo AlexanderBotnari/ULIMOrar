@@ -24,6 +24,7 @@ android {
 
         buildConfigField("String", "EMAIL_ADDRESS", "\"${configProps['EMAIL_ADDRESS']}\"")
         buildConfigField("String", "EMAIL_PASSWORD", "\"${configProps['EMAIL_PASSWORD']}\"")
+
     }
 
     buildTypes {
@@ -31,8 +32,16 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-
+        debug{
+            android.applicationVariants.configureEach { variant ->
+                variant.outputs.configureEach {
+                    def appName = "ulim_timetable"
+                    outputFileName = appName + "-${variant.versionName}-${variant.versionCode}.apk"
+                }
+            }
+        }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8

@@ -31,6 +31,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         return users;
     }
 
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
+
     public void updateList(List<User> newList) {
         users.clear();
         users.addAll(newList);

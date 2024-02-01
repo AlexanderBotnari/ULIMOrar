@@ -11,6 +11,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,6 +36,7 @@ import com.example.ulimorar.fragments.interfaces.BottomSheetListener;
 import com.example.ulimorar.utils.GetDialogsStandardButtons;
 import com.example.ulimorar.utils.controllers.SwipeController;
 import com.example.ulimorar.utils.controllers.SwipeControllerActions;
+import com.example.ulimorar.viewmodels.UserViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -89,10 +91,20 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
     private SearchView searchView;
     private List<User> searchResults;
 
+    private UserViewModel userViewModel;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
+        userViewModel.getUsersLiveData().observe(this,  userList -> {
+            userAdapter.setUsers(userList);
+            userAdapter.notifyDataSetChanged();
+
+            // Stop the swipe-to-refresh animation
+            swipeRefreshLayout.setRefreshing(false);
+        });
     }
 
     @Override
@@ -122,7 +134,7 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getUsers();
+                userViewModel.getUsers();
                 searchView.clearFocus();
                 searchView.setQueryHint(getText(R.string.search));
             }
@@ -163,33 +175,33 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
         return view;
     }
 
-    private void getUserByEmail(String userEmail) {
-        Query query = userDbReference.orderByChild("email").equalTo(userEmail);
-
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    // User found
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        // Access user data
-                        User authenticatedUserFromDb = snapshot.getValue(User.class);
-                        if (authenticatedUserFromDb != null){
-                            currentUser = authenticatedUserFromDb;
-                        }
-                    }
-                } else {
-                    // User not found
-                    Log.d("User Data", "User not found for email: " + userEmail);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e("Error", "Failed to read user data.", databaseError.toException());
-            }
-        });
-    }
+//    private void getUserByEmail(String userEmail) {
+//        Query query = userDbReference.orderByChild("email").equalTo(userEmail);
+//
+//        query.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                if (dataSnapshot.exists()) {
+//                    // User found
+//                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+//                        // Access user data
+//                        User authenticatedUserFromDb = snapshot.getValue(User.class);
+//                        if (authenticatedUserFromDb != null){
+//                            currentUser = authenticatedUserFromDb;
+//                        }
+//                    }
+//                } else {
+//                    // User not found
+//                    Log.d("User Data", "User not found for email: " + userEmail);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//                Log.e("Error", "Failed to read user data.", databaseError.toException());
+//            }
+//        });
+//    }
 
     private void setupRecyclerView(View view) {
         userRecyclerView = view.findViewById(R.id.usersRecyclerView);
@@ -417,40 +429,40 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
         });
     }
 
-    private void getUsers() {
-        Query query = FirebaseDatabase.getInstance().getReference("users");
-        query.addValueEventListener(new ValueEventListener() {
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                users.clear();  // because everytime when data updates in your firebase database it creates the list with updated items
-                // so to avoid duplicate fields we clear the list everytime
-                if (snapshot.exists()) {
-                    for (DataSnapshot userSnapshot : snapshot.getChildren()) {
-                        User user = userSnapshot.getValue(User.class);
-                        assert user != null;
-                        if (user.getEmail() != null && auth.getCurrentUser() != null){
-                            if (!user.getEmail().equals(auth.getCurrentUser().getEmail())){
-                                users.add(user);
-                            }
-                        }
-                    }
-                    userAdapter.notifyDataSetChanged();
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull @NotNull DatabaseError error) {
-
-            }
-        });
-    }
+//    private void getUsers() {
+//        Query query = FirebaseDatabase.getInstance().getReference("users");
+//        query.addValueEventListener(new ValueEventListener() {
+//            @SuppressLint("NotifyDataSetChanged")
+//            @Override
+//            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+//                users.clear();  // because everytime when data updates in your firebase database it creates the list with updated items
+//                // so to avoid duplicate fields we clear the list everytime
+//                if (snapshot.exists()) {
+//                    for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+//                        User user = userSnapshot.getValue(User.class);
+//                        assert user != null;
+//                        if (user.getEmail() != null && auth.getCurrentUser() != null){
+//                            if (!user.getEmail().equals(auth.getCurrentUser().getEmail())){
+//                                users.add(user);
+//                            }
+//                        }
+//                    }
+//                    userAdapter.notifyDataSetChanged();
+//                    swipeRefreshLayout.setRefreshing(false);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+//
+//            }
+//        });
+//    }
 
     private void addUser(View view, String firstName, String lastName, String email, String idnp, String role, String password) {
 
         FirebaseUser firebaseUser = auth.getCurrentUser();
-        getUserByEmail(firebaseUser.getEmail());
+        userViewModel.getUserByEmail(firebaseUser.getEmail());
 
         String userId = userDbReference.push().getKey();
 
@@ -490,7 +502,7 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
 
     public void deleteUserByEmail(Context context, User userToDelete) {
         FirebaseUser firebaseUser = auth.getCurrentUser();
-        getUserByEmail(firebaseUser.getEmail());
+        userViewModel.getUserByEmail(firebaseUser.getEmail());
 
         // Asigurați-vă că utilizatorul curent există și nu este utilizatorul pe care încercați să-l ștergeți
         if (!firebaseUser.getEmail().equals(userToDelete.getEmail())) {
@@ -549,7 +561,7 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
     public void editUser(View view, String userId, String firstName, String lastName, String email, String idnp, String role, String password){
 
         FirebaseUser firebaseUser = auth.getCurrentUser();
-        getUserByEmail(firebaseUser.getEmail());
+        userViewModel.getUserByEmail(firebaseUser.getEmail());
 
         User newUser = new User(userId, firstName, lastName, email, idnp, role, password);
 
@@ -613,7 +625,7 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
     @Override
     public void onStart() {
         super.onStart();
-        getUsers();
+        userViewModel.getUsers();
     }
 
     @Override
