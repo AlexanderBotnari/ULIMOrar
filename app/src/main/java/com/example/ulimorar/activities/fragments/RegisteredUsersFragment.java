@@ -30,6 +30,8 @@ import android.widget.Toast;
 
 import com.example.ulimorar.R;
 import com.example.ulimorar.adapters.UserAdapter;
+import com.example.ulimorar.callbacks.EmailExistCallback;
+import com.example.ulimorar.callbacks.PassportExistCallback;
 import com.example.ulimorar.entities.User;
 import com.example.ulimorar.fragments.DeleteBottomSheetFragment;
 import com.example.ulimorar.fragments.interfaces.BottomSheetListener;
@@ -62,9 +64,9 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
 
     private AlertDialog alertDialog;
 
-    private DatabaseReference userDbReference;
-    private DatabaseReference passportIdsDbReference;
-    private FirebaseAuth auth;
+//    private DatabaseReference userDbReference;
+//    private DatabaseReference passportIdsDbReference;
+//    private FirebaseAuth auth;
 
     private TextInputLayout passwordInputLayout;
     private TextInputLayout confirmPasswordInputLayout;
@@ -83,7 +85,7 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
 
     private SwipeController swipeController;
 
-    private User currentUser;
+//    private User currentUser;
     private User userToUpdate;
     private DeleteBottomSheetFragment bottomSheetFragment;
     private User userToDelete;
@@ -113,10 +115,10 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
         View view = inflater.inflate(R.layout.fragment_registered_users, container, false);
 
 //      "users" is the name of the module to storage data
-        userDbReference = FirebaseDatabase.getInstance().getReference("users");
-        passportIdsDbReference = FirebaseDatabase.getInstance().getReference("passportIds");
-
-        auth = FirebaseAuth.getInstance();
+//        userDbReference = FirebaseDatabase.getInstance().getReference("users");
+//        passportIdsDbReference = FirebaseDatabase.getInstance().getReference("passportIds");
+//
+//        auth = FirebaseAuth.getInstance();
 
         addUserButton = view.findViewById(R.id.addUserFloatingButton);
         searchView = view.findViewById(R.id.searchView);
@@ -339,28 +341,48 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
 
                 if (isValid){
                     if (isAddDialog){
-                        checkEmailExistence(email, new EmailExistCallback() {
+//                        checkEmailExistence(email, new EmailExistCallback() {
+//                            @Override
+//                            public void onResult(boolean exists) {
+//                                if (!exists){
+                        userViewModel.checkEmailExistence(email, new EmailExistCallback() {
                             @Override
                             public void onResult(boolean exists) {
                                 if (!exists){
-                                    checkPassportExistence(idnp, new PassportExistCallback() {
+                                    userViewModel.checkPassportExistence(idnp, new PassportExistCallback() {
                                         @Override
                                         public void onResult(boolean exists) {
                                             if (!exists){
-                                                addUser(view, firstName, lastName, email, idnp, role, password);
+                                                User user = new User(null, firstName, lastName, email, idnp, role, password);
+                                                userViewModel.addUser(view, alertDialog, user);
                                             }else {
                                                 idnpInputLayout.setError(getText(R.string.passport_already_exists));
                                             }
                                         }
-                                    });
+                                    }, idnpInputLayout, getActivity());
+//                                    checkPassportExistence(idnp, new PassportExistCallback() {
+//                                        @Override
+//                                        public void onResult(boolean exists) {
+//                                            if (!exists){
+//                                                User user = new User(firstName, lastName, email, idnp, role, password);
+//                                                userViewModel.addUser(view, alertDialog, user);
+//                                            }else {
+//                                                idnpInputLayout.setError(getText(R.string.passport_already_exists));
+//                                            }
+//                                        }
+//                                    });
+
                                 }else{
                                     emailInputLayout.setError(getText(R.string.email_already_registered));
                                 }
                             }
                         });
                     }else{
-                        editUser(view, userToUpdate.getId(), firstName, lastName,
+                        User newUser = new User(userToUpdate.getId(), firstName, lastName,
                                 userToUpdate.getEmail(), userToUpdate.getIdnp(), role, password);
+                        userViewModel.editUser(view, newUser, userToUpdate, alertDialog);
+//                        editUser(view, userToUpdate.getId(), firstName, lastName,
+//                                userToUpdate.getEmail(), userToUpdate.getIdnp(), role, password);
                     }
                 }
             }
@@ -374,60 +396,60 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
         });
     }
 
-    private interface EmailExistCallback{
-        void onResult(boolean exists);
-    }
+//    private interface EmailExistCallback{
+//        void onResult(boolean exists);
+//    }
 
-    private interface PassportExistCallback{
-        void onResult(boolean exists);
-    }
+//    private interface PassportExistCallback{
+//        void onResult(boolean exists);
+//    }
 
-    private interface PassportToRegisterCallback{
-        void onResult(boolean exists);
-    }
+//    private interface PassportToRegisterCallback{
+//        void onResult(boolean exists);
+//    }
 
-    private void checkEmailExistence(String email, EmailExistCallback callback){
-        userDbReference.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                callback.onResult(snapshot.exists());
-            }
+//    private void checkEmailExistence(String email, EmailExistCallback callback){
+//        userDbReference.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                callback.onResult(snapshot.exists());
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                callback.onResult(false);
+//            }
+//        });
+//    }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                callback.onResult(false);
-            }
-        });
-    }
+//    private void checkPassportExistence(String passportId, PassportExistCallback callback){
+//        userDbReference.orderByChild("idnp").equalTo(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                callback.onResult(snapshot.exists());
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                callback.onResult(false);
+//            }
+//        });
+//    }
 
-    private void checkPassportExistence(String passportId, PassportExistCallback callback){
-        userDbReference.orderByChild("idnp").equalTo(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                callback.onResult(snapshot.exists());
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                callback.onResult(false);
-            }
-        });
-    }
-
-    private void checkPassportToRegisterExistence(String passportId, PassportToRegisterCallback callback){
-        passportIdsDbReference.child(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                callback.onResult(dataSnapshot.exists());
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                callback.onResult(false);
-                // Handle the error if necessary
-                Log.e("DatabaseError", "Error checking passport ID existence: " + databaseError.getMessage());
-            }
-        });
-    }
+//    private void checkPassportToRegisterExistence(String passportId, PassportToRegisterCallback callback){
+//        passportIdsDbReference.child(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                callback.onResult(dataSnapshot.exists());
+//            }
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//                callback.onResult(false);
+//                // Handle the error if necessary
+//                Log.e("DatabaseError", "Error checking passport ID existence: " + databaseError.getMessage());
+//            }
+//        });
+//    }
 
 //    private void getUsers() {
 //        Query query = FirebaseDatabase.getInstance().getReference("users");
@@ -459,168 +481,168 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
 //        });
 //    }
 
-    private void addUser(View view, String firstName, String lastName, String email, String idnp, String role, String password) {
+//    private void addUser(View view, String firstName, String lastName, String email, String idnp, String role, String password) {
+//
+//        FirebaseUser firebaseUser = auth.getCurrentUser();
+//        userViewModel.getUserByEmail(firebaseUser.getEmail());
+//
+//        String userId = userDbReference.push().getKey();
+//
+//        User user = new User(userId, firstName, lastName, email, idnp, role, password);
+//
+//        // Add the user to the database
+//        userDbReference.child(userId).setValue(user).addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                checkPassportToRegisterExistence(user.getIdnp(), new PassportToRegisterCallback() {
+//                    @Override
+//                    public void onResult(boolean exists) {
+//                        if (exists){
+//                            deletePassportFromToRegister(idnp);
+//                        }
+//                    }
+//                });
+//
+//                // If user added successfully, add the same user credentials to Firebase Authentication
+//                auth.createUserWithEmailAndPassword(email, password)
+//                        .addOnCompleteListener(authTask -> {
+//                            if (authTask.isSuccessful()) {
+//                                Toast.makeText(view.getContext(), R.string.add_user_successful_message, Toast.LENGTH_SHORT).show();
+//                                auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
+//                            } else {
+//                                Toast.makeText(view.getContext(), R.string.add_user_failure_message, Toast.LENGTH_SHORT).show();
+//                                Log.d("FailureAddUser", authTask.getException().getMessage());
+//                            }
+//                        });
+//
+//                alertDialog.dismiss();
+//            } else {
+//                Toast.makeText(view.getContext(), R.string.add_user_failure_message, Toast.LENGTH_SHORT).show();
+//                Log.d("FailureAddUser", task.getException().getMessage());
+//            }
+//        });
+//    }
 
-        FirebaseUser firebaseUser = auth.getCurrentUser();
-        userViewModel.getUserByEmail(firebaseUser.getEmail());
+//    public void deleteUserByEmail(Context context, User userToDelete) {
+//        FirebaseUser firebaseUser = auth.getCurrentUser();
+//        userViewModel.getUserByEmail(firebaseUser.getEmail());
+//
+//        // Asigurați-vă că utilizatorul curent există și nu este utilizatorul pe care încercați să-l ștergeți
+//        if (!firebaseUser.getEmail().equals(userToDelete.getEmail())) {
+//            // Autentificați-vă cu adresa de e-mail a utilizatorului pe care doriți să-l ștergeți
+//            auth.signInWithEmailAndPassword(userToDelete.getEmail(), userToDelete.getPassword())
+//                    .addOnCompleteListener(task -> {
+//                        if (task.isSuccessful()) {
+//                            FirebaseUser user = task.getResult().getUser();
+//                            user.delete();
+//
+//                            // Căutați utilizatorul în baza de date după adresa de e-mail
+//                            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
+//                            Query query = databaseReference.orderByChild("email").equalTo(userToDelete.getEmail());
+//                            query.addListenerForSingleValueEvent(new ValueEventListener() {
+//                                @Override
+//                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+//                                        // Obțineți cheia utilizatorului găsit și ștergeți-l din baza de date
+//                                        String userKey = snapshot.getKey();
+//                                        DatabaseReference userReference = databaseReference.child(userKey);
+//                                        userReference.removeValue()
+//                                                .addOnSuccessListener(aVoid -> {
+//                                                    // Utilizatorul a fost șters cu succes din baza de date
+//                                                    String message = getText(R.string.user) + " " + userToDelete.getFirstName() + " " +
+//                                                            userToDelete.getLastName() + " " + getText(R.string.delete_user_success);
+//                                                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+//                                                    auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
+//                                                    bottomSheetFragment.dismiss();
+//                                                })
+//                                                .addOnFailureListener(e -> {
+//                                                    // Tratarea erorii la ștergerea din Realtime Database
+//                                                    Toast.makeText(context, R.string.delete_user_from_db_fail, Toast.LENGTH_LONG).show();
+//                                                });
+//                                    }
+//                                }
+//
+//                                @Override
+//                                public void onCancelled(@NonNull DatabaseError databaseError) {
+//                                    // Tratarea erorii la interogarea bazei de date
+//                                    Toast.makeText(context, R.string.database_query_error, Toast.LENGTH_SHORT).show();
+//                                }
+//                            });
+//                        } else {
+//                            // Tratarea erorii la autentificarea în contul utilizatorului
+//                            Toast.makeText(context, R.string.authentication_error, Toast.LENGTH_SHORT).show();
+//                            auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
+//                        }
+//                    });
+//        } else {
+//            // Tratarea cazului în care utilizatorul curent este null sau este utilizatorul curent
+//            Toast.makeText(context, R.string.delete_current_user_error, Toast.LENGTH_SHORT).show();
+//            auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
+//        }
+//    }
 
-        String userId = userDbReference.push().getKey();
+//    public void editUser(View view, String userId, String firstName, String lastName, String email, String idnp, String role, String password){
+//
+//        FirebaseUser firebaseUser = auth.getCurrentUser();
+//        userViewModel.getUserByEmail(firebaseUser.getEmail());
+//
+//        User newUser = new User(userId, firstName, lastName, email, idnp, role, password);
+//
+//        userDbReference.child(userId).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+//            @Override
+//            public void onComplete(@NonNull @NotNull Task<Void> task) {
+//                auth.signInWithEmailAndPassword(userToUpdate.getEmail(), userToUpdate.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+//                    @Override
+//                    public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
+//                        if (task.isSuccessful()){
+//                            FirebaseUser oldUser = auth.getCurrentUser();
+//                            oldUser.delete();
+//                            auth.createUserWithEmailAndPassword(newUser.getEmail(), newUser.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+//                                @Override
+//                                public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
+//                                    Toast.makeText(view.getContext(), R.string.update_user_success_message, Toast.LENGTH_SHORT).show();
+//                                    auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
+//                                }
+//                            });
+//                        }
+//                    }
+//                });
+//                alertDialog.dismiss();
+//            }
+//        }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull @NotNull Exception e) {
+//                Toast.makeText(view.getContext(), R.string.update_user_failure, Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
 
-        User user = new User(userId, firstName, lastName, email, idnp, role, password);
-
-        // Add the user to the database
-        userDbReference.child(userId).setValue(user).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                checkPassportToRegisterExistence(user.getIdnp(), new PassportToRegisterCallback() {
-                    @Override
-                    public void onResult(boolean exists) {
-                        if (exists){
-                            deletePassportFromToRegister(idnp);
-                        }
-                    }
-                });
-
-                // If user added successfully, add the same user credentials to Firebase Authentication
-                auth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(authTask -> {
-                            if (authTask.isSuccessful()) {
-                                Toast.makeText(view.getContext(), R.string.add_user_successful_message, Toast.LENGTH_SHORT).show();
-                                auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
-                            } else {
-                                Toast.makeText(view.getContext(), R.string.add_user_failure_message, Toast.LENGTH_SHORT).show();
-                                Log.d("FailureAddUser", authTask.getException().getMessage());
-                            }
-                        });
-
-                alertDialog.dismiss();
-            } else {
-                Toast.makeText(view.getContext(), R.string.add_user_failure_message, Toast.LENGTH_SHORT).show();
-                Log.d("FailureAddUser", task.getException().getMessage());
-            }
-        });
-    }
-
-    public void deleteUserByEmail(Context context, User userToDelete) {
-        FirebaseUser firebaseUser = auth.getCurrentUser();
-        userViewModel.getUserByEmail(firebaseUser.getEmail());
-
-        // Asigurați-vă că utilizatorul curent există și nu este utilizatorul pe care încercați să-l ștergeți
-        if (!firebaseUser.getEmail().equals(userToDelete.getEmail())) {
-            // Autentificați-vă cu adresa de e-mail a utilizatorului pe care doriți să-l ștergeți
-            auth.signInWithEmailAndPassword(userToDelete.getEmail(), userToDelete.getPassword())
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            FirebaseUser user = task.getResult().getUser();
-                            user.delete();
-
-                            // Căutați utilizatorul în baza de date după adresa de e-mail
-                            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
-                            Query query = databaseReference.orderByChild("email").equalTo(userToDelete.getEmail());
-                            query.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                                        // Obțineți cheia utilizatorului găsit și ștergeți-l din baza de date
-                                        String userKey = snapshot.getKey();
-                                        DatabaseReference userReference = databaseReference.child(userKey);
-                                        userReference.removeValue()
-                                                .addOnSuccessListener(aVoid -> {
-                                                    // Utilizatorul a fost șters cu succes din baza de date
-                                                    String message = getText(R.string.user) + " " + userToDelete.getFirstName() + " " +
-                                                            userToDelete.getLastName() + " " + getText(R.string.delete_user_success);
-                                                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-                                                    auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
-                                                    bottomSheetFragment.dismiss();
-                                                })
-                                                .addOnFailureListener(e -> {
-                                                    // Tratarea erorii la ștergerea din Realtime Database
-                                                    Toast.makeText(context, R.string.delete_user_from_db_fail, Toast.LENGTH_LONG).show();
-                                                });
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError databaseError) {
-                                    // Tratarea erorii la interogarea bazei de date
-                                    Toast.makeText(context, R.string.database_query_error, Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        } else {
-                            // Tratarea erorii la autentificarea în contul utilizatorului
-                            Toast.makeText(context, R.string.authentication_error, Toast.LENGTH_SHORT).show();
-                            auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
-                        }
-                    });
-        } else {
-            // Tratarea cazului în care utilizatorul curent este null sau este utilizatorul curent
-            Toast.makeText(context, R.string.delete_current_user_error, Toast.LENGTH_SHORT).show();
-            auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
-        }
-    }
-
-    public void editUser(View view, String userId, String firstName, String lastName, String email, String idnp, String role, String password){
-
-        FirebaseUser firebaseUser = auth.getCurrentUser();
-        userViewModel.getUserByEmail(firebaseUser.getEmail());
-
-        User newUser = new User(userId, firstName, lastName, email, idnp, role, password);
-
-        userDbReference.child(userId).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull @NotNull Task<Void> task) {
-                auth.signInWithEmailAndPassword(userToUpdate.getEmail(), userToUpdate.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
-                        if (task.isSuccessful()){
-                            FirebaseUser oldUser = auth.getCurrentUser();
-                            oldUser.delete();
-                            auth.createUserWithEmailAndPassword(newUser.getEmail(), newUser.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
-                                    Toast.makeText(view.getContext(), R.string.update_user_success_message, Toast.LENGTH_SHORT).show();
-                                    auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
-                                }
-                            });
-                        }
-                    }
-                });
-                alertDialog.dismiss();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull @NotNull Exception e) {
-                Toast.makeText(view.getContext(), R.string.update_user_failure, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    public void deletePassportFromToRegister(String passportId){
-        passportIdsDbReference.child(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    passportIdsDbReference.child(passportId).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                        }
-                    });
-
-                } else {
-                    Toast.makeText(getView().getContext(), R.string.passport_not_exists, Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle the error if necessary
-                Log.e("DatabaseError", "Error checking passport ID existence: " + databaseError.getMessage());
-            }
-        });
-    }
+//    public void deletePassportFromToRegister(String passportId){
+//        passportIdsDbReference.child(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                if (dataSnapshot.exists()) {
+//                    passportIdsDbReference.child(passportId).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+//                        @Override
+//                        public void onComplete(@NonNull Task<Void> task) {
+//                        }
+//                    }).addOnFailureListener(new OnFailureListener() {
+//                        @Override
+//                        public void onFailure(@NonNull Exception e) {
+//                        }
+//                    });
+//
+//                } else {
+//                    Toast.makeText(getView().getContext(), R.string.passport_not_exists, Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//                // Handle the error if necessary
+//                Log.e("DatabaseError", "Error checking passport ID existence: " + databaseError.getMessage());
+//            }
+//        });
+//    }
 
     @Override
     public void onStart() {
@@ -635,7 +657,8 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
 
     @Override
     public void onButtonDelete(View view) {
-        deleteUserByEmail(view.getContext(), userToDelete);
+//        deleteUserByEmail(view.getContext(), userToDelete);
+        userViewModel.deleteUser(view.getContext(), userToDelete, getActivity(), bottomSheetFragment);
     }
 
     private void performSearch(String query) {
