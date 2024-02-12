@@ -95,6 +95,7 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
 
     private UserViewModel userViewModel;
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

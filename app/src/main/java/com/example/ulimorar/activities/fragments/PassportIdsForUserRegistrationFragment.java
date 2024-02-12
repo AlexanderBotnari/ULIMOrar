@@ -9,6 +9,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
@@ -23,8 +24,11 @@ import android.widget.Toast;
 
 import com.example.ulimorar.R;
 import com.example.ulimorar.adapters.PassportIdAdapter;
+import com.example.ulimorar.callbacks.PassportExistCallback;
 import com.example.ulimorar.entities.User;
 import com.example.ulimorar.utils.GetDialogsStandardButtons;
+import com.example.ulimorar.viewmodels.PassportIdViewModel;
+import com.example.ulimorar.viewmodels.UserViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -55,16 +59,29 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
 
     private AlertDialog alertDialog;
 
-    private DatabaseReference passportIdsDbReference;
-    private DatabaseReference userDbReference;
+//    private DatabaseReference passportIdsDbReference;
+//    private DatabaseReference userDbReference;
 
     private TextInputLayout passportIdInputLayout;
 
     private SwipeRefreshLayout swipeRefreshLayout;
 
+    private UserViewModel userViewModel;
+    private PassportIdViewModel passportIdViewModel;
+
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        passportIdViewModel = new ViewModelProvider(this).get(PassportIdViewModel.class);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+
+        passportIdViewModel.getPassportIdsLiveData().observe(this, passportList ->{
+                adapter.clear();
+                adapter.addAll(passportList);
+                adapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
+        });
     }
 
     @Override
@@ -72,13 +89,13 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_passport_ids_for_user_registration, container, false);
 
-        passportIdsDbReference = FirebaseDatabase.getInstance().getReference("passportIds");
-        userDbReference = FirebaseDatabase.getInstance().getReference("users");
+//        passportIdsDbReference = FirebaseDatabase.getInstance().getReference("passportIds");
+//        userDbReference = FirebaseDatabase.getInstance().getReference("users");
 
         passportIds = new ArrayList<>();
         searchResults = new ArrayList<>();
 
-        adapter = new PassportIdAdapter(view.getContext(), passportIds);
+        adapter = new PassportIdAdapter(requireContext(), passportIds);
         ListView listView = view.findViewById(R.id.listView);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -101,7 +118,10 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getPassportIds();
+//                getPassportIds();
+                passportIdViewModel.getPassportIds();
+                searchView.clearFocus();
+                searchView.setQueryHint(getText(R.string.search_by_passport));
             }
         });
 
@@ -140,33 +160,33 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
         return view;
     }
 
-    private void getPassportIds() {
-        Query query = FirebaseDatabase.getInstance().getReference("passportIds");
-        query.addValueEventListener(new ValueEventListener() {
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                passportIds.clear();  // because everytime when data updates in your firebase database it creates the list with updated items
-                // so to avoid duplicate fields we clear the list everytime
-                if (snapshot.exists()) {
-                    for (DataSnapshot passportSnapshot : snapshot.getChildren()) {
-                        String passport = passportSnapshot.getValue(String.class);
-                        assert passport != null;
-                        if (!passport.isEmpty()){
-                            passportIds.add(passport);
-                        }
-                    }
-                    adapter.notifyDataSetChanged();
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull @NotNull DatabaseError error) {
-
-            }
-        });
-    }
+//    private void getPassportIds() {
+//        Query query = FirebaseDatabase.getInstance().getReference("passportIds");
+//        query.addValueEventListener(new ValueEventListener() {
+//            @SuppressLint("NotifyDataSetChanged")
+//            @Override
+//            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+//                passportIds.clear();  // because everytime when data updates in your firebase database it creates the list with updated items
+//                // so to avoid duplicate fields we clear the list everytime
+//                if (snapshot.exists()) {
+//                    for (DataSnapshot passportSnapshot : snapshot.getChildren()) {
+//                        String passport = passportSnapshot.getValue(String.class);
+//                        assert passport != null;
+//                        if (!passport.isEmpty()){
+//                            passportIds.add(passport);
+//                        }
+//                    }
+//                    adapter.notifyDataSetChanged();
+//                    swipeRefreshLayout.setRefreshing(false);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+//
+//            }
+//        });
+//    }
 
     private void showAddDialog(int dialogTitle, View view) {
         View alertDialogCustomView = LayoutInflater.from(view.getContext()).inflate(R.layout.add_passport_id_dialog, null);
@@ -201,11 +221,19 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
                 }
 
                 if (isValid){
-                    checkPassportExistence(passportId, exists -> {
-                        if (!exists) {
-                            addPassport(view, passportId);
+                    userViewModel.checkPassportExistence(passportId, new PassportExistCallback() {
+                        @Override
+                        public void onResult(boolean exists) {
+                            if (!exists){
+                                passportIdViewModel.addPassport(view, passportId, alertDialog);
+                            }
                         }
-                    });
+                    }, passportIdInputLayout, getActivity());
+//                    checkPassportExistence(passportId, exists -> {
+//                        if (!exists) {
+//                            addPassport(view, passportId);
+//                        }
+//                    });
                 }
             }
         });
@@ -218,56 +246,56 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
         });
     }
 
-    private interface PassportExistCallback {
-        void onResult(boolean exists);
-    }
+//    private interface PassportExistCallback {
+//        void onResult(boolean exists);
+//    }
 
-    private void checkPassportExistence(String passportId, PassportExistCallback callback) {
-        userDbReference.orderByChild("idnp").equalTo(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                boolean exists = snapshot.exists();
-                if (exists) {
-                    passportIdInputLayout.setError(getString(R.string.passport_already_exists));
-                }
-                callback.onResult(exists);
-            }
+//    private void checkPassportExistence(String passportId, PassportExistCallback callback) {
+//        userDbReference.orderByChild("idnp").equalTo(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                boolean exists = snapshot.exists();
+//                if (exists) {
+//                    passportIdInputLayout.setError(getString(R.string.passport_already_exists));
+//                }
+//                callback.onResult(exists);
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                callback.onResult(false);
+//            }
+//        });
+//    }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                callback.onResult(false);
-            }
-        });
-    }
-
-    private void addPassport(View view, String passportId) {
-        // Check if the passport ID for user already exists in the database
-            passportIdsDbReference.child(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        // Passport ID already exists
-                        Toast.makeText(view.getContext(), R.string.passport_already_exists, Toast.LENGTH_SHORT).show();
-                    } else {
-                        // Passport ID does not exist, add it to the database
-                        passportIdsDbReference.child(passportId).setValue(passportId).addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                Toast.makeText(view.getContext(), R.string.passport_is_added, Toast.LENGTH_SHORT).show();
-                                alertDialog.dismiss();
-                            } else {
-                                Toast.makeText(view.getContext(), R.string.add_passport_fail, Toast.LENGTH_SHORT).show();
-                                Log.d("FailureAddPassport", task.getException().getMessage());
-                            }
-                        });
-                    }
-                }
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    // Handle the error if necessary
-                    Log.e("DatabaseError", "Error checking passport ID existence: " + databaseError.getMessage());
-                }
-            });
-    }
+//    private void addPassport(View view, String passportId) {
+//        // Check if the passport ID for user already exists in the database
+//            passportIdsDbReference.child(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                    if (dataSnapshot.exists()) {
+//                        // Passport ID already exists
+//                        Toast.makeText(view.getContext(), R.string.passport_already_exists, Toast.LENGTH_SHORT).show();
+//                    } else {
+//                        // Passport ID does not exist, add it to the database
+//                        passportIdsDbReference.child(passportId).setValue(passportId).addOnCompleteListener(task -> {
+//                            if (task.isSuccessful()) {
+//                                Toast.makeText(view.getContext(), R.string.passport_is_added, Toast.LENGTH_SHORT).show();
+//                                alertDialog.dismiss();
+//                            } else {
+//                                Toast.makeText(view.getContext(), R.string.add_passport_fail, Toast.LENGTH_SHORT).show();
+//                                Log.d("FailureAddPassport", task.getException().getMessage());
+//                            }
+//                        });
+//                    }
+//                }
+//                @Override
+//                public void onCancelled(@NonNull DatabaseError databaseError) {
+//                    // Handle the error if necessary
+//                    Log.e("DatabaseError", "Error checking passport ID existence: " + databaseError.getMessage());
+//                }
+//            });
+//    }
 
     private void showDeleteConfirmationDialog(final int position, View view) {
         AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext(), R.style.AlertDialogCustomStyle);
@@ -275,7 +303,7 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
                 .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         String passportId = adapter.getItem(position);
-                        deletePassportIdFromDb(view, passportId);
+                        passportIdViewModel.deletePassport(view, passportId);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -286,41 +314,42 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
         builder.create().show();
     }
 
-    public void deletePassportIdFromDb(View view, String passportId){
-        passportIdsDbReference.child(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    adapter.remove(passportId);
-                    passportIdsDbReference.child(passportId).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            Toast.makeText(view.getContext(), R.string.passport_is_removed, Toast.LENGTH_SHORT).show();
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(view.getContext(), R.string.passport_remove_fail, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
-                } else {
-                    Toast.makeText(view.getContext(), R.string.passport_not_exists, Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle the error if necessary
-                Log.e("DatabaseError", "Error checking passport ID existence: " + databaseError.getMessage());
-            }
-        });
-    }
+//    public void deletePassportIdFromDb(View view, String passportId){
+//        passportIdsDbReference.child(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                if (dataSnapshot.exists()) {
+//                    adapter.remove(passportId);
+//                    passportIdsDbReference.child(passportId).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+//                        @Override
+//                        public void onComplete(@NonNull Task<Void> task) {
+//                            Toast.makeText(view.getContext(), R.string.passport_is_removed, Toast.LENGTH_SHORT).show();
+//                        }
+//                    }).addOnFailureListener(new OnFailureListener() {
+//                        @Override
+//                        public void onFailure(@NonNull Exception e) {
+//                            Toast.makeText(view.getContext(), R.string.passport_remove_fail, Toast.LENGTH_SHORT).show();
+//                        }
+//                    });
+//
+//                } else {
+//                    Toast.makeText(view.getContext(), R.string.passport_not_exists, Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//                // Handle the error if necessary
+//                Log.e("DatabaseError", "Error checking passport ID existence: " + databaseError.getMessage());
+//            }
+//        });
+//    }
 
     @Override
     public void onStart() {
         super.onStart();
-        getPassportIds();
+//        getPassportIds();
+        passportIdViewModel.getPassportIds();
     }
 
     private void performSearch(String query) {

@@ -19,11 +19,11 @@ import java.util.List;
 
 public class PassportIdAdapter extends ArrayAdapter<String> {
 
-    private ArrayList<String> passportIds;
+    private List<String> passportIds;
 
-    public PassportIdAdapter(Context context, ArrayList<String> passportIds) {
+    public PassportIdAdapter(Context context, List<String> passportIds) {
         super(context, 0, passportIds);
-        this.passportIds = passportIds;
+        this.passportIds = new ArrayList<>(passportIds);
     }
 
     public void updateList(List<String> newList) {

@@ -2,6 +2,7 @@ package com.example.ulimorar.repositories;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -37,7 +38,7 @@ public class PassportIdRepository {
 
     private DatabaseReference passportDatabaseReference;
 
-    private MutableLiveData<List<String>> passportsListLiveData = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<String>> passportsListLiveData = new MutableLiveData<>();
 
     private FirebaseAuth auth = FirebaseAuth.getInstance();
 
@@ -47,23 +48,81 @@ public class PassportIdRepository {
     }
 
     public void getPassportIds() {
-        passportDatabaseReference.addValueEventListener(new ValueEventListener() {
+        Query query = FirebaseDatabase.getInstance().getReference("passportIds");
+        query.addValueEventListener(new ValueEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                List<String> passportList = new ArrayList<>();
-                for (DataSnapshot passportSnapshot : snapshot.getChildren()) {
-                    String passport = passportSnapshot.getValue(String.class);
-                    if (passport != null && auth.getCurrentUser() != null) {
-                        passportList.add(passport);
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                ArrayList<String> passportIds = new ArrayList<>();
+                if (snapshot.exists()) {
+                    for (DataSnapshot passportSnapshot : snapshot.getChildren()) {
+                        String passport = passportSnapshot.getValue(String.class);
+                        assert passport != null;
+                        if (!passport.isEmpty()){
+                            passportIds.add(passport);
+                        }
                     }
+                    passportsListLiveData.postValue(passportIds);
                 }
-                passportsListLiveData.postValue(passportList);
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                // Handle the error
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
                 passportsListLiveData.postValue(null);
+            }
+        });
+    }
+
+//    public void getPassportIds() {
+//        passportDatabaseReference.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if (snapshot.exists()){
+//                    ArrayList<String> passportList = new ArrayList<>();
+//                    for (DataSnapshot passportSnapshot : snapshot.getChildren()) {
+//                        String passport = passportSnapshot.getValue(String.class);
+//                        assert passport != null;
+//                        if (!passport.isEmpty()) {
+//                            passportList.add(passport);
+//                        }
+//                    }
+//                    passportsListLiveData.postValue(passportList);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                // Handle the error
+//                passportsListLiveData.postValue(null);
+//            }
+//        });
+//    }
+
+    public void addPassport(View view, String passportId, AlertDialog alertDialog) {
+        // Check if the passport ID for user already exists in the database
+        passportDatabaseReference.child(passportId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // Passport ID already exists
+                    Toast.makeText(view.getContext(), R.string.passport_already_exists, Toast.LENGTH_SHORT).show();
+                } else {
+                    // Passport ID does not exist, add it to the database
+                    passportDatabaseReference.child(passportId).setValue(passportId).addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(view.getContext(), R.string.passport_is_added, Toast.LENGTH_SHORT).show();
+                            alertDialog.dismiss();
+                        } else {
+                            Toast.makeText(view.getContext(), R.string.add_passport_fail, Toast.LENGTH_SHORT).show();
+                            Log.d("FailureAddPassport", task.getException().getMessage());
+                        }
+                    });
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle the error if necessary
+                Log.e("DatabaseError", "Error checking passport ID existence: " + databaseError.getMessage());
             }
         });
     }
@@ -111,5 +170,9 @@ public class PassportIdRepository {
                 Log.e("DatabaseError", "Error checking passport ID existence: " + databaseError.getMessage());
             }
         });
+    }
+
+    public MutableLiveData<ArrayList<String>> getPassportsListLiveData(){
+        return passportsListLiveData;
     }
 }
