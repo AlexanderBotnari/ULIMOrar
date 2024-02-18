@@ -36,6 +36,10 @@ public class UserViewModel extends ViewModel {
         userRepository.addUser(view, alertDialog, userToAdd);
     }
 
+    public void registerUser(Activity activity, View view, AlertDialog alertDialog, User userToRegister){
+        userRepository.registerUser(activity, view, alertDialog, userToRegister);
+    }
+
     public void editUser(View view, User newUser, User oldUser, AlertDialog alertDialog){
         userRepository.editUser(view, newUser, oldUser, alertDialog);
     }

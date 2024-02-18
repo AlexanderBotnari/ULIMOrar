@@ -4,14 +4,18 @@ package com.example.ulimorar.repositories;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 
 import com.example.ulimorar.R;
+import com.example.ulimorar.activities.LoginActivity;
+import com.example.ulimorar.activities.RegisterActivity;
 import com.example.ulimorar.callbacks.EmailExistCallback;
 import com.example.ulimorar.callbacks.PassportExistCallback;
 import com.example.ulimorar.entities.User;
@@ -137,6 +141,35 @@ public class UserRepository {
                 alertDialog.dismiss();
             } else {
                 Toast.makeText(view.getContext(), R.string.add_user_failure_message, Toast.LENGTH_SHORT).show();
+                Log.d("FailureAddUser", task.getException().getMessage());
+            }
+        });
+    }
+
+    public void registerUser(Activity activity, View view, AlertDialog alertDialog, User userToRegister){
+        String userId = usersDatabaseReference.push().getKey();
+
+        // Add the user to the database
+        usersDatabaseReference.child(userId).setValue(userToRegister).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // If user added successfully, add the same user credentials to Firebase Authentication
+                auth.createUserWithEmailAndPassword(userToRegister.getEmail(), userToRegister.getPassword())
+                        .addOnCompleteListener(authTask -> {
+                            if (authTask.isSuccessful()) {
+                                Toast.makeText(activity, R.string.successful_registration, Toast.LENGTH_SHORT).show();
+                                activity.startActivity(new Intent(activity, LoginActivity.class));
+                                activity.finish();
+                                passportIdRepository.deletePassportId(view, userToRegister.getIdnp());
+                                auth.signOut();
+                            } else {
+                                Toast.makeText(activity, R.string.registration_failure, Toast.LENGTH_SHORT).show();
+                                Log.d("FailureAddUser", authTask.getException().getMessage());
+                            }
+                        });
+
+                alertDialog.dismiss();
+            } else {
+                Toast.makeText(activity, R.string.registration_failure, Toast.LENGTH_SHORT).show();
                 Log.d("FailureAddUser", task.getException().getMessage());
             }
         });
