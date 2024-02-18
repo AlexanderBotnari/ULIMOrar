@@ -59,4 +59,8 @@ public class UserViewModel extends ViewModel {
         return userListLiveData;
     }
 
+    public User getUserByEmail(String email){
+        return userRepository.getUserByEmail(email);
+    }
+
 }

@@ -39,7 +39,7 @@ public class UserRepository {
     private DatabaseReference usersDatabaseReference;
     private FirebaseAuth auth = FirebaseAuth.getInstance();
     private MutableLiveData<List<User>> userListLiveData = new MutableLiveData<>();
-    private User currentUser;
+    private User findedUserByEmail;
 
     private PassportIdRepository passportIdRepository;
 
@@ -74,7 +74,7 @@ public class UserRepository {
         });
     }
 
-    public void getUserByEmail(String userEmail) {
+    private void findUserByEmail(String userEmail) {
         Query query = usersDatabaseReference.orderByChild("email").equalTo(userEmail);
 
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -86,7 +86,7 @@ public class UserRepository {
                         // Access user data
                         User authenticatedUserFromDb = snapshot.getValue(User.class);
                         if (authenticatedUserFromDb != null) {
-                            currentUser = authenticatedUserFromDb;
+                            findedUserByEmail = authenticatedUserFromDb;
                         }
                     }
                 } else {
@@ -103,7 +103,7 @@ public class UserRepository {
     }
 
     public void addUser(View view, AlertDialog alertDialog, User userToAdd) {
-        getUserByEmail(auth.getCurrentUser().getEmail());
+        findUserByEmail(auth.getCurrentUser().getEmail());
 
         String userId = usersDatabaseReference.push().getKey();
 
@@ -127,7 +127,7 @@ public class UserRepository {
                         .addOnCompleteListener(authTask -> {
                             if (authTask.isSuccessful()) {
                                 Toast.makeText(view.getContext(), R.string.add_user_successful_message, Toast.LENGTH_SHORT).show();
-                                auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
+                                auth.signInWithEmailAndPassword(findedUserByEmail.getEmail(), findedUserByEmail.getPassword());
                             } else {
                                 Toast.makeText(view.getContext(), R.string.add_user_failure_message, Toast.LENGTH_SHORT).show();
                                 Log.d("FailureAddUser", authTask.getException().getMessage());
@@ -143,7 +143,7 @@ public class UserRepository {
     }
 
     public void editUser(View view, User newUser, User oldUser, AlertDialog alertDialog){
-        getUserByEmail(auth.getCurrentUser().getEmail());
+        findUserByEmail(auth.getCurrentUser().getEmail());
 
         User userToUpdate = new User(newUser.getId(), newUser.getFirstName(),
                 newUser.getLastName(), newUser.getEmail(), newUser.getIdnp(),
@@ -162,7 +162,7 @@ public class UserRepository {
                                 @Override
                                 public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
                                     Toast.makeText(view.getContext(), R.string.update_user_success_message, Toast.LENGTH_SHORT).show();
-                                    auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
+                                    auth.signInWithEmailAndPassword(findedUserByEmail.getEmail(), findedUserByEmail.getPassword());
                                 }
                             });
                         }
@@ -181,7 +181,7 @@ public class UserRepository {
     public void deleteUserByEmail(Context context, User userToDelete, Activity activity,
                                   DeleteBottomSheetFragment bottomSheetFragment) {
         FirebaseUser firebaseUser = auth.getCurrentUser();
-        getUserByEmail(firebaseUser.getEmail());
+        findUserByEmail(firebaseUser.getEmail());
 
         // Asigurați-vă că utilizatorul curent există și nu este utilizatorul pe care încercați să-l ștergeți
         if (!firebaseUser.getEmail().equals(userToDelete.getEmail())) {
@@ -208,7 +208,7 @@ public class UserRepository {
                                                     String message = activity.getText(R.string.user) + " " + userToDelete.getFirstName() + " " +
                                                             userToDelete.getLastName() + " " + activity.getText(R.string.delete_user_success);
                                                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-                                                    auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
+                                                    auth.signInWithEmailAndPassword(findedUserByEmail.getEmail(), findedUserByEmail.getPassword());
                                                     bottomSheetFragment.dismiss();
                                                 })
                                                 .addOnFailureListener(e -> {
@@ -227,13 +227,13 @@ public class UserRepository {
                         } else {
                             // Tratarea erorii la autentificarea în contul utilizatorului
                             Toast.makeText(context, R.string.authentication_error, Toast.LENGTH_SHORT).show();
-                            auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
+                            auth.signInWithEmailAndPassword(findedUserByEmail.getEmail(), findedUserByEmail.getPassword());
                         }
                     });
         } else {
             // Tratarea cazului în care utilizatorul curent este null sau este utilizatorul curent
             Toast.makeText(context, R.string.delete_current_user_error, Toast.LENGTH_SHORT).show();
-            auth.signInWithEmailAndPassword(currentUser.getEmail(), currentUser.getPassword());
+            auth.signInWithEmailAndPassword(findedUserByEmail.getEmail(), findedUserByEmail.getPassword());
         }
     }
 
@@ -272,6 +272,11 @@ public class UserRepository {
 
     public MutableLiveData<List<User>> getUsersLiveData() {
         return userListLiveData;
+    }
+
+    public User getUserByEmail(String email){
+        findUserByEmail(email);
+        return findedUserByEmail;
     }
 }
 

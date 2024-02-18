@@ -10,11 +10,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+
 import android.os.Bundle;
 import com.example.ulimorar.R;
 import com.example.ulimorar.activities.fragments.RegisteredUsersFragment;
+import com.example.ulimorar.callbacks.EmailExistCallback;
 import com.example.ulimorar.entities.User;
 import com.example.ulimorar.utils.EmailSender;
+import com.example.ulimorar.viewmodels.UserViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -46,7 +50,9 @@ public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth auth;
 
-    private DatabaseReference usersDbReference;
+//    private DatabaseReference usersDbReference;
+
+    private UserViewModel userViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,8 +64,10 @@ public class LoginActivity extends AppCompatActivity {
 
         }
 
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+
         auth = FirebaseAuth.getInstance();
-        usersDbReference = FirebaseDatabase.getInstance().getReference("users");
+//        usersDbReference = FirebaseDatabase.getInstance().getReference("users");
 
         loginInputLayout = findViewById(R.id.emailTextField);
         passwordInputLayout = findViewById(R.id.passwordTextField);
@@ -109,34 +117,51 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private interface EmailExistCallback{
-        void onResult(boolean exists);
-    }
+//    private interface EmailExistCallback{
+//        void onResult(boolean exists);
+//    }
 
     private void checkEmailExistenceAndSendEmail(String email, final EmailExistCallback callback) {
-        usersDbReference.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
+
+        userViewModel.checkEmailExistence(email, new EmailExistCallback() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    for (DataSnapshot childSnapshot : snapshot.getChildren()) {
-                        User user = childSnapshot.getValue(User.class);
-                        if (user != null) {
-                            EmailSender emailSender = new EmailSender(LoginActivity.this);
-                            emailSender.execute(user.getEmail(), user.getPassword());
-                            callback.onResult(true);
-                            return;
-                        }
+            public void onResult(boolean exists) {
+                if (exists){
+                    User user = userViewModel.getUserByEmail(email);
+
+                    if (user != null){
+                        EmailSender emailSender = new EmailSender(LoginActivity.this);
+                        emailSender.execute(user.getEmail(), user.getPassword());
+                        callback.onResult(true);
                     }
-                } else {
-                    callback.onResult(false);
+
                 }
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                callback.onResult(false);
-            }
         });
+
+//        usersDbReference.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if (snapshot.exists()) {
+//                    for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+//                        User user = childSnapshot.getValue(User.class);
+//                        if (user != null) {
+//                            EmailSender emailSender = new EmailSender(LoginActivity.this);
+//                            emailSender.execute(user.getEmail(), user.getPassword());
+//                            callback.onResult(true);
+//                            return;
+//                        }
+//                    }
+//                } else {
+//                    callback.onResult(false);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                callback.onResult(false);
+//            }
+//        });
     }
 
     private void loginUser(String email, String password){
