@@ -2,12 +2,8 @@ package com.example.ulimorar.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Color;
-import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -17,26 +13,28 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.ulimorar.R;
 import com.example.ulimorar.entities.User;
-import com.example.ulimorar.entities.enums.UserRole;
+import com.example.ulimorar.viewmodels.UserViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.*;
 import org.jetbrains.annotations.NotNull;
 
 public class AccountActivity extends AppCompatActivity {
 
     private String authenticatedUserEmail;
-    private DatabaseReference userDbReference;
-    private FirebaseAuth auth;
+//    private DatabaseReference userDbReference;
+
+    private UserViewModel userViewModel;
+
+//    private FirebaseAuth auth;
 
     private User authenticatedUser;
 
@@ -64,8 +62,9 @@ public class AccountActivity extends AppCompatActivity {
         Intent intent = getIntent();
         authenticatedUserEmail = intent.getStringExtra("currentUserEmail");
 
-        auth = FirebaseAuth.getInstance();
-        userDbReference = FirebaseDatabase.getInstance().getReference("users");
+//        auth = FirebaseAuth.getInstance();
+//        userDbReference = FirebaseDatabase.getInstance().getReference("users");
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         firstNameTextField = findViewById(R.id.firstNameTextField);
         lastNameTextField = findViewById(R.id.lastNameTextField);
@@ -86,7 +85,7 @@ public class AccountActivity extends AppCompatActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getUserByEmail(authenticatedUserEmail);
+                getUserByEmailAndSetDataInFields(authenticatedUserEmail);
             }
         });
 
@@ -147,7 +146,7 @@ public class AccountActivity extends AppCompatActivity {
 
     }
 
-    private void makeFieldsEditable(boolean isEditable){
+    public void makeFieldsEditable(boolean isEditable){
         firstNameTextField.setFocusable(isEditable);
         firstNameTextField.setEnabled(isEditable);
         firstNameTextField.getEditText().setCursorVisible(isEditable);
@@ -182,20 +181,20 @@ public class AccountActivity extends AppCompatActivity {
         }
 
         if (isValid) {
-            getUserByEmail(authenticatedUserEmail);
+            getUserByEmailAndSetDataInFields(authenticatedUserEmail);
 
             User newUser = new User(authenticatedUser.getId(), firstName, lastName, authenticatedUser.getEmail(),
                     authenticatedUser.getIdnp(), authenticatedUser.getRole(), authenticatedUser.getPassword());
 
-            userDbReference.child(authenticatedUser.getId()).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull @NotNull Task<Void> task) {
-                    Toast.makeText(AccountActivity.this, R.string.update_user_success_message, Toast.LENGTH_SHORT).show();
-                    makeFieldsEditable(false);
-                }
-            });
+//            userDbReference.child(authenticatedUser.getId()).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                @Override
+//                public void onComplete(@NonNull @NotNull Task<Void> task) {
+//                    Toast.makeText(AccountActivity.this, R.string.update_user_success_message, Toast.LENGTH_SHORT).show();
+//                    makeFieldsEditable(false);
+//                }
+//            });
 
-
+            userViewModel.updateFirstAndLastName(AccountActivity.this, authenticatedUser.getId(), newUser);
         }
     }
 
@@ -203,48 +202,58 @@ public class AccountActivity extends AppCompatActivity {
         makeFieldsEditable(true);
     }
 
-    private void getUserByEmail(String userEmail) {
-        Query query = userDbReference.orderByChild("email").equalTo(userEmail);
+    private void getUserByEmailAndSetDataInFields(String userEmail) {
+//        Query query = userDbReference.orderByChild("email").equalTo(userEmail);
+//
+//        query.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                if (dataSnapshot.exists()) {
+//                    // User found
+//                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+//                        // Access user data
+//                        authenticatedUser = snapshot.getValue(User.class);
 
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    // User found
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        // Access user data
-                        authenticatedUser = snapshot.getValue(User.class);
+                        userViewModel.getUserByEmailLiveData(userEmail).observe(this, new Observer<User>() {
+                            @Override
+                            public void onChanged(User user) {
+                                if (user != null){
+                                    authenticatedUser = user;
 
-                        firstNameTextField.getEditText().setText(authenticatedUser.getFirstName());
-                        lastNameTextField.getEditText().setText(authenticatedUser.getLastName());
-//                        emailTextField.getEditText().setText(authenticatedUser.getEmail());
-                        idnpTextView.setText(authenticatedUser.getIdnp());
-                        emailTextView.setText(authenticatedUser.getEmail());
-                        passwordTextView.setText(authenticatedUser.getPassword());
+                                    firstNameTextField.getEditText().setText(user.getFirstName());
+                                    lastNameTextField.getEditText().setText(user.getLastName());
+                                    idnpTextView.setText(user.getIdnp());
+                                    emailTextView.setText(user.getEmail());
+                                    passwordTextView.setText(user.getPassword());
+
+                                    swipeRefreshLayout.setRefreshing(false);
+                                    makeFieldsEditable(false);
+                                }
+                            }
+                        });
+
 //                        passwordTextField.getEditText().setText(authenticatedUser.getPassword());
 //                        confirmPasswordTextField.getEditText().setText(authenticatedUser.getPassword());
 
-                    }
+//                    }
 
-                    swipeRefreshLayout.setRefreshing(false);
-                    makeFieldsEditable(false);
-                } else {
-                    // User not found
-                    Log.d("User Data", "User not found for email: " + userEmail);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e("Error", "Failed to read user data.", databaseError.toException());
-            }
-        });
+//                } else {
+//                    // User not found
+//                    Log.d("User Data", "User not found for email: " + userEmail);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//                Log.e("Error", "Failed to read user data.", databaseError.toException());
+//            }
+//        });
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        getUserByEmail(authenticatedUserEmail);
+        getUserByEmailAndSetDataInFields(authenticatedUserEmail);
         makeFieldsEditable(false);
     }
 

@@ -10,10 +10,12 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.ulimorar.R;
+import com.example.ulimorar.activities.AccountActivity;
 import com.example.ulimorar.activities.LoginActivity;
 import com.example.ulimorar.activities.RegisterActivity;
 import com.example.ulimorar.callbacks.EmailExistCallback;
@@ -44,6 +46,8 @@ public class UserRepository {
     private FirebaseAuth auth = FirebaseAuth.getInstance();
     private MutableLiveData<List<User>> userListLiveData = new MutableLiveData<>();
     private User findedUserByEmail;
+
+    private MutableLiveData<User> findedUserLiveData = new MutableLiveData<>();
 
     private PassportIdRepository passportIdRepository;
 
@@ -91,10 +95,12 @@ public class UserRepository {
                         User authenticatedUserFromDb = snapshot.getValue(User.class);
                         if (authenticatedUserFromDb != null) {
                             findedUserByEmail = authenticatedUserFromDb;
+                            findedUserLiveData.postValue(authenticatedUserFromDb);
                         }
                     }
                 } else {
                     // User not found
+                    findedUserLiveData.postValue(null);
                     Log.d("User Data", "User not found for email: " + userEmail);
                 }
             }
@@ -149,8 +155,11 @@ public class UserRepository {
     public void registerUser(Activity activity, View view, AlertDialog alertDialog, User userToRegister){
         String userId = usersDatabaseReference.push().getKey();
 
+        User user = new User(userId, userToRegister.getFirstName(), userToRegister.getLastName(),
+                userToRegister.getEmail(), userToRegister.getIdnp(), userToRegister.getRole(), userToRegister.getPassword());
+
         // Add the user to the database
-        usersDatabaseReference.child(userId).setValue(userToRegister).addOnCompleteListener(task -> {
+        usersDatabaseReference.child(userId).setValue(user).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 // If user added successfully, add the same user credentials to Firebase Authentication
                 auth.createUserWithEmailAndPassword(userToRegister.getEmail(), userToRegister.getPassword())
@@ -209,6 +218,16 @@ public class UserRepository {
                 Toast.makeText(view.getContext(), R.string.update_user_failure, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void updateFirstAndLastName(AccountActivity accountActivity, String userToUpdateId, User newUser){
+        usersDatabaseReference.child(userToUpdateId).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull @NotNull Task<Void> task) {
+                    Toast.makeText(accountActivity, R.string.update_user_success_message, Toast.LENGTH_SHORT).show();
+                    accountActivity.makeFieldsEditable(false);
+                }
+            });
     }
 
     public void deleteUserByEmail(Context context, User userToDelete, Activity activity,
@@ -305,6 +324,11 @@ public class UserRepository {
 
     public MutableLiveData<List<User>> getUsersLiveData() {
         return userListLiveData;
+    }
+
+    public MutableLiveData<User> getUserByEmailLiveData(String email) {
+        findUserByEmail(email);
+        return findedUserLiveData;
     }
 
     public User getUserByEmail(String email){

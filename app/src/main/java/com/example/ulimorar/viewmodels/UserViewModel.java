@@ -4,17 +4,25 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.view.View;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.ulimorar.R;
+import com.example.ulimorar.activities.AccountActivity;
 import com.example.ulimorar.callbacks.EmailExistCallback;
 import com.example.ulimorar.callbacks.PassportExistCallback;
 import com.example.ulimorar.entities.User;
 import com.example.ulimorar.fragments.DeleteBottomSheetFragment;
 import com.example.ulimorar.repositories.UserRepository;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -44,6 +52,10 @@ public class UserViewModel extends ViewModel {
         userRepository.editUser(view, newUser, oldUser, alertDialog);
     }
 
+    public void updateFirstAndLastName(AccountActivity accountActivity, String userToUpdateId, User newUser){
+        userRepository.updateFirstAndLastName(accountActivity, userToUpdateId, newUser);
+    }
+
     public void deleteUser(Context context, User userToDelete, Activity activity,
                            DeleteBottomSheetFragment bottomSheetFragment){
         userRepository.deleteUserByEmail(context, userToDelete, activity, bottomSheetFragment);
@@ -65,6 +77,10 @@ public class UserViewModel extends ViewModel {
 
     public User getUserByEmail(String email){
         return userRepository.getUserByEmail(email);
+    }
+
+    public MutableLiveData<User> getUserByEmailLiveData(String email) {
+        return userRepository.getUserByEmailLiveData(email);
     }
 
 }
