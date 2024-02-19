@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModel;
 import com.example.ulimorar.R;
 import com.example.ulimorar.activities.AccountActivity;
 import com.example.ulimorar.activities.ChangeEmailActivity;
+import com.example.ulimorar.activities.ChangePasswordActivity;
 import com.example.ulimorar.activities.LoginActivity;
 import com.example.ulimorar.activities.RegisterActivity;
 import com.example.ulimorar.callbacks.EmailExistCallback;
@@ -256,7 +257,32 @@ public class UserRepository {
         });
     }
 
-    public void deleteOldUserAndSignInWithNew(Activity activity, User oldUser, User newUser){
+    public void updatePassword(Activity activity, User newUser, String userId){
+        auth.createUserWithEmailAndPassword(newUser.getEmail(), newUser.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
+                usersDatabaseReference.child(userId).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+                        Toast.makeText(activity, R.string.update_user_success_message, Toast.LENGTH_SHORT).show();
+                        signInWithNewDataAndReload(activity, newUser);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull @NotNull Exception e) {
+                        Toast.makeText(activity, R.string.update_user_failure, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull @NotNull Exception e) {
+                Toast.makeText(activity, R.string.error_create_user_in_auth, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void deleteOldUserAndSignInWithNewEmail(Activity activity, User oldUser, User newUser){
         auth.signInWithEmailAndPassword(oldUser.getEmail(), oldUser.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
@@ -264,6 +290,19 @@ public class UserRepository {
                     FirebaseUser oldUser = auth.getCurrentUser();
                     oldUser.delete();
                     signInWithNewDataAndReload(activity, newUser);
+                }
+            }
+        });
+    }
+
+    public void deleteOldUserAndSignInWithNewPassword(Activity activity, User oldUser, User newUser){
+        auth.signInWithEmailAndPassword(oldUser.getEmail(), oldUser.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    FirebaseUser user = auth.getCurrentUser();
+                    user.delete();
+                    updatePassword(activity, newUser, oldUser.getId());
                 }
             }
         });

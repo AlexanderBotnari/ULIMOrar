@@ -89,7 +89,7 @@ public class ChangeEmailActivity extends AppCompatActivity {
 //        createNewUserInAuth(newUser, newUser.getId());
                 userViewModel.updateEmail(this, newUser, newUser.getId());
 //        deleteOldUserAndSignInWithNew(currentUser, newUser);
-                userViewModel.deleteOldUserAndSignInWithNew(this, currentUser, newUser);
+                userViewModel.deleteOldUserAndSignInWithNewEmail(this, currentUser, newUser);
             }
         }else{
             emailInputLayout.setError(getString(R.string.this_is_your_current_email));

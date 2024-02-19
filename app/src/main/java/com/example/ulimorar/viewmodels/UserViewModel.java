@@ -21,6 +21,8 @@ import com.example.ulimorar.repositories.UserRepository;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseUser;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -60,8 +62,16 @@ public class UserViewModel extends ViewModel {
         userRepository.updateEmail(activity, newUser, userId);
     }
 
-    public void deleteOldUserAndSignInWithNew(Activity activity, User oldUser, User newUser){
-        userRepository.deleteOldUserAndSignInWithNew(activity, oldUser, newUser);
+    public void updatePassword(Activity activity, User newUser, String userId){
+        userRepository.updatePassword(activity, newUser, userId);
+    }
+
+    public void deleteOldUserAndSignInWithNewEmail(Activity activity, User oldUser, User newUser){
+        userRepository.deleteOldUserAndSignInWithNewEmail(activity, oldUser, newUser);
+    }
+
+    public void deleteOldUserAndSignInWithNewPassword(Activity activity, User oldUser, User newUser){
+        userRepository.deleteOldUserAndSignInWithNewPassword(activity, oldUser, newUser);
     }
 
     public void deleteUser(Context context, User userToDelete, Activity activity,
