@@ -38,6 +38,10 @@ public class UserViewModel extends ViewModel {
         userListLiveData = userRepository.getUsersLiveData();
     }
 
+    public void loginUser(Activity activity, String email, String password){
+        userRepository.loginUser(activity, email, password);
+    }
+
     public void getUsers() {
         userRepository.getUsers();
     }
@@ -99,6 +103,10 @@ public class UserViewModel extends ViewModel {
 
     public MutableLiveData<User> getUserByEmailLiveData(String email) {
         return userRepository.getUserByEmailLiveData(email);
+    }
+
+    public FirebaseUser getLoggedInUser(){
+        return userRepository.getLoggedInUser();
     }
 
 }

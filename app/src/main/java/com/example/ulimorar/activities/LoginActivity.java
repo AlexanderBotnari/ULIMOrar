@@ -41,14 +41,14 @@ import org.jetbrains.annotations.NotNull;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private static final String FAILURE_TAG = "FAILURE_TAG";
+//    private static final String FAILURE_TAG = "FAILURE_TAG";
 
     private TextInputLayout loginInputLayout;
     private TextInputLayout passwordInputLayout;
     private TextInputEditText loginEditText;
     private TextInputEditText passwordEditText;
 
-    private FirebaseAuth auth;
+//    private FirebaseAuth auth;
 
 //    private DatabaseReference usersDbReference;
 
@@ -66,7 +66,7 @@ public class LoginActivity extends AppCompatActivity {
 
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
-        auth = FirebaseAuth.getInstance();
+//        auth = FirebaseAuth.getInstance();
 //        usersDbReference = FirebaseDatabase.getInstance().getReference("users");
 
         loginInputLayout = findViewById(R.id.emailTextField);
@@ -170,22 +170,23 @@ public class LoginActivity extends AppCompatActivity {
         }else if(passwordEditText.getText().toString().trim().length() < 7){
             passwordInputLayout.setError(getText(R.string.password_length_error));
         } else {
-            auth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                // Sign in success, update UI with the signed-in user's information
-                                FirebaseUser user = auth.getCurrentUser();
-                                startActivity(new Intent(LoginActivity.this, FacultyActivity.class).putExtra("currentUserEmail", user.getEmail()));
-                            } else {
-                                // If sign in fails, display a message to the user.
-                                Log.w(FAILURE_TAG, "signInWithEmail:failure", task.getException());
-                                Toast.makeText(LoginActivity.this, R.string.authentication_error,
-                                        Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    });
+            userViewModel.loginUser(this, email, password);
+//            auth.signInWithEmailAndPassword(email, password)
+//                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+//                        @Override
+//                        public void onComplete(@NonNull Task<AuthResult> task) {
+//                            if (task.isSuccessful()) {
+//                                // Sign in success, update UI with the signed-in user's information
+//                                FirebaseUser user = auth.getCurrentUser();
+//                                startActivity(new Intent(LoginActivity.this, FacultyActivity.class).putExtra("currentUserEmail", user.getEmail()));
+//                            } else {
+//                                // If sign in fails, display a message to the user.
+//                                Log.w(FAILURE_TAG, "signInWithEmail:failure", task.getException());
+//                                Toast.makeText(LoginActivity.this, R.string.authentication_error,
+//                                        Toast.LENGTH_LONG).show();
+//                            }
+//                        }
+//                    });
         }
     }
 
@@ -193,7 +194,7 @@ public class LoginActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = auth.getCurrentUser();
+        FirebaseUser currentUser = userViewModel.getLoggedInUser();
         if(currentUser != null){
             Intent intent = new Intent(LoginActivity.this, FacultyActivity.class);
             intent.putExtra("currentUserEmail", currentUser.getEmail());

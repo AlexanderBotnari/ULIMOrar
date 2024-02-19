@@ -18,6 +18,7 @@ import com.example.ulimorar.R;
 import com.example.ulimorar.activities.AccountActivity;
 import com.example.ulimorar.activities.ChangeEmailActivity;
 import com.example.ulimorar.activities.ChangePasswordActivity;
+import com.example.ulimorar.activities.FacultyActivity;
 import com.example.ulimorar.activities.LoginActivity;
 import com.example.ulimorar.activities.RegisterActivity;
 import com.example.ulimorar.callbacks.EmailExistCallback;
@@ -59,6 +60,25 @@ public class UserRepository {
         // Initialize the Firebase Database reference
         usersDatabaseReference = FirebaseDatabase.getInstance().getReference("users");
         getUsers(); // Call this method to fetch initial data
+    }
+
+    public void loginUser(Activity activity, String email, String password){
+        auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(activity, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            FirebaseUser user = auth.getCurrentUser();
+                            activity.startActivity(new Intent(activity, FacultyActivity.class).putExtra("currentUserEmail", user.getEmail()));
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w("FAILURE_TAG", "signInWithEmail:failure", task.getException());
+                            Toast.makeText(activity, R.string.authentication_error,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
     }
 
     public void getUsers() {
@@ -440,6 +460,10 @@ public class UserRepository {
     public User getUserByEmail(String email){
         findUserByEmail(email);
         return findedUserByEmail;
+    }
+
+    public FirebaseUser getLoggedInUser(){
+        return auth.getCurrentUser();
     }
 }
 

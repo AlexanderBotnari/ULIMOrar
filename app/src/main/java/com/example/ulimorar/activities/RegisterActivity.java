@@ -52,7 +52,7 @@ public class RegisterActivity extends AppCompatActivity {
     private UserViewModel userViewModel;
     private PassportIdViewModel passportIdViewModel;
 
-    private FirebaseAuth auth;
+//    private FirebaseAuth auth;
 
     private AlertDialog alertDialog;
 
@@ -67,7 +67,7 @@ public class RegisterActivity extends AppCompatActivity {
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         passportIdViewModel = new ViewModelProvider(this).get(PassportIdViewModel.class);
 
-        auth = FirebaseAuth.getInstance();
+//        auth = FirebaseAuth.getInstance();
 
         idnpTextInputLayout = findViewById(R.id.idnpTextField);
         cancelButton = findViewById(R.id.cancelButton);
