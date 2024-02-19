@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.ulimorar.R;
 import com.example.ulimorar.activities.AccountActivity;
+import com.example.ulimorar.activities.ChangeEmailActivity;
 import com.example.ulimorar.activities.LoginActivity;
 import com.example.ulimorar.activities.RegisterActivity;
 import com.example.ulimorar.callbacks.EmailExistCallback;
@@ -25,6 +26,7 @@ import com.example.ulimorar.fragments.DeleteBottomSheetFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -228,6 +230,71 @@ public class UserRepository {
                     accountActivity.makeFieldsEditable(false);
                 }
             });
+    }
+
+    public void updateEmail(Activity activity, User newUser, String userId){
+        auth.createUserWithEmailAndPassword(newUser.getEmail(), newUser.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
+                usersDatabaseReference.child(userId).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+                        Toast.makeText(activity, R.string.update_user_success_message, Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull @NotNull Exception e) {
+                        Toast.makeText(activity, R.string.update_user_failure, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull @NotNull Exception e) {
+                Toast.makeText(activity, R.string.error_create_user_in_auth, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void deleteOldUserAndSignInWithNew(Activity activity, User oldUser, User newUser){
+        auth.signInWithEmailAndPassword(oldUser.getEmail(), oldUser.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    FirebaseUser oldUser = auth.getCurrentUser();
+                    oldUser.delete();
+                    signInWithNewDataAndReload(activity, newUser);
+                }
+            }
+        });
+    }
+
+    private void signInWithNewDataAndReload(Activity activity, User newUser){
+        auth.signInWithEmailAndPassword(newUser.getEmail(), newUser.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
+                Snackbar snackbar = Snackbar.make(activity.findViewById(android.R.id.content), activity.getText(R.string.user_data_changed), 3000);
+                snackbar.show();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(4000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        FirebaseAuth.getInstance().signOut();
+                        activity.startActivity(new Intent(activity, LoginActivity.class));
+                        activity.finish();
+                    }
+                }).start();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull @NotNull Exception e) {
+                Toast.makeText(activity, R.string.error_signin_with_new_credentials, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     public void deleteUserByEmail(Context context, User userToDelete, Activity activity,

@@ -56,6 +56,14 @@ public class UserViewModel extends ViewModel {
         userRepository.updateFirstAndLastName(accountActivity, userToUpdateId, newUser);
     }
 
+    public void updateEmail(Activity activity, User newUser, String userId){
+        userRepository.updateEmail(activity, newUser, userId);
+    }
+
+    public void deleteOldUserAndSignInWithNew(Activity activity, User oldUser, User newUser){
+        userRepository.deleteOldUserAndSignInWithNew(activity, oldUser, newUser);
+    }
+
     public void deleteUser(Context context, User userToDelete, Activity activity,
                            DeleteBottomSheetFragment bottomSheetFragment){
         userRepository.deleteUserByEmail(context, userToDelete, activity, bottomSheetFragment);
