@@ -465,5 +465,6 @@ public class UserRepository {
     public FirebaseUser getLoggedInUser(){
         return auth.getCurrentUser();
     }
+
 }
 

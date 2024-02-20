@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.ulimorar.R;
 import com.example.ulimorar.fragments.interfaces.BottomSheetListener;
@@ -17,6 +18,7 @@ import com.example.ulimorar.activities.ChairActivity;
 import com.example.ulimorar.fragments.DeleteBottomSheetFragment;
 import com.example.ulimorar.activities.FacultyActivity;
 import com.example.ulimorar.entities.Faculty;
+import com.example.ulimorar.viewmodels.FacultyViewModel;
 import com.squareup.picasso.Picasso;
 import org.jetbrains.annotations.NotNull;
 import java.util.List;
@@ -30,10 +32,12 @@ public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyV
     private DeleteBottomSheetFragment bottomSheetFragment;
 
     private int facultyPositionToDelete;
+    private FacultyViewModel facultyViewModel;
 
     public FacultyAdapter(List<Faculty> faculties, FacultyActivity facultyActivity) {
         this.faculties = faculties;
         this.facultyActivity = facultyActivity;
+        facultyViewModel = new ViewModelProvider(facultyActivity).get(FacultyViewModel.class);
     }
 
     public void setAdmin(boolean admin) {
@@ -46,6 +50,10 @@ public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyV
 
     public List<Faculty> getFaculties() {
         return faculties;
+    }
+
+    public void setFaculties(List<Faculty> faculties) {
+        this.faculties = faculties;
     }
 
     @NonNull
@@ -114,7 +122,8 @@ public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyV
 
     @Override
     public void onButtonDelete(View view) {
-        facultyActivity.deleteFaculty(faculties.get(facultyPositionToDelete));
+//        facultyActivity.deleteFaculty(faculties.get(facultyPositionToDelete));
+        facultyViewModel.deleteFaculty(faculties.get(facultyPositionToDelete), facultyActivity);
     }
 
     public static class FacultyViewHolder extends RecyclerView.ViewHolder{
