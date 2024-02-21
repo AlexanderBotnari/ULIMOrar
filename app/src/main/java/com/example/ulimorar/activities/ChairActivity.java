@@ -11,6 +11,9 @@ import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +27,7 @@ import com.example.ulimorar.fragments.interfaces.BottomSheetListener;
 import com.example.ulimorar.utils.GetDialogsStandardButtons;
 import com.example.ulimorar.utils.controllers.SwipeController;
 import com.example.ulimorar.utils.controllers.SwipeControllerActions;
+import com.example.ulimorar.viewmodels.ChairViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -53,7 +57,8 @@ public class ChairActivity extends AppCompatActivity implements BottomSheetListe
     private RecyclerView chairRecyclerView;
     private ChairAdapter chairAdapter;
 
-    private DatabaseReference facultiesDatabaseReference;
+//    private DatabaseReference facultiesDatabaseReference;
+    private ChairViewModel chairViewModel;
 
     private AlertDialog alertDialog;
 
@@ -75,7 +80,8 @@ public class ChairActivity extends AppCompatActivity implements BottomSheetListe
 
         chairsList = new ArrayList<>();
 
-        facultiesDatabaseReference = FirebaseDatabase.getInstance().getReference().child("faculties");
+//        facultiesDatabaseReference = FirebaseDatabase.getInstance().getReference().child("faculties");
+        chairViewModel = new ViewModelProvider(this).get(ChairViewModel.class);
 
         addChairButton = findViewById(R.id.addChairFloatingButton);
 
@@ -103,7 +109,7 @@ public class ChairActivity extends AppCompatActivity implements BottomSheetListe
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getChairs();
+                chairViewModel.getChairs(currentFaculty);
             }
         });
 
@@ -116,6 +122,17 @@ public class ChairActivity extends AppCompatActivity implements BottomSheetListe
         chairRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         chairRecyclerView.setAdapter(chairAdapter);
         chairAdapter.setAdmin(true);
+
+        chairViewModel.getChairsListLiveData().observe(this, new Observer<List<Chair>>() {
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onChanged(List<Chair> chairs) {
+                chairAdapter.setChairs(chairs);
+                chairAdapter.notifyDataSetChanged();
+
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
         if (isAdmin){
             swipeController = new SwipeController(new SwipeControllerActions() {
@@ -184,9 +201,13 @@ public class ChairActivity extends AppCompatActivity implements BottomSheetListe
 
                 if (isValid){
                     if (isAddDialog){
-                        addNewChairToFaculty(chairName);
+//                        addNewChairToFaculty(chairName);
+                        chairViewModel.addNewChairToFaculty(currentFaculty, chairName,
+                                ChairActivity.this, alertDialog);
                     }else{
-                        editChair(itemPosition, chairName);
+//                        editChair(itemPosition, chairName);
+                        chairViewModel.editChair(currentFaculty, chairToUpdate, itemPosition,
+                                chairName, ChairActivity.this, alertDialog);
                     }
                 }
             }
@@ -200,92 +221,92 @@ public class ChairActivity extends AppCompatActivity implements BottomSheetListe
         });
     }
 
-    private void addNewChairToFaculty(String chairName) {
-            Chair chair = new Chair(chairName, String.valueOf(chairName.charAt(0)));
-            chairsList.add(chair);
+//    private void addNewChairToFaculty(String chairName) {
+//            Chair chair = new Chair(chairName, String.valueOf(chairName.charAt(0)));
+//            chairsList.add(chair);
+//
+//            currentFaculty.setChairs(chairsList);
+//
+//            facultiesDatabaseReference.child(currentFaculty.getId()).setValue(currentFaculty).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                @Override
+//                public void onComplete(@NonNull @NotNull Task<Void> task) {
+//                    Toast.makeText(ChairActivity.this, R.string.add_chair_successful_message, Toast.LENGTH_SHORT).show();
+//                    alertDialog.dismiss();
+//                }
+//            }).addOnFailureListener(new OnFailureListener() {
+//                @Override
+//                public void onFailure(@NonNull @NotNull Exception e) {
+//                    Toast.makeText(ChairActivity.this, R.string.failure_add_chair_error, Toast.LENGTH_LONG).show();
+//                }
+//            });
+//    }
 
-            currentFaculty.setChairs(chairsList);
+//    public void deleteChair(int chairPositionToDelete){
+//        facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs").
+//                child(String.valueOf(chairPositionToDelete)).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+//            @Override
+//            public void onComplete(@NonNull @NotNull Task<Void> task) {
+//                Toast.makeText(ChairActivity.this, R.string.delete_chair_success, Toast.LENGTH_SHORT).show();
+//                bottomSheetFragment.dismiss();
+//            }
+//        }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull @NotNull Exception e) {
+//                Toast.makeText(ChairActivity.this, R.string.delete_chair_failure, Toast.LENGTH_SHORT).show();
+//                bottomSheetFragment.dismiss();
+//            }
+//        });
+//    }
 
-            facultiesDatabaseReference.child(currentFaculty.getId()).setValue(currentFaculty).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull @NotNull Task<Void> task) {
-                    Toast.makeText(ChairActivity.this, R.string.add_chair_successful_message, Toast.LENGTH_SHORT).show();
-                    alertDialog.dismiss();
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull @NotNull Exception e) {
-                    Toast.makeText(ChairActivity.this, R.string.failure_add_chair_error, Toast.LENGTH_LONG).show();
-                }
-            });
-    }
+//    public void editChair(int chairPositionToUpdate, String chairName){
+//        Chair newChair = new Chair(chairName, String.valueOf(chairName.charAt(0)));
+//        newChair.setGroups(chairToUpdate.getGroups());
+//
+//        facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs").
+//                child(String.valueOf(chairPositionToUpdate)).setValue(newChair).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+//                        Toast.makeText(ChairActivity.this, R.string.update_chair_success, Toast.LENGTH_SHORT).show();
+//                        alertDialog.dismiss();
+//                    }
+//                }).addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull @NotNull Exception e) {
+//                        Toast.makeText(ChairActivity.this, R.string.update_chair_failure, Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//    }
 
-    public void deleteChair(int chairPositionToDelete){
-        facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs").
-                child(String.valueOf(chairPositionToDelete)).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull @NotNull Task<Void> task) {
-                Toast.makeText(ChairActivity.this, R.string.delete_chair_success, Toast.LENGTH_SHORT).show();
-                bottomSheetFragment.dismiss();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull @NotNull Exception e) {
-                Toast.makeText(ChairActivity.this, R.string.delete_chair_failure, Toast.LENGTH_SHORT).show();
-                bottomSheetFragment.dismiss();
-            }
-        });
-    }
-
-    public void editChair(int chairPositionToUpdate, String chairName){
-        Chair newChair = new Chair(chairName, String.valueOf(chairName.charAt(0)));
-        newChair.setGroups(chairToUpdate.getGroups());
-
-        facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs").
-                child(String.valueOf(chairPositionToUpdate)).setValue(newChair).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull @NotNull Task<Void> task) {
-                        Toast.makeText(ChairActivity.this, R.string.update_chair_success, Toast.LENGTH_SHORT).show();
-                        alertDialog.dismiss();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull @NotNull Exception e) {
-                        Toast.makeText(ChairActivity.this, R.string.update_chair_failure, Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private void getChairs() {
-        Query query = FirebaseDatabase.getInstance().getReference("faculties").child(currentFaculty.getId()).child("chairs");
-        query.addValueEventListener(new ValueEventListener() {
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                chairsList.clear();  // because everytime when data updates in your firebase database it creates the list with updated items
-                // so to avoid duplicate fields we clear the list everytime
-                if (snapshot.exists()) {
-                    for (DataSnapshot chairSnapshot : snapshot.getChildren()) {
-                        Chair chair = chairSnapshot.getValue(Chair.class);
-                        chairsList.add(chair);
-                    }
-                    chairAdapter.notifyDataSetChanged();
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull @NotNull DatabaseError error) {
-
-            }
-        });
-    }
+//    private void getChairs() {
+//        Query query = FirebaseDatabase.getInstance().getReference("faculties").child(currentFaculty.getId()).child("chairs");
+//        query.addValueEventListener(new ValueEventListener() {
+//            @SuppressLint("NotifyDataSetChanged")
+//            @Override
+//            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+//                chairsList.clear();  // because everytime when data updates in your firebase database it creates the list with updated items
+//                // so to avoid duplicate fields we clear the list everytime
+//                if (snapshot.exists()) {
+//                    for (DataSnapshot chairSnapshot : snapshot.getChildren()) {
+//                        Chair chair = chairSnapshot.getValue(Chair.class);
+//                        chairsList.add(chair);
+//                    }
+//                    chairAdapter.notifyDataSetChanged();
+//                    swipeRefreshLayout.setRefreshing(false);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+//
+//            }
+//        });
+//    }
 
     @Override
     protected void onStart() {
         super.onStart();
         chairAdapter.setAuthenticatedUserEmail(authenticatedUserEmail);
-        getChairs();
+        chairViewModel.getChairs(currentFaculty);
     }
 
     @Override
@@ -323,6 +344,7 @@ public class ChairActivity extends AppCompatActivity implements BottomSheetListe
 
     @Override
     public void onButtonDelete(View view) {
-        deleteChair(chairPositionToDelete);
+//        deleteChair(chairPositionToDelete);
+        chairViewModel.deleteChair(currentFaculty, chairPositionToDelete, ChairActivity.this, bottomSheetFragment);
     }
 }

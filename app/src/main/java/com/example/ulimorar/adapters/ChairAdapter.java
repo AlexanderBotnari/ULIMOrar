@@ -32,6 +32,10 @@ public class ChairAdapter extends RecyclerView.Adapter<ChairAdapter.ChairViewHol
         this.currentFaculty = currentFaculty;
     }
 
+    public void setChairs(List<Chair> chairs) {
+        this.chairs = chairs;
+    }
+
     public void setAdmin(boolean admin) {
         isAdmin = admin;
     }
