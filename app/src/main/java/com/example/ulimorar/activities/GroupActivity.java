@@ -13,6 +13,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,6 +30,7 @@ import com.example.ulimorar.fragments.interfaces.BottomSheetListener;
 import com.example.ulimorar.utils.GetDialogsStandardButtons;
 import com.example.ulimorar.utils.controllers.SwipeController;
 import com.example.ulimorar.utils.controllers.SwipeControllerActions;
+import com.example.ulimorar.viewmodels.GroupViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -56,7 +60,8 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
     private RecyclerView recyclerView;
     private GroupAdapter groupAdapter;
 
-    private DatabaseReference chairsDatabaseReference;
+//    private DatabaseReference chairsDatabaseReference;
+    private GroupViewModel groupViewModel;
 
     private String currentChairKey;
     private boolean isAdmin;
@@ -84,7 +89,8 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
 
         groupList = new ArrayList<>();
 
-        chairsDatabaseReference = FirebaseDatabase.getInstance().getReference().child("faculties").child(currentFaculty.getId()).child("chairs");
+//        chairsDatabaseReference = FirebaseDatabase.getInstance().getReference().child("faculties").child(currentFaculty.getId()).child("chairs");
+        groupViewModel = new ViewModelProvider(this).get(GroupViewModel.class);
 
         titleTextView = findViewById(R.id.titleTextView);
         addGroupButton = findViewById(R.id.addGroupFloatingButton);
@@ -111,7 +117,7 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getGroups();
+                groupViewModel.getGroups(currentChairKey, currentFaculty);
             }
         });
 
@@ -124,6 +130,17 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
         groupAdapter = new GroupAdapter(groupList, this, currentFaculty, currentChair, currentChairKey);
         recyclerView.setAdapter(groupAdapter);
         groupAdapter.setAdmin(true);
+
+        groupViewModel.getGroupListLiveData().observe(this, new Observer<List<Group>>() {
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onChanged(List<Group> groups) {
+                groupAdapter.setGroups(groups);
+                groupAdapter.notifyDataSetChanged();
+
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
         if (isAdmin){
             swipeController = new SwipeController(new SwipeControllerActions() {
@@ -202,9 +219,13 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
                 if (isValid) {
                     if (groupSymbol.length() <= 3) {
                         if (isAddDialog){
-                            addNewGroupToChair(groupName, groupSymbol);
+//                            addNewGroupToChair(groupName, groupSymbol);
+                            groupViewModel.addNewGroupToChair(currentChair, currentFaculty, currentChairKey,
+                                    groupName, groupSymbol, GroupActivity.this, alertDialog);
                         }else {
-                            editGroup(itemPosition, groupName, groupSymbol);
+//                            editGroup(itemPosition, groupName, groupSymbol);
+                            groupViewModel.editGroup(groupToUpdate, currentFaculty, currentChairKey,
+                                    itemPosition, groupName, groupSymbol, GroupActivity.this, alertDialog);
                         }
                     }else {
                         groupSymbolTextInput.setError(getText(R.string.group_symbol_max_length));
@@ -221,97 +242,98 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
         });
     }
 
-    private void addNewGroupToChair(String groupName, String groupSymbol) {
-                Group group = new Group(groupName, groupSymbol);
-                groupList.add(group);
+//    private void addNewGroupToChair(String groupName, String groupSymbol) {
+//                Group group = new Group(groupName, groupSymbol);
+//                groupList.add(group);
+//
+//                currentChair.setGroups(groupList);
+//
+//                if (currentChairKey != null){
+//                    chairsDatabaseReference.child(currentChairKey).setValue(currentChair).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                        @Override
+//                        public void onComplete(@NonNull @NotNull Task<Void> task) {
+//                            Toast.makeText(GroupActivity.this, R.string.add_group_successful_message, Toast.LENGTH_SHORT).show();
+//                            alertDialog.dismiss();
+//                        }
+//                    }).addOnFailureListener(new OnFailureListener() {
+//                        @Override
+//                        public void onFailure(@NonNull @NotNull Exception e) {
+//                            Toast.makeText(GroupActivity.this, R.string.failure_add_group_error, Toast.LENGTH_SHORT).show();
+//                        }
+//                    });
+//                }
+//    }
 
-                currentChair.setGroups(groupList);
+//    private void getGroups() {
+//        if (currentChairKey != null){
+//            Query query = FirebaseDatabase.getInstance().getReference("faculties").child(currentFaculty.getId())
+//                    .child("chairs").child(String.valueOf(currentChairKey)).child("groups");
+//            query.addValueEventListener(new ValueEventListener() {
+//                @SuppressLint("NotifyDataSetChanged")
+//                @Override
+//                public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+//                    groupList.clear();  // because everytime when data updates in your firebase database it creates the list with updated items
+//                    // so to avoid duplicate fields we clear the list everytime
+//                    if (snapshot.exists()) {
+//                        for (DataSnapshot groupSnapshot : snapshot.getChildren()) {
+//                            Group group = groupSnapshot.getValue(Group.class);
+//                            groupList.add(group);
+//                        }
+//                        groupAdapter.notifyDataSetChanged();
+//                        swipeRefreshLayout.setRefreshing(false);
+//                    }
+//                }
+//
+//                @Override
+//                public void onCancelled(@NonNull @NotNull DatabaseError error) {
+//
+//                }
+//            });
+//        }
+//    }
 
-                if (currentChairKey != null){
-                    chairsDatabaseReference.child(currentChairKey).setValue(currentChair).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull @NotNull Task<Void> task) {
-                            Toast.makeText(GroupActivity.this, R.string.add_group_successful_message, Toast.LENGTH_SHORT).show();
-                            alertDialog.dismiss();
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull @NotNull Exception e) {
-                            Toast.makeText(GroupActivity.this, R.string.failure_add_group_error, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-    }
+//    public void editGroup(int groupPositionToUpdate, String groupName, String groupSymbol){
+//        Group newGroup = new Group(groupName, groupSymbol);
+//        newGroup.setTimetables(groupToUpdate.getTimetables());
+//
+//        chairsDatabaseReference.child(currentChairKey).child("groups").
+//                child(String.valueOf(groupPositionToUpdate)).setValue(newGroup).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+//                        Toast.makeText(GroupActivity.this, R.string.update_group_success, Toast.LENGTH_SHORT).show();
+//                        alertDialog.dismiss();
+//                    }
+//                }).addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull @NotNull Exception e) {
+//                        Toast.makeText(GroupActivity.this, R.string.update_group_success, Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//    }
 
-    private void getGroups() {
-        if (currentChairKey != null){
-            Query query = FirebaseDatabase.getInstance().getReference("faculties").child(currentFaculty.getId())
-                    .child("chairs").child(String.valueOf(currentChairKey)).child("groups");
-            query.addValueEventListener(new ValueEventListener() {
-                @SuppressLint("NotifyDataSetChanged")
-                @Override
-                public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                    groupList.clear();  // because everytime when data updates in your firebase database it creates the list with updated items
-                    // so to avoid duplicate fields we clear the list everytime
-                    if (snapshot.exists()) {
-                        for (DataSnapshot groupSnapshot : snapshot.getChildren()) {
-                            Group group = groupSnapshot.getValue(Group.class);
-                            groupList.add(group);
-                        }
-                        groupAdapter.notifyDataSetChanged();
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull @NotNull DatabaseError error) {
-
-                }
-            });
-        }
-    }
-
-    public void editGroup(int groupPositionToUpdate, String groupName, String groupSymbol){
-        Group newGroup = new Group(groupName, groupSymbol);
-        newGroup.setTimetables(groupToUpdate.getTimetables());
-
-        chairsDatabaseReference.child(currentChairKey).child("groups").
-                child(String.valueOf(groupPositionToUpdate)).setValue(newGroup).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull @NotNull Task<Void> task) {
-                        Toast.makeText(GroupActivity.this, R.string.update_group_success, Toast.LENGTH_SHORT).show();
-                        alertDialog.dismiss();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull @NotNull Exception e) {
-                        Toast.makeText(GroupActivity.this, R.string.update_group_success, Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    public void deleteGroup(int groupPositionToDelete){
-        chairsDatabaseReference.child(currentChairKey).child("groups")
-                .child(String.valueOf(groupPositionToDelete)).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull @NotNull Task<Void> task) {
-                        Toast.makeText(GroupActivity.this, R.string.delete_group_success, Toast.LENGTH_SHORT).show();
-                        bottomSheetFragment.dismiss();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull @NotNull Exception e) {
-                        Toast.makeText(GroupActivity.this, R.string.delete_group_failure, Toast.LENGTH_SHORT).show();
-                        bottomSheetFragment.dismiss();
-                    }
-                });
-    }
+//    public void deleteGroup(int groupPositionToDelete){
+//        chairsDatabaseReference.child(currentChairKey).child("groups")
+//                .child(String.valueOf(groupPositionToDelete)).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+//                        Toast.makeText(GroupActivity.this, R.string.delete_group_success, Toast.LENGTH_SHORT).show();
+//                        bottomSheetFragment.dismiss();
+//                    }
+//                }).addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull @NotNull Exception e) {
+//                        Toast.makeText(GroupActivity.this, R.string.delete_group_failure, Toast.LENGTH_SHORT).show();
+//                        bottomSheetFragment.dismiss();
+//                    }
+//                });
+//    }
 
     @Override
     protected void onStart() {
         super.onStart();
         groupAdapter.setAuthenticatedUserEmail(authenticatedUserEmail);
-        getGroups();
+//        getGroups();
+        groupViewModel.getGroups(currentChairKey, currentFaculty);
     }
 
     @Override
@@ -349,6 +371,8 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
 
     @Override
     public void onButtonDelete(View view) {
-        deleteGroup(groupPositionToDelete);
+//        deleteGroup(groupPositionToDelete);
+        groupViewModel.deleteGroup(currentFaculty, currentChairKey, groupPositionToDelete,
+                GroupActivity.this, bottomSheetFragment);
     }
 }

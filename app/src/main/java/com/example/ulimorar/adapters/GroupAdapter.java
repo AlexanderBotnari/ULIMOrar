@@ -50,6 +50,10 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHol
         return groups;
     }
 
+    public void setGroups(List<Group> groups) {
+        this.groups = groups;
+    }
+
     @NonNull
     @NotNull
     @Override
