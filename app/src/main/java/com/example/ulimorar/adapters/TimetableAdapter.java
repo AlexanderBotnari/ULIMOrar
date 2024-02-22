@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.ulimorar.R;
 import com.example.ulimorar.activities.TimetableActivity;
@@ -16,6 +17,7 @@ import com.example.ulimorar.activities.TimetableFullscreenActivity;
 import com.example.ulimorar.entities.Timetable;
 import com.example.ulimorar.fragments.DeleteBottomSheetFragment;
 import com.example.ulimorar.fragments.interfaces.BottomSheetListener;
+import com.example.ulimorar.viewmodels.TimetableViewModel;
 import com.squareup.picasso.Picasso;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,9 +33,12 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
     private DeleteBottomSheetFragment bottomSheetFragment;
     private String timetablePositionToDelete;
 
+    private TimetableViewModel timetableViewModel;
+
     public TimetableAdapter(List<Timetable> timetables, TimetableActivity timetableActivity) {
         this.timetables = timetables;
         this.timetableActivity = timetableActivity;
+        timetableViewModel = new ViewModelProvider(timetableActivity).get(TimetableViewModel.class);
     }
 
     public void setAdmin(boolean admin) {
@@ -42,6 +47,10 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
 
     public List<Timetable> getTimetables() {
         return timetables;
+    }
+
+    public void setTimetables(List<Timetable> timetables) {
+        this.timetables = timetables;
     }
 
     @NonNull
@@ -113,7 +122,10 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
 
     @Override
     public void onButtonDelete(View view) {
-        timetableActivity.deleteTimetable(timetablePositionToDelete, timetables.get(Integer.parseInt(timetablePositionToDelete)));
+//        timetableActivity.deleteTimetable(timetablePositionToDelete, timetables.get(Integer.parseInt(timetablePositionToDelete)));
+        timetableViewModel.deleteTimetable(timetablePositionToDelete, timetables.get(Integer.parseInt(timetablePositionToDelete)),
+                timetableActivity.getCurrentFaculty(), timetableActivity.getChairIndex(),
+                timetableActivity.getGroupIndex(), timetableActivity.getCurrentGroup(), timetableActivity);
     }
 
     public static class TimetableViewHolder extends RecyclerView.ViewHolder{

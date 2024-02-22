@@ -113,7 +113,7 @@
     <string name="group_symbol_max_length">Максимальная длина 3 символа</string>
     <string name="delete_timetable_success">Расписание успешно удалено</string>
     <string name="delete_timetable_failure">Ошибка при удалении расписания</string>
-    <string name="update_timetable_success">Orar actualizat cu succes</string>
+    <string name="update_timetable_success">Успешно обновленное расписание</string>
     <string name="update_timetable_failure">Ошибка при удалении расписания</string>
     <string name="error_signin_with_new_credentials">Ошибка при входе в систему с новыми учетными данными</string>
     <string name="error_create_user_in_auth">Ошибка создания пользователя при аутентификации</string>
@@ -130,6 +130,6 @@
     <string name="passport_already_exists">Паспорт уже существует</string>
     <string name="passport_not_exists">Паспортный идентификатор не существует</string>
     <string name="email_already_registered">Электронная почта уже зарегистрирована</string>
-    <string name="email_not_registered">Emailul nu este înregistrat în aplicație</string>
+    <string name="email_not_registered">Электронная почта не зарегистрирована в приложении</string>
     <string name="error_send_email">Ошибка при отправке электронной почты. Пожалуйста, свяжитесь со службой поддержки!</string>
 </resources>
