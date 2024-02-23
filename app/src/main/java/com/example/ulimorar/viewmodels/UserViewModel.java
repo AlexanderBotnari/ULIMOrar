@@ -4,27 +4,18 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.view.View;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.ulimorar.R;
 import com.example.ulimorar.activities.AccountActivity;
 import com.example.ulimorar.callbacks.EmailExistCallback;
 import com.example.ulimorar.callbacks.PassportExistCallback;
 import com.example.ulimorar.entities.User;
 import com.example.ulimorar.fragments.DeleteBottomSheetFragment;
 import com.example.ulimorar.repositories.UserRepository;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 

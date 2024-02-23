@@ -1,6 +1,5 @@
 package com.example.ulimorar.adapters;
 
-import android.app.LauncherActivity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.ulimorar.R;
-import com.example.ulimorar.entities.User;
 
 import java.util.ArrayList;
 import java.util.List;

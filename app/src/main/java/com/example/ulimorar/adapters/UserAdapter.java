@@ -1,5 +1,6 @@
 package com.example.ulimorar.adapters;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,11 +9,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.ulimorar.R;
-import com.example.ulimorar.activities.UsersActivity;
 import com.example.ulimorar.activities.fragments.RegisteredUsersFragment;
 import com.example.ulimorar.entities.User;
 import com.example.ulimorar.entities.enums.UserRole;
-import com.google.android.material.snackbar.Snackbar;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -35,6 +34,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         this.users = users;
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void updateList(List<User> newList) {
         users.clear();
         users.addAll(newList);

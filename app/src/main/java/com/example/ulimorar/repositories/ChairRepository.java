@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.ulimorar.R;
-import com.example.ulimorar.activities.ChairActivity;
 import com.example.ulimorar.entities.Chair;
 import com.example.ulimorar.entities.Faculty;
 import com.example.ulimorar.fragments.DeleteBottomSheetFragment;
@@ -38,8 +37,6 @@ public class ChairRepository {
 
     public ChairRepository() {
         facultiesDatabaseReference = FirebaseDatabase.getInstance().getReference("faculties");
-
-//        getChairs();
     }
 
     public void getChairs(Faculty currentFaculty) {

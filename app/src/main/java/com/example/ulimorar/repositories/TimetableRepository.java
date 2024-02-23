@@ -11,8 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.ulimorar.R;
-import com.example.ulimorar.activities.GroupActivity;
-import com.example.ulimorar.activities.TimetableActivity;
 import com.example.ulimorar.entities.Faculty;
 import com.example.ulimorar.entities.Group;
 import com.example.ulimorar.entities.Timetable;
@@ -99,7 +97,7 @@ public class TimetableRepository {
             }
         });
 
-        // Upload the selected image to Firebase Storage or perform other actions
+        // Upload the selected image to Firebase Storage
         uploadImageToFirebaseStorage(selectedImageUri, timetable.getTimetableName(), timetable.getUpdateTime(),
                 String.valueOf(timetableList.indexOf(timetable)), currentGroup, activity, currentFaculty,
                 chairIndex, groupIndex);
@@ -109,7 +107,7 @@ public class TimetableRepository {
                                               Group currentGroup, Activity activity, Faculty currentFaculty,
                                               String chairIndex, String groupIndex) {
         if (imageUri != null) {
-            // Create a reference to "images/[filename]"
+            // Create a reference to "timetables/[filename]"
             StorageReference imageFacultyRef = storageReference.child("timetables/" + currentGroup.getGroupName() + "-" + sessionName + "-" + date + ".jpg");
 
             // Upload the file to Firebase Storage

@@ -8,14 +8,12 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.*;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -32,19 +30,8 @@ import com.example.ulimorar.entities.enums.UserRole;
 import com.example.ulimorar.utils.GetDialogsStandardButtons;
 import com.example.ulimorar.viewmodels.FacultyViewModel;
 import com.example.ulimorar.viewmodels.UserViewModel;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.*;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,12 +41,9 @@ public class FacultyActivity extends AppCompatActivity {
 
     private FloatingActionButton addFacultyButton;
     private ImageButton facultyAddImageButton;
+    private ImageView emptyImageView;
 
-//    private DatabaseReference facultiesDatabaseReference;
-//    private DatabaseReference usersDatabaseReference;
     private String authenticatedUserEmail;
-//    private FirebaseStorage storage;
-//    private StorageReference storageReference;
 
     private UserViewModel userViewModel;
     private FacultyViewModel facultyViewModel;
@@ -89,11 +73,6 @@ public class FacultyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_faculty);
 
         authenticatedUserEmail = getIntent().getStringExtra("currentUserEmail");
-//        usersDatabaseReference = FirebaseDatabase.getInstance().getReference("users");
-
-//        facultiesDatabaseReference = FirebaseDatabase.getInstance().getReference("faculties");
-//        storage = FirebaseStorage.getInstance();
-//        storageReference = storage.getReference();
 
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         facultyViewModel = new ViewModelProvider(this).get(FacultyViewModel.class);
@@ -105,6 +84,7 @@ public class FacultyActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(facultyAdapter);
 
+        emptyImageView = findViewById(R.id.emptyImageView);
         addFacultyButton = findViewById(R.id.addFacultyFloatingButton);
         addFacultyButton.setVisibility(View.INVISIBLE);
         addFacultyButton.setOnClickListener(new View.OnClickListener() {
@@ -140,10 +120,15 @@ public class FacultyActivity extends AppCompatActivity {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onChanged(List<Faculty> faculties) {
-                facultyAdapter.setFaculties(faculties);
-                facultyAdapter.notifyDataSetChanged();
+                if (!faculties.isEmpty()){
+                    emptyImageView.setVisibility(View.GONE);
+                    facultyAdapter.setFaculties(faculties);
+                    facultyAdapter.notifyDataSetChanged();
 
-                swipeRefreshLayout.setRefreshing(false);
+                    swipeRefreshLayout.setRefreshing(false);
+                }else {
+                    emptyImageView.setVisibility(View.VISIBLE);
+                }
             }
         });
 
@@ -223,11 +208,9 @@ public class FacultyActivity extends AppCompatActivity {
 
                 if (isValid) {
                     if (isAddDialog){
-//                        addFaculty(facultyName, facultyDescription);
                         facultyViewModel.addFaculty(FacultyActivity.this, facultyName,
                                 facultyDescription, selectedImageUri, alertDialog);
                     }else{
-//                        editFaculty(facultyToUpdate.getId(), facultyName, facultyDescription);
                         facultyViewModel.editFaculty(facultyToUpdate.getId(), facultyName,
                                 facultyDescription, facultyToUpdate, selectedImageUri,
                                 FacultyActivity.this, alertDialog);
@@ -244,170 +227,9 @@ public class FacultyActivity extends AppCompatActivity {
         });
     }
 
-//    private void uploadImageToFirebaseStorage(Uri imageUri, String facultyId) {
-//        if (imageUri != null) {
-//            // Create a reference to "images/[filename]"
-//            StorageReference imageFacultyRef = storageReference.child("faculties/" + facultyId + ".jpg");
-//
-//            // Upload the file to Firebase Storage
-//            imageFacultyRef.putFile(imageUri)
-//                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-//                        @Override
-//                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                            // Image uploaded successfully
-//                            Toast.makeText(FacultyActivity.this, R.string.image_uploaded_successful_message, Toast.LENGTH_SHORT).show();
-//
-//                            // Get the download URL and update the faculty by id in realtime database
-//                            imageFacultyRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-//                                @Override
-//                                public void onSuccess(Uri downloadUrl) {
-//                                    Log.d("DownloadUrl", downloadUrl.toString());
-//                                    facultiesDatabaseReference.child(facultyId).child("facultyPosterPath").setValue(downloadUrl.toString());
-//                                }
-//                            });
-//                        }
-//                    })
-//                    .addOnFailureListener(new OnFailureListener() {
-//                        @Override
-//                        public void onFailure(Exception e) {
-//                            // Handle unsuccessful uploads
-//                            Toast.makeText(FacultyActivity.this, R.string.failure_image_upload, Toast.LENGTH_SHORT).show();
-//                        }
-//                    });
-//        }
-//    }
-//
-//    private void addFaculty(String facultyName, String facultyDescription) {
-//            // Generate unique ID for faculty
-//            String facultyId = facultiesDatabaseReference.push().getKey();
-//
-//            Faculty faculty = new Faculty(facultyId, facultyName, facultyDescription);
-//
-//            // Add the faculty to the database
-//            assert facultyId != null;
-//            facultiesDatabaseReference.child(facultyId).setValue(faculty).addOnCompleteListener(task -> {
-//                if (task.isSuccessful()) {
-//                    Toast.makeText(FacultyActivity.this, R.string.add_faculty_successful_message, Toast.LENGTH_SHORT).show();
-//                    alertDialog.dismiss();
-//                } else {
-//                    Toast.makeText(FacultyActivity.this, R.string.add_faculty_failure_message, Toast.LENGTH_SHORT).show();
-//                    Log.d("FailureAddFaculty", task.getException().getMessage());
-//                }
-//            });
-//
-//            // Upload the selected image to Firebase Storage or perform other actions
-//            uploadImageToFirebaseStorage(selectedImageUri, facultyId);
-//            selectedImageUri = null;
-//    }
-
     private boolean userIsAdmin(User user){
         return user.getRole().equals(UserRole.ADMIN.toString());
     }
-
-//    private void getUserByEmail(String userEmail) {
-//        Query query = usersDatabaseReference.orderByChild("email").equalTo(userEmail);
-//
-//        query.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                if (dataSnapshot.exists()) {
-//                    // User found
-//                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                        // Access user data
-//                        User authenticatedUserFromDb = snapshot.getValue(User.class);
-//                        if (authenticatedUserFromDb != null){
-//                            if (userIsAdmin(authenticatedUserFromDb)){
-//                                isAdminFlag = true;
-//                                facultyAdapter.setAdmin(true);
-//                                addFacultyButton.setVisibility(View.VISIBLE);
-//                                try {
-//                                    activityMenu.findItem(R.id.users).setVisible(true);
-//                                }catch (Exception ignored){
-//
-//                                }
-//                            }else{
-//                                isAdminFlag = false;
-//                                facultyAdapter.setAdmin(false);
-//                            }
-//                        }
-//                    }
-//                } else {
-//                    // User not found
-//                    Log.d("User Data", "User not found for email: " + userEmail);
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//                Log.e("Error", "Failed to read user data.", databaseError.toException());
-//            }
-//        });
-//    }
-
-//    private void getFaculties() {
-//        Query query = FirebaseDatabase.getInstance().getReference("faculties");
-//        query.addValueEventListener(new ValueEventListener() {
-//            @SuppressLint("NotifyDataSetChanged")
-//            @Override
-//            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-//                faculties.clear();  // because everytime when data updates in your firebase database it creates the list with updated items
-//                // so to avoid duplicate fields we clear the list everytime
-//                if (snapshot.exists()) {
-//                    for (DataSnapshot facultySnapshot : snapshot.getChildren()) {
-//                        Faculty faculty = facultySnapshot.getValue(Faculty.class);
-//                        faculties.add(faculty);
-//                    }
-//                    facultyAdapter.notifyDataSetChanged();
-//                    swipeRefreshLayout.setRefreshing(false);
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull @NotNull DatabaseError error) {
-//
-//            }
-//        });
-//    }
-
-//    public void deleteFaculty(Faculty facultyToDelete){
-//        facultiesDatabaseReference.child(facultyToDelete.getId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull @NotNull Task<Void> task) {
-//                storageReference.child("faculties/" + facultyToDelete.getId() + ".jpg").delete();
-//                Toast.makeText(FacultyActivity.this, R.string.delete_faculty_success, Toast.LENGTH_SHORT).show();
-//            }
-//        }).addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull @NotNull Exception e) {
-//                Toast.makeText(FacultyActivity.this, R.string.delete_faculty_failure, Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//    }
-
-//    public void editFaculty(String facultyId, String facultyName, String facultyDescription){
-//
-//        Faculty faculty = new Faculty(facultyId, facultyName, facultyDescription);
-//        faculty.setChairs(facultyToUpdate.getChairs());
-//
-//        if (selectedImageUri != null){
-//            storageReference.child("faculties/" + facultyId + ".jpg").delete();
-////            uploadImageToFirebaseStorage(selectedImageUri, facultyId);
-//
-//            selectedImageUri = null;
-//        }else{
-//            faculty.setFacultyPosterPath(facultyToUpdate.getFacultyPosterPath());
-//        }
-//
-//        facultiesDatabaseReference.child(facultyId).setValue(faculty).addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
-//                Toast.makeText(FacultyActivity.this, R.string.update_faculty_success, Toast.LENGTH_SHORT).show();
-//                alertDialog.dismiss();
-//            } else {
-//                Toast.makeText(FacultyActivity.this, R.string.update_faculty_failure, Toast.LENGTH_SHORT).show();
-//                Log.d("FailureAddFaculty", task.getException().getMessage());
-//            }
-//        });
-//    }
 
     @Override
     protected void onStart() {
@@ -421,21 +243,21 @@ public class FacultyActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        // Simulează un proces de reîmprospătare inițial
+                        // simulate initial swipe refresh
                         try {
-                            Thread.sleep(2000); // Simulează un proces de reîmprospătare care durează 2 secunde
+                            Thread.sleep(2000); // simulate refresh for 2 seconds
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
 
-                        // Procesează datele în fundal
+                        // process data in background
                         facultyViewModel.getFaculties();
 
-                        // Actualizează UI-ul în firul principal
+                        // update UI in main thread
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                // Opriți indicatorul de reîmprospătare
+                                // stop refresh after load data
                                 swipeRefreshLayout.setRefreshing(false);
                             }
                         });

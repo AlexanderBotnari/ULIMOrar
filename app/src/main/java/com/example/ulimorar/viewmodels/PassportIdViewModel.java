@@ -3,7 +3,6 @@ package com.example.ulimorar.viewmodels;
 import android.app.AlertDialog;
 import android.view.View;
 
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -11,7 +10,6 @@ import com.example.ulimorar.callbacks.PassportExistCallback;
 import com.example.ulimorar.repositories.PassportIdRepository;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class PassportIdViewModel extends ViewModel {
 

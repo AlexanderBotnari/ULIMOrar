@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.ulimorar.R;
-import com.example.ulimorar.activities.GroupActivity;
 import com.example.ulimorar.entities.Chair;
 import com.example.ulimorar.entities.Faculty;
 import com.example.ulimorar.entities.Group;
@@ -40,7 +39,6 @@ public class GroupRepository {
     public GroupRepository(){
         facultiesDatabaseReference = FirebaseDatabase.getInstance().getReference().
                 child("faculties");
-
     }
 
     public void getGroups(String currentChairKey, Faculty currentFaculty){

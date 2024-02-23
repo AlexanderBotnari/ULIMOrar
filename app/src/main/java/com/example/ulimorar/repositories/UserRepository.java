@@ -10,17 +10,12 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.example.ulimorar.R;
 import com.example.ulimorar.activities.AccountActivity;
-import com.example.ulimorar.activities.ChangeEmailActivity;
-import com.example.ulimorar.activities.ChangePasswordActivity;
 import com.example.ulimorar.activities.FacultyActivity;
 import com.example.ulimorar.activities.LoginActivity;
-import com.example.ulimorar.activities.RegisterActivity;
 import com.example.ulimorar.callbacks.EmailExistCallback;
 import com.example.ulimorar.callbacks.PassportExistCallback;
 import com.example.ulimorar.entities.User;
@@ -59,7 +54,6 @@ public class UserRepository {
         passportIdRepository = new PassportIdRepository();
         // Initialize the Firebase Database reference
         usersDatabaseReference = FirebaseDatabase.getInstance().getReference("users");
-        getUsers(); // Call this method to fetch initial data
     }
 
     public void loginUser(Activity activity, String email, String password){
@@ -361,28 +355,28 @@ public class UserRepository {
         FirebaseUser firebaseUser = auth.getCurrentUser();
         findUserByEmail(firebaseUser.getEmail());
 
-        // Asigurați-vă că utilizatorul curent există și nu este utilizatorul pe care încercați să-l ștergeți
+        // Make sure the current user exists and is not the user you are trying to delete
         if (!firebaseUser.getEmail().equals(userToDelete.getEmail())) {
-            // Autentificați-vă cu adresa de e-mail a utilizatorului pe care doriți să-l ștergeți
+            // Sign in with the email address of the user you want to delete
             auth.signInWithEmailAndPassword(userToDelete.getEmail(), userToDelete.getPassword())
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             FirebaseUser user = task.getResult().getUser();
                             user.delete();
 
-                            // Căutați utilizatorul în baza de date după adresa de e-mail
+                            // Search the user in database by email address
                             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
                             Query query = databaseReference.orderByChild("email").equalTo(userToDelete.getEmail());
                             query.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                                        // Obțineți cheia utilizatorului găsit și ștergeți-l din baza de date
+                                        // Get the key of the user found and delete him from the database
                                         String userKey = snapshot.getKey();
                                         DatabaseReference userReference = databaseReference.child(userKey);
                                         userReference.removeValue()
                                                 .addOnSuccessListener(aVoid -> {
-                                                    // Utilizatorul a fost șters cu succes din baza de date
+                                                    // The user has been successfully deleted from the database
                                                     String message = activity.getText(R.string.user) + " " + userToDelete.getFirstName() + " " +
                                                             userToDelete.getLastName() + " " + activity.getText(R.string.delete_user_success);
                                                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
@@ -390,7 +384,7 @@ public class UserRepository {
                                                     bottomSheetFragment.dismiss();
                                                 })
                                                 .addOnFailureListener(e -> {
-                                                    // Tratarea erorii la ștergerea din Realtime Database
+                                                    // Error handling when deleting from the Realtime Database
                                                     Toast.makeText(context, R.string.delete_user_from_db_fail, Toast.LENGTH_LONG).show();
                                                 });
                                     }
@@ -398,18 +392,18 @@ public class UserRepository {
 
                                 @Override
                                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                                    // Tratarea erorii la interogarea bazei de date
+                                    // Error handling when querying the database
                                     Toast.makeText(context, R.string.database_query_error, Toast.LENGTH_SHORT).show();
                                 }
                             });
                         } else {
-                            // Tratarea erorii la autentificarea în contul utilizatorului
+                            // Error handling when logging into user account
                             Toast.makeText(context, R.string.authentication_error, Toast.LENGTH_SHORT).show();
                             auth.signInWithEmailAndPassword(findedUserByEmail.getEmail(), findedUserByEmail.getPassword());
                         }
                     });
         } else {
-            // Tratarea cazului în care utilizatorul curent este null sau este utilizatorul curent
+            // Handling if the current user is null or is the current user
             Toast.makeText(context, R.string.delete_current_user_error, Toast.LENGTH_SHORT).show();
             auth.signInWithEmailAndPassword(findedUserByEmail.getEmail(), findedUserByEmail.getPassword());
         }

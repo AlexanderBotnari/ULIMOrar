@@ -41,8 +41,6 @@ public class FacultyRepository {
     public FacultyRepository() {
         facultyDatabaseReference = FirebaseDatabase.getInstance().getReference("faculties");
         storageReference = FirebaseStorage.getInstance().getReference();
-
-        getFaculties();
     }
 
     public void getFaculties(){
@@ -52,8 +50,7 @@ public class FacultyRepository {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                faculties.clear();  // because everytime when data updates in your firebase database it creates the list with updated items
-                // so to avoid duplicate fields we clear the list everytime
+                faculties.clear();
                 if (snapshot.exists()) {
                     for (DataSnapshot facultySnapshot : snapshot.getChildren()) {
                         Faculty faculty = facultySnapshot.getValue(Faculty.class);
@@ -87,7 +84,7 @@ public class FacultyRepository {
             }
         });
 
-        // Upload the selected image to Firebase Storage or perform other actions
+        // Upload the selected image to Firebase Storage
         uploadImageToFirebaseStorage(imageUri, facultyId, activity);
     }
 
@@ -132,7 +129,7 @@ public class FacultyRepository {
 
     public void uploadImageToFirebaseStorage(Uri imageUri, String facultyId, Activity activity) {
         if (imageUri != null) {
-            // Create a reference to "images/[filename]"
+            // Create a reference to "faculties/[filename]"
             StorageReference imageFacultyRef = storageReference.child("faculties/" + facultyId + ".jpg");
 
             // Upload the file to Firebase Storage

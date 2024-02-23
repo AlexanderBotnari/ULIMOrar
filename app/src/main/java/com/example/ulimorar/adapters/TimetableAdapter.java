@@ -122,7 +122,6 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
 
     @Override
     public void onButtonDelete(View view) {
-//        timetableActivity.deleteTimetable(timetablePositionToDelete, timetables.get(Integer.parseInt(timetablePositionToDelete)));
         timetableViewModel.deleteTimetable(timetablePositionToDelete, timetables.get(Integer.parseInt(timetablePositionToDelete)),
                 timetableActivity.getCurrentFaculty(), timetableActivity.getChairIndex(),
                 timetableActivity.getGroupIndex(), timetableActivity.getCurrentGroup(), timetableActivity);
