@@ -9,6 +9,7 @@ import android.media.Image;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -230,6 +231,8 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
         if (!isAddDialog){
             emailInputLayout.setVisibility(View.GONE);
             idnpInputLayout.setVisibility(View.GONE);
+            passwordInputLayout.setVisibility(View.GONE);
+            confirmPasswordInputLayout.setVisibility(View.GONE);
             userToUpdate = userAdapter.getUsers().get(itemPosition);
             firstNameInputLayout.getEditText().setText(userToUpdate.getFirstName());
             lastNameInputLayout.getEditText().setText(userToUpdate.getLastName());
@@ -351,15 +354,21 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
     private void performSearch(String query) {
         // Dummy search operation
         searchResults.clear();
-        for (User user : users) {
-            if (user.getEmail().toLowerCase().contains(query.toLowerCase())) {
-                searchResults.add(user);
-            }else if (user.getFirstName().toLowerCase().contains(query.toLowerCase())){
-                searchResults.add(user);
-            } else if (user.getLastName().toLowerCase().contains(query.toLowerCase())) {
-                searchResults.add(user);
+
+        userViewModel.getUsersLiveData().observe(this, new Observer<List<User>>() {
+            @Override
+            public void onChanged(List<User> users) {
+                for (User user : users) {
+                    if (user.getEmail().toLowerCase().contains(query.toLowerCase())) {
+                        searchResults.add(user);
+                    }else if (user.getFirstName().toLowerCase().contains(query.toLowerCase())){
+                        searchResults.add(user);
+                    } else if (user.getLastName().toLowerCase().contains(query.toLowerCase())) {
+                        searchResults.add(user);
+                    }
+                }
             }
-        }
+        });
             // Display search results
         if (!searchResults.isEmpty()){
             displayResults(searchResults);
@@ -375,15 +384,21 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
         // based on the user's input
 
         List<User> updatedResults = new ArrayList<>();
-        for (User user : users) {
-            if (user.getEmail().toLowerCase().contains(newText.toLowerCase())) {
-                updatedResults.add(user);
-            }else if (user.getFirstName().toLowerCase().contains(newText.toLowerCase())){
-                updatedResults.add(user);
-            } else if (user.getLastName().toLowerCase().contains(newText.toLowerCase())) {
-                updatedResults.add(user);
+
+        userViewModel.getUsersLiveData().observe(this, new Observer<List<User>>() {
+            @Override
+            public void onChanged(List<User> users) {
+                for (User user : users) {
+                    if (user.getEmail().toLowerCase().contains(newText.toLowerCase())) {
+                        updatedResults.add(user);
+                    }else if (user.getFirstName().toLowerCase().contains(newText.toLowerCase())){
+                        updatedResults.add(user);
+                    } else if (user.getLastName().toLowerCase().contains(newText.toLowerCase())) {
+                        updatedResults.add(user);
+                    }
+                }
             }
-        }
+        });
 
         if (!updatedResults.isEmpty()){
             userAdapter.updateList(updatedResults);

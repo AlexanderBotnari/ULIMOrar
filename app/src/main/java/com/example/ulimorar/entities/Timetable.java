@@ -5,6 +5,7 @@ import java.util.Date;
 
 public class Timetable implements Serializable {
 
+    private String id;
     private String timetableName;
     private String imageUrl;
     private Long updateTime;
@@ -12,9 +13,18 @@ public class Timetable implements Serializable {
     public Timetable() {
     }
 
-    public Timetable(String timetableName, Long updateTime) {
+    public Timetable(String id, String timetableName, Long updateTime) {
+        this.id = id;
         this.timetableName = timetableName;
         this.updateTime = updateTime;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public Timetable(String timetableName){

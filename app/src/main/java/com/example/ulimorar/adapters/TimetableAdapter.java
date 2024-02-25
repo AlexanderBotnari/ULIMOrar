@@ -22,12 +22,14 @@ import com.squareup.picasso.Picasso;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.TimetableViewHolder> implements BottomSheetListener {
 
-    private List<Timetable> timetables;
+    private Map<String, Timetable> timetables;
     private TimetableActivity timetableActivity;
     private boolean isAdmin;
     private DeleteBottomSheetFragment bottomSheetFragment;
@@ -35,7 +37,7 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
 
     private TimetableViewModel timetableViewModel;
 
-    public TimetableAdapter(List<Timetable> timetables, TimetableActivity timetableActivity) {
+    public TimetableAdapter(Map<String, Timetable> timetables, TimetableActivity timetableActivity) {
         this.timetables = timetables;
         this.timetableActivity = timetableActivity;
         timetableViewModel = new ViewModelProvider(timetableActivity).get(TimetableViewModel.class);
@@ -45,11 +47,11 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
         isAdmin = admin;
     }
 
-    public List<Timetable> getTimetables() {
+    public Map<String, Timetable> getTimetables() {
         return timetables;
     }
 
-    public void setTimetables(List<Timetable> timetables) {
+    public void setTimetables(Map<String, Timetable> timetables) {
         this.timetables = timetables;
     }
 
@@ -64,8 +66,12 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull @NotNull TimetableAdapter.TimetableViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        Timetable timetable = timetables.get(position);
+        List<String> keys = new ArrayList<>(timetables.keySet());
+        String timetableId = keys.get(position);
 
+        Timetable timetable = timetables.get(timetableId);
+
+        assert timetable != null;
         Date date = new Date(timetable.getUpdateTime());
         @SuppressLint("SimpleDateFormat")
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
@@ -122,7 +128,12 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
 
     @Override
     public void onButtonDelete(View view) {
-        timetableViewModel.deleteTimetable(timetablePositionToDelete, timetables.get(Integer.parseInt(timetablePositionToDelete)),
+        List<String> keys = new ArrayList<>(timetables.keySet());
+        String timetableId = keys.get(Integer.parseInt(timetablePositionToDelete));
+
+        Timetable timetable = timetables.get(timetableId);
+
+        timetableViewModel.deleteTimetable(timetable,
                 timetableActivity.getCurrentFaculty(), timetableActivity.getChairIndex(),
                 timetableActivity.getGroupIndex(), timetableActivity.getCurrentGroup(), timetableActivity);
     }

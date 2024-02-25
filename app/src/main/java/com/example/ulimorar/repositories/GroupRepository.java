@@ -25,14 +25,15 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GroupRepository {
 
     private DatabaseReference facultiesDatabaseReference;
 
-    private MutableLiveData<List<Group>> groupListLiveData = new MutableLiveData<>();
+    private MutableLiveData<Map<String, Group>> groupListLiveData = new MutableLiveData<Map<String, Group>>();
 
     private List<Group> groupList;
 
@@ -44,18 +45,20 @@ public class GroupRepository {
     public void getGroups(String currentChairKey, Faculty currentFaculty){
         if (currentChairKey != null){
             Query query = FirebaseDatabase.getInstance().getReference("faculties").child(currentFaculty.getId())
-                    .child("chairs").child(String.valueOf(currentChairKey)).child("groups");
+                    .child("chairs").child(currentChairKey).child("groups");
+
+            Map<String, Group> groupMap = new HashMap<>();
             query.addValueEventListener(new ValueEventListener() {
                 @SuppressLint("NotifyDataSetChanged")
                 @Override
                 public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                    groupList = new ArrayList<>();
+                    groupMap.clear();
                     if (snapshot.exists()) {
                         for (DataSnapshot groupSnapshot : snapshot.getChildren()) {
                             Group group = groupSnapshot.getValue(Group.class);
-                            groupList.add(group);
+                            groupMap.put(groupSnapshot.getKey(), group);
                         }
-                        groupListLiveData.postValue(groupList);
+                        groupListLiveData.postValue(groupMap);
                     }
                 }
 
@@ -69,15 +72,20 @@ public class GroupRepository {
 
     public void addNewGroupToChair(Chair currentChair, Faculty currentFaculty, String currentChairKey,
                                    String groupName, String groupSymbol, Activity activity, AlertDialog alertDialog) {
-        Group group = new Group(groupName, groupSymbol);
-        groupList.add(group);
 
-        currentChair.setGroups(groupList);
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("faculties").child(currentFaculty.getId())
+                .child("chairs").child(currentChairKey).child("groups");
+        String groupId = databaseReference.push().getKey();
 
-        if (currentChairKey != null){
+        if (currentChair.getGroups() == null) {
+            currentChair.setGroups(new HashMap<>());
+        }
 
-            facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs")
-                    .child(currentChairKey).setValue(currentChair).addOnCompleteListener(new OnCompleteListener<Void>() {
+        Group group = new Group(groupId, groupName, groupSymbol);
+
+        currentChair.getGroups().put(groupId, group);
+
+            databaseReference.child(groupId).setValue(group).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull @NotNull Task<Void> task) {
                     Toast.makeText(activity, R.string.add_group_successful_message, Toast.LENGTH_SHORT).show();
@@ -89,18 +97,17 @@ public class GroupRepository {
                     Toast.makeText(activity, R.string.failure_add_group_error, Toast.LENGTH_SHORT).show();
                 }
             });
-        }
     }
 
     public void editGroup(Group groupToUpdate, Faculty currentFaculty, String currentChairKey,
-                          int groupPositionToUpdate, String groupName, String groupSymbol,
+                          String groupName, String groupSymbol,
                           Activity activity, AlertDialog alertDialog){
-        Group newGroup = new Group(groupName, groupSymbol);
+        Group newGroup = new Group(groupToUpdate.getId(), groupName, groupSymbol);
         newGroup.setTimetables(groupToUpdate.getTimetables());
 
         facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs")
                 .child(currentChairKey).child("groups").
-                child(String.valueOf(groupPositionToUpdate)).setValue(newGroup).addOnCompleteListener(new OnCompleteListener<Void>() {
+                child(groupToUpdate.getId()).setValue(newGroup).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull @NotNull Task<Void> task) {
                         Toast.makeText(activity, R.string.update_group_success, Toast.LENGTH_SHORT).show();
@@ -114,11 +121,11 @@ public class GroupRepository {
                 });
     }
 
-    public void deleteGroup(Faculty currentFaculty, String currentChairKey, int groupPositionToDelete,
+    public void deleteGroup(Faculty currentFaculty, String currentChairKey, String chairIdToDelete,
                             Activity activity, DeleteBottomSheetFragment bottomSheetFragment){
         facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs")
                 .child(currentChairKey).child("groups")
-                .child(String.valueOf(groupPositionToDelete)).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                .child(chairIdToDelete).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull @NotNull Task<Void> task) {
                         Toast.makeText(activity, R.string.delete_group_success, Toast.LENGTH_SHORT).show();
@@ -133,7 +140,7 @@ public class GroupRepository {
                 });
     }
 
-    public MutableLiveData<List<Group>> getGroupListLiveData() {
+    public MutableLiveData<Map<String, Group>> getGroupListLiveData() {
         return groupListLiveData;
     }
 }

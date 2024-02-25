@@ -30,9 +30,9 @@ import com.google.firebase.storage.UploadTask;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TimetableRepository {
 
@@ -40,9 +40,9 @@ public class TimetableRepository {
 
     private StorageReference storageReference;
 
-    private MutableLiveData<List<Timetable>> timetableListLiveData = new MutableLiveData<>();
+    private MutableLiveData<Map<String, Timetable>> timetableListLiveData = new MutableLiveData<Map<String, Timetable>>();
 
-    private List<Timetable> timetableList;
+    private Map<String, Timetable> timetableList;
 
     public TimetableRepository() {
         facultiesDatabaseReference = FirebaseDatabase.getInstance().getReference().child("faculties");
@@ -53,17 +53,18 @@ public class TimetableRepository {
         Query query = facultiesDatabaseReference.child(currentFaculty.getId())
                 .child("chairs").child(chairIndex).child("groups").child(groupIndex)
                 .child("timetables");
+        Map<String, Timetable> timetableMap = new HashMap<>();
         query.addValueEventListener(new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                timetableList = new ArrayList<>();
+                timetableMap.clear();
                 if (snapshot.exists()) {
                     for (DataSnapshot timetableSnapshot : snapshot.getChildren()) {
                         Timetable timetable = timetableSnapshot.getValue(Timetable.class);
-                        timetableList.add(timetable);
+                        timetableMap.put(timetableSnapshot.getKey(), timetable);
                     }
-                    timetableListLiveData.postValue(timetableList);
+                    timetableListLiveData.postValue(timetableMap);
                 }
             }
 
@@ -77,13 +78,20 @@ public class TimetableRepository {
     public void addNewTimetableToGroup(Faculty currentFaculty, Group currentGroup, String timetableName,
                                        String chairIndex, String groupIndex, Activity activity,
                                        AlertDialog alertDialog, Uri selectedImageUri) {
-        Timetable timetable = new Timetable(timetableName, new Date().getTime());
+        DatabaseReference databaseReference = facultiesDatabaseReference.child(currentFaculty.getId())
+                .child("chairs").child(chairIndex).child("groups").child(groupIndex)
+                .child("timetables");
+        String timetableId = databaseReference.push().getKey();
 
-        timetableList.add(timetable);
-        currentGroup.setTimetables(timetableList);
+        if (currentGroup.getTimetables() == null) {
+            currentGroup.setTimetables(new HashMap<>());
+        }
 
-        facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs").
-                child(chairIndex).child("groups").child(groupIndex).setValue(currentGroup).addOnCompleteListener(new OnCompleteListener<Void>() {
+        Timetable timetable = new Timetable(timetableId, timetableName, new Date().getTime());
+
+        currentGroup.getTimetables().put(timetableId, timetable);
+
+        databaseReference.child(timetableId).setValue(timetable).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull @NotNull Task<Void> task) {
                 Toast.makeText(activity, R.string.add_timetable_successful_message, Toast.LENGTH_SHORT).show();
@@ -99,11 +107,11 @@ public class TimetableRepository {
 
         // Upload the selected image to Firebase Storage
         uploadImageToFirebaseStorage(selectedImageUri, timetable.getTimetableName(), timetable.getUpdateTime(),
-                String.valueOf(timetableList.indexOf(timetable)), currentGroup, activity, currentFaculty,
+                timetableId, currentGroup, activity, currentFaculty,
                 chairIndex, groupIndex);
     }
 
-    private void uploadImageToFirebaseStorage(Uri imageUri, String sessionName, Long date, String timetableIndex,
+    private void uploadImageToFirebaseStorage(Uri imageUri, String sessionName, Long date, String timetableId,
                                               Group currentGroup, Activity activity, Faculty currentFaculty,
                                               String chairIndex, String groupIndex) {
         if (imageUri != null) {
@@ -125,7 +133,7 @@ public class TimetableRepository {
                                     Log.d("DownloadUrl", downloadUrl.toString());
                                     facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs").
                                             child(chairIndex).child("groups").child(groupIndex).
-                                            child("timetables").child(timetableIndex).
+                                            child("timetables").child(timetableId).
                                             child("imageUrl").setValue(downloadUrl.toString());
                                 }
                             });
@@ -141,16 +149,16 @@ public class TimetableRepository {
         }
     }
 
-    public void editTimetable(Integer itemPosition, String timetableName, Uri selectedImageUri,
+    public void editTimetable(String timetableName, Uri selectedImageUri,
                               Timetable timetableToUpdate, Group currentGroup, Faculty currentFaculty,
                               String chairIndex, String groupIndex, Activity activity, AlertDialog alertDialog){
-        Timetable newTimetable = new Timetable(timetableName,  new Date().getTime());
+        Timetable newTimetable = new Timetable(timetableToUpdate.getId(), timetableName,  new Date().getTime());
 
         if (selectedImageUri != null){
             storageReference.child("timetables/" + currentGroup.getGroupName() + "-" +
                     timetableToUpdate.getTimetableName() + "-" + timetableToUpdate.getUpdateTime() + ".jpg").delete();
             uploadImageToFirebaseStorage(selectedImageUri, newTimetable.getTimetableName(), newTimetable.getUpdateTime(),
-                    String.valueOf(itemPosition), currentGroup, activity, currentFaculty,
+                    timetableToUpdate.getId(), currentGroup, activity, currentFaculty,
                     chairIndex, groupIndex);
         }else{
             newTimetable.setImageUrl(timetableToUpdate.getImageUrl());
@@ -158,7 +166,7 @@ public class TimetableRepository {
 
         facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs").
                 child(chairIndex).child("groups").child(groupIndex).
-                child("timetables").child(String.valueOf(itemPosition))
+                child("timetables").child(timetableToUpdate.getId())
                 .setValue(newTimetable).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull @NotNull Task<Void> task) {
@@ -173,12 +181,12 @@ public class TimetableRepository {
                 });
     }
 
-    public void deleteTimetable(String timetablePosition ,Timetable timetableToDelete, Faculty currentFaculty,
+    public void deleteTimetable(Timetable timetableToDelete, Faculty currentFaculty,
                                 String chairIndex, String groupIndex, Group currentGroup, Activity activity){
 
         facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs").
                 child(chairIndex).child("groups").child(groupIndex).
-                child("timetables").child(timetablePosition).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                child("timetables").child(timetableToDelete.getId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull @NotNull Task<Void> task) {
                 storageReference.child("timetables/" + currentGroup.getGroupName() + "-" +
@@ -193,7 +201,7 @@ public class TimetableRepository {
         });
     }
 
-    public MutableLiveData<List<Timetable>> getTimetableListLiveData() {
+    public MutableLiveData<Map<String, Timetable>> getTimetableListLiveData() {
         return timetableListLiveData;
     }
 }

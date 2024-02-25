@@ -16,11 +16,13 @@ import com.example.ulimorar.entities.Faculty;
 import com.example.ulimorar.entities.Group;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHolder>{
 
-    private List<Group> groups;
+    private Map<String, Group> groups;
     private Context context;
     private Faculty currentFaculty;
     private Chair currentChair;
@@ -28,7 +30,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHol
     private boolean isAdmin;
     private String authenticatedUserEmail;
 
-    public GroupAdapter(List<Group> groups, Context context, Faculty currentFaculty, Chair currentChair, String chairIndex) {
+    public GroupAdapter(Map<String, Group> groups, Context context, Faculty currentFaculty, Chair currentChair, String chairIndex) {
         this.groups = groups;
         this.context = context;
         this.currentFaculty = currentFaculty;
@@ -44,11 +46,11 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHol
         this.authenticatedUserEmail = authenticatedUserEmail;
     }
 
-    public List<Group> getGroups() {
+    public Map<String, Group> getGroups() {
         return groups;
     }
 
-    public void setGroups(List<Group> groups) {
+    public void setGroups(Map<String, Group> groups) {
         this.groups = groups;
     }
 
@@ -62,8 +64,14 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHol
 
     @Override
     public void onBindViewHolder(@NonNull @NotNull GroupAdapter.GroupViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        Group group = groups.get(position);
+        List<String> keys = new ArrayList<>(groups.keySet());
+        String groupId = keys.get(position);
+
+        Group group = groups.get(groupId);
+
+        assert group != null;
         holder.groupNameTextView.setText(group.getGroupName());
+
         if (group.getGroupSymbol().length() == 2 || group.getGroupSymbol().length() == 3){
             holder.groupSymbolTextView.setPadding(0, 0, 0, 0);
         }

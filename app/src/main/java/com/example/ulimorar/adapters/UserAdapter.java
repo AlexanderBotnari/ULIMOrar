@@ -50,6 +50,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     public void onBindViewHolder(@NonNull @NotNull UserAdapter.UserViewHolder holder, int position) {
         User user = users.get(position);
         holder.userListItemBinding.setUser(user);
+        holder.userListItemBinding.executePendingBindings();
         if (user.getRole().equals(UserRole.ADMIN.toString())){
             holder.userListItemBinding.iconImageView.setImageResource(R.drawable.ic_admin);
         }else{

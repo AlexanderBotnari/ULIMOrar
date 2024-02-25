@@ -8,11 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.ulimorar.R;
+import com.example.ulimorar.databinding.FacultyListItemBinding;
 import com.example.ulimorar.fragments.interfaces.BottomSheetListener;
 import com.example.ulimorar.activities.ChairActivity;
 import com.example.ulimorar.fragments.DeleteBottomSheetFragment;
@@ -60,17 +61,17 @@ public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyV
     @NotNull
     @Override
     public FacultyViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.faculty_list_item, parent, false);
-        return new FacultyViewHolder(view);
+        FacultyListItemBinding facultyListItemBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()),
+                R.layout.faculty_list_item, parent, false);
+        return new FacultyViewHolder(facultyListItemBinding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull @NotNull FacultyAdapter.FacultyViewHolder holder, @SuppressLint("RecyclerView") int position) {
         Faculty faculty = faculties.get(position);
+        holder.facultyListItemBinding.setFaculty(faculty);
 
         Picasso.get().load(faculty.getFacultyPosterPath()).placeholder(R.drawable.ulim_logo).into(holder.facultyImageView);
-        holder.facultyNameTextView.setText(faculty.getFacultyName());
-        holder.facultyDescriptionTextView.setText(faculty.getFacultyDescription());
 
         holder.viewButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -128,17 +129,16 @@ public class FacultyAdapter extends RecyclerView.Adapter<FacultyAdapter.FacultyV
     public static class FacultyViewHolder extends RecyclerView.ViewHolder{
 
         private ImageView facultyImageView;
-        private TextView facultyNameTextView;
-        private TextView facultyDescriptionTextView;
         private Button viewButton;
         private Button editFacultyButton;
         private Button deleteFacultyButton;
 
-        public FacultyViewHolder(@NonNull @NotNull View itemView) {
-            super(itemView);
+        private FacultyListItemBinding facultyListItemBinding;
+
+        public FacultyViewHolder(FacultyListItemBinding facultyListItemBinding) {
+            super(facultyListItemBinding.getRoot());
+            this.facultyListItemBinding = facultyListItemBinding;
             facultyImageView = itemView.findViewById(R.id.facultyImageView);
-            facultyNameTextView = itemView.findViewById(R.id.facultyNameTextView);
-            facultyDescriptionTextView = itemView.findViewById(R.id.facultyDescriptionTextView);
             viewButton = itemView.findViewById(R.id.viewButton);
             editFacultyButton = itemView.findViewById(R.id.editFacultyButton);
             deleteFacultyButton = itemView.findViewById(R.id.deleteFacultyButton);

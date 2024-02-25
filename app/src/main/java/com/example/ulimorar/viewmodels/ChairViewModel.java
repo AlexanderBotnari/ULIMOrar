@@ -11,12 +11,13 @@ import com.example.ulimorar.entities.Faculty;
 import com.example.ulimorar.fragments.DeleteBottomSheetFragment;
 import com.example.ulimorar.repositories.ChairRepository;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ChairViewModel extends ViewModel {
 
     private ChairRepository chairRepository;
-    private MutableLiveData<List<Chair>> chairsListLiveData;
+    private MutableLiveData<Map<String, Chair>> chairsListLiveData;
 
     public ChairViewModel(){
         chairRepository = new ChairRepository();
@@ -27,21 +28,22 @@ public class ChairViewModel extends ViewModel {
         chairRepository.getChairs(currentFaculty);
     }
 
-    public void addNewChairToFaculty(Faculty currentFaculty, String chairName, Activity activity, AlertDialog alertDialog){
+    public void addNewChairToFaculty(Faculty currentFaculty, String chairName,
+                                     Activity activity, AlertDialog alertDialog){
         chairRepository.addNewChairToFaculty(currentFaculty, chairName, activity, alertDialog);
     }
 
-    public void editChair(Faculty currentFaculty, Chair chairToUpdate, int chairPositionToUpdate,
+    public void editChair(Faculty currentFaculty, Chair chairToUpdate,
                           String chairName, Activity activity, AlertDialog alertDialog){
-        chairRepository.editChair(currentFaculty, chairToUpdate, chairPositionToUpdate, chairName, activity, alertDialog);
+        chairRepository.editChair(currentFaculty, chairToUpdate, chairName, activity, alertDialog);
     }
 
-    public void deleteChair(Faculty currentFaculty, int chairPositionToDelete, Activity activity,
+    public void deleteChair(Faculty currentFaculty, String chairIdToDelete, Activity activity,
                             DeleteBottomSheetFragment bottomSheetFragment){
-        chairRepository.deleteChair(currentFaculty, chairPositionToDelete, activity, bottomSheetFragment);
+        chairRepository.deleteChair(currentFaculty, chairIdToDelete, activity, bottomSheetFragment);
     }
 
-    public MutableLiveData<List<Chair>> getChairsListLiveData() {
+    public MutableLiveData<Map<String, Chair>> getChairsListLiveData() {
         return chairsListLiveData;
     }
 }

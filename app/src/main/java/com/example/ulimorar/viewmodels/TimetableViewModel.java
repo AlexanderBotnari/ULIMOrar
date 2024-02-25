@@ -13,11 +13,12 @@ import com.example.ulimorar.entities.Timetable;
 import com.example.ulimorar.repositories.TimetableRepository;
 
 import java.util.List;
+import java.util.Map;
 
 public class TimetableViewModel extends ViewModel {
 
     private TimetableRepository timetableRepository;
-    private MutableLiveData<List<Timetable>> timetableListLiveData;
+    private MutableLiveData<Map<String, Timetable>> timetableListLiveData;
 
     public TimetableViewModel(){
         timetableRepository = new TimetableRepository();
@@ -35,20 +36,20 @@ public class TimetableViewModel extends ViewModel {
                 groupIndex, activity, alertDialog, selectedImageUri);
     }
 
-    public void editTimetable(Integer itemPosition, String timetableName, Uri selectedImageUri,
+    public void editTimetable(String timetableName, Uri selectedImageUri,
                               Timetable timetableToUpdate, Group currentGroup, Faculty currentFaculty,
                               String chairIndex, String groupIndex, Activity activity, AlertDialog alertDialog){
-        timetableRepository.editTimetable(itemPosition, timetableName, selectedImageUri, timetableToUpdate,
+        timetableRepository.editTimetable(timetableName, selectedImageUri, timetableToUpdate,
                 currentGroup, currentFaculty, chairIndex, groupIndex, activity, alertDialog);
     }
 
-    public void deleteTimetable(String timetablePosition ,Timetable timetableToDelete, Faculty currentFaculty,
+    public void deleteTimetable(Timetable timetableToDelete, Faculty currentFaculty,
                                 String chairIndex, String groupIndex, Group currentGroup, Activity activity){
-        timetableRepository.deleteTimetable(timetablePosition, timetableToDelete, currentFaculty, chairIndex,
+        timetableRepository.deleteTimetable(timetableToDelete, currentFaculty, chairIndex,
                 groupIndex, currentGroup, activity);
     }
 
-    public MutableLiveData<List<Timetable>> getTimetableListLiveData() {
+    public MutableLiveData<Map<String, Timetable>> getTimetableListLiveData() {
         return timetableListLiveData;
     }
 }

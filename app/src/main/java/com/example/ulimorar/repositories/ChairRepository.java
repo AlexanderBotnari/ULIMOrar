@@ -25,13 +25,15 @@ import com.google.firebase.database.ValueEventListener;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ChairRepository {
 
     private DatabaseReference facultiesDatabaseReference;
 
-    private MutableLiveData<List<Chair>> chairsListLiveData = new MutableLiveData<>();
+    private MutableLiveData<Map<String, Chair>> chairsListLiveData = new MutableLiveData<Map<String, Chair>>();
 
     private List<Chair> chairsList;
 
@@ -41,19 +43,18 @@ public class ChairRepository {
 
     public void getChairs(Faculty currentFaculty) {
         Query query = facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs");
-
+        Map<String, Chair> chairs = new HashMap<>();
         query.addValueEventListener(new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                chairsList = new ArrayList<>();
-
+                chairs.clear();
                 if (snapshot.exists()) {
                     for (DataSnapshot chairSnapshot : snapshot.getChildren()) {
                         Chair chair = chairSnapshot.getValue(Chair.class);
-                        chairsList.add(chair);
+                        chairs.put(chairSnapshot.getKey(), chair);
                     }
-                    chairsListLiveData.postValue(chairsList);
+                    chairsListLiveData.postValue(chairs);
                 }
             }
 
@@ -65,34 +66,40 @@ public class ChairRepository {
     }
 
 
-    public void addNewChairToFaculty(Faculty currentFaculty, String chairName, Activity activity, AlertDialog alertDialog){
-        Chair chair = new Chair(chairName, String.valueOf(chairName.charAt(0)));
-        chairsList.add(chair);
+    public void addNewChairToFaculty(Faculty currentFaculty, String chairName, Activity activity, AlertDialog alertDialog) {
+        DatabaseReference chairsReference = facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs");
 
-        currentFaculty.setChairs(chairsList);
+        String chairId = chairsReference.push().getKey();
 
-        facultiesDatabaseReference.child(currentFaculty.getId()).setValue(currentFaculty).addOnCompleteListener(new OnCompleteListener<Void>() {
+        if (currentFaculty.getChairs() == null) {
+            currentFaculty.setChairs(new HashMap<>());
+        }
+
+        Chair chair = new Chair(chairId, chairName, String.valueOf(chairName.charAt(0)));
+
+        currentFaculty.getChairs().put(chairId, chair);
+
+        chairsReference.child(chairId).setValue(chair).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
-            public void onComplete(@NonNull @NotNull Task<Void> task) {
-                Toast.makeText(activity, R.string.add_chair_successful_message, Toast.LENGTH_SHORT).show();
-                alertDialog.dismiss();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull @NotNull Exception e) {
-                Toast.makeText(activity, R.string.failure_add_chair_error, Toast.LENGTH_LONG).show();
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(activity, R.string.add_chair_successful_message, Toast.LENGTH_SHORT).show();
+                    alertDialog.dismiss();
+                } else {
+                    Toast.makeText(activity, R.string.failure_add_chair_error, Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
 
 
-    public void editChair(Faculty currentFaculty, Chair chairToUpdate, int chairPositionToUpdate,
+    public void editChair(Faculty currentFaculty, Chair chairToUpdate,
                           String chairName, Activity activity, AlertDialog alertDialog){
-        Chair newChair = new Chair(chairName, String.valueOf(chairName.charAt(0)));
+        Chair newChair = new Chair(chairToUpdate.getId(), chairName, String.valueOf(chairName.charAt(0)));
         newChair.setGroups(chairToUpdate.getGroups());
 
         facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs").
-                child(String.valueOf(chairPositionToUpdate)).setValue(newChair).addOnCompleteListener(new OnCompleteListener<Void>() {
+                child(chairToUpdate.getId()).setValue(newChair).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull @NotNull Task<Void> task) {
                         Toast.makeText(activity, R.string.update_chair_success, Toast.LENGTH_SHORT).show();
@@ -106,10 +113,10 @@ public class ChairRepository {
                 });
     }
 
-    public void deleteChair(Faculty currentFaculty, int chairPositionToDelete, Activity activity,
+    public void deleteChair(Faculty currentFaculty, String chairIdToDelete, Activity activity,
                             DeleteBottomSheetFragment bottomSheetFragment){
         facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs").
-                child(String.valueOf(chairPositionToDelete)).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                child(chairIdToDelete).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull @NotNull Task<Void> task) {
                         Toast.makeText(activity, R.string.delete_chair_success, Toast.LENGTH_SHORT).show();
@@ -125,7 +132,7 @@ public class ChairRepository {
     }
 
 
-    public MutableLiveData<List<Chair>> getChairsListLiveData() {
+    public MutableLiveData<Map<String, Chair>> getChairsListLiveData() {
         return chairsListLiveData;
     }
 

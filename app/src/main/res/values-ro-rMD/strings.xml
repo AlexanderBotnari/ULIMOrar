@@ -132,4 +132,7 @@
     <string name="email_already_registered">Emailul este deja înregistrat</string>
     <string name="email_not_registered">Электронная почта не зарегистрирована в приложении</string>
     <string name="error_send_email">Eroare la trimiterea e-mailului. Vă rugăm să contactați serviciul de asistență!</string>
+    <string name="passport_id">IDNP</string>
+    <string name="email">Email</string>
+    <string name="password">Parola</string>
 </resources>

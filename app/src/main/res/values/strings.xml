@@ -146,4 +146,7 @@
     <string name="email_already_registered">Email is already registered</string>
     <string name="email_not_registered">Email not registered in app</string>
     <string name="error_send_email">Error to send email. Please contact support!</string>
+    <string name="passport_id">Passport ID</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
 </resources>

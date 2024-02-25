@@ -13,12 +13,13 @@ import com.example.ulimorar.fragments.DeleteBottomSheetFragment;
 import com.example.ulimorar.repositories.GroupRepository;
 
 import java.util.List;
+import java.util.Map;
 
 public class GroupViewModel extends ViewModel {
 
     private GroupRepository groupRepository;
 
-    private MutableLiveData<List<Group>> groupListLiveData;
+    private MutableLiveData<Map<String, Group>> groupListLiveData;
 
     public GroupViewModel(){
         groupRepository = new GroupRepository();
@@ -36,18 +37,18 @@ public class GroupViewModel extends ViewModel {
     }
 
     public void editGroup(Group groupToUpdate, Faculty currentFaculty, String currentChairKey,
-                          int groupPositionToUpdate, String groupName, String groupSymbol,
+                          String groupName, String groupSymbol,
                           Activity activity, AlertDialog alertDialog){
         groupRepository.editGroup(groupToUpdate, currentFaculty, currentChairKey,
-                groupPositionToUpdate, groupName, groupSymbol, activity, alertDialog);
+                groupName, groupSymbol, activity, alertDialog);
     }
 
-    public void deleteGroup(Faculty currentFaculty, String currentChairKey, int groupPositionToDelete,
+    public void deleteGroup(Faculty currentFaculty, String currentChairKey, String chairIdToDelete,
                             Activity activity, DeleteBottomSheetFragment bottomSheetFragment){
-        groupRepository.deleteGroup(currentFaculty, currentChairKey, groupPositionToDelete, activity, bottomSheetFragment);
+        groupRepository.deleteGroup(currentFaculty, currentChairKey, chairIdToDelete, activity, bottomSheetFragment);
     }
 
-    public MutableLiveData<List<Group>> getGroupListLiveData() {
+    public MutableLiveData<Map<String, Group>> getGroupListLiveData() {
         return groupListLiveData;
     }
 }

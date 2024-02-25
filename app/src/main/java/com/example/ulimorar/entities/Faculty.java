@@ -1,7 +1,11 @@
 package com.example.ulimorar.entities;
 
+import com.google.firebase.database.PropertyName;
+
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Faculty implements Serializable {
 
@@ -9,7 +13,8 @@ public class Faculty implements Serializable {
     private String facultyName;
     private String facultyDescription;
     private String facultyPosterPath;
-    private List<Chair> chairs;
+    @PropertyName("chairs")
+    private Map<String, Chair> chairs;
 
     public Faculty() {
     }
@@ -52,11 +57,11 @@ public class Faculty implements Serializable {
         this.facultyPosterPath = facultyPosterPath;
     }
 
-    public List<Chair> getChairs() {
+    public Map<String, Chair> getChairs() {
         return chairs;
     }
 
-    public void setChairs(List<Chair> chairs) {
+    public void setChairs(Map<String, Chair> chairs) {
         this.chairs = chairs;
     }
 }

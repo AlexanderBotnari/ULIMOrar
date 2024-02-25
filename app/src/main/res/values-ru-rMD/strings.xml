@@ -132,4 +132,7 @@
     <string name="email_already_registered">Электронная почта уже зарегистрирована</string>
     <string name="email_not_registered">Электронная почта не зарегистрирована в приложении</string>
     <string name="error_send_email">Ошибка при отправке электронной почты. Пожалуйста, свяжитесь со службой поддержки!</string>
+    <string name="passport_id">Паспортный идентификатор</string>
+    <string name="email">Электронная почта</string>
+    <string name="password">Пароль</string>
 </resources>

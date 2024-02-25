@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import androidx.annotation.NonNull;
@@ -33,7 +34,10 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.ListResourceBundle;
+import java.util.Map;
 
 public class ChairActivity extends AppCompatActivity implements BottomSheetListener {
 
@@ -48,7 +52,7 @@ public class ChairActivity extends AppCompatActivity implements BottomSheetListe
     private boolean isAdmin;
     private String authenticatedUserEmail;
 
-    private List<Chair> chairsList;
+    private Map<String, Chair> chairsList;
     private RecyclerView chairRecyclerView;
     private ChairAdapter chairAdapter;
 
@@ -72,7 +76,7 @@ public class ChairActivity extends AppCompatActivity implements BottomSheetListe
         isAdmin = intent.getBooleanExtra("userIsAdmin", false);
         authenticatedUserEmail = intent.getStringExtra("currentUserEmail");
 
-        chairsList = new ArrayList<>();
+        chairsList = new HashMap<>();
 
         chairViewModel = new ViewModelProvider(this).get(ChairViewModel.class);
 
@@ -117,10 +121,10 @@ public class ChairActivity extends AppCompatActivity implements BottomSheetListe
         chairRecyclerView.setAdapter(chairAdapter);
         chairAdapter.setAdmin(true);
 
-        chairViewModel.getChairsListLiveData().observe(this, new Observer<List<Chair>>() {
+        chairViewModel.getChairsListLiveData().observe(this, new Observer<Map<String, Chair>>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
-            public void onChanged(List<Chair> chairs) {
+            public void onChanged(Map<String, Chair> chairs) {
                 if (!chairs.isEmpty()){
                     emptyImageView.setVisibility(View.GONE);
                     chairAdapter.setChairs(chairs);
@@ -178,7 +182,9 @@ public class ChairActivity extends AppCompatActivity implements BottomSheetListe
         alertDialog.show();
 
         if (!isAddDialog){
-            chairToUpdate = chairAdapter.getChairs().get(itemPosition);
+            List<String> keys = new ArrayList<>(chairAdapter.getChairs().keySet());
+            String chairId = keys.get(itemPosition);
+            chairToUpdate = chairAdapter.getChairs().get(chairId);
             chairNameTextInput.getEditText().setText(chairToUpdate.getChairName());
         }
 
@@ -201,8 +207,8 @@ public class ChairActivity extends AppCompatActivity implements BottomSheetListe
                         chairViewModel.addNewChairToFaculty(currentFaculty, chairName,
                                 ChairActivity.this, alertDialog);
                     }else{
-                        chairViewModel.editChair(currentFaculty, chairToUpdate, itemPosition,
-                                chairName, ChairActivity.this, alertDialog);
+                        chairViewModel.editChair(currentFaculty, chairToUpdate, chairName,
+                                ChairActivity.this, alertDialog);
                     }
                 }
             }
@@ -258,6 +264,8 @@ public class ChairActivity extends AppCompatActivity implements BottomSheetListe
 
     @Override
     public void onButtonDelete(View view) {
-        chairViewModel.deleteChair(currentFaculty, chairPositionToDelete, ChairActivity.this, bottomSheetFragment);
+        List<String> keys = new ArrayList<>(currentFaculty.getChairs().keySet());
+        String chairId = keys.get(chairPositionToDelete);
+        chairViewModel.deleteChair(currentFaculty, chairId,ChairActivity.this, bottomSheetFragment);
     }
 }

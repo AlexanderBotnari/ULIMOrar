@@ -35,8 +35,11 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.net.URLDecoder;
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TimetableActivity extends AppCompatActivity{
 
@@ -56,7 +59,7 @@ public class TimetableActivity extends AppCompatActivity{
     private boolean isAdmin;
     private String authenticatedUserEmail;
 
-    private List<Timetable> timetableList;
+    private Map<String, Timetable> timetableList;
     private RecyclerView recyclerView;
     private TimetableAdapter timetableAdapter;
 
@@ -81,7 +84,7 @@ public class TimetableActivity extends AppCompatActivity{
         setTitle(currentGroup.getGroupName());
         setContentView(R.layout.activity_timetable);
 
-        timetableList = new ArrayList<>();
+        timetableList = new HashMap<>();
 
         timetableViewModel = new ViewModelProvider(this).get(TimetableViewModel.class);
 
@@ -127,10 +130,10 @@ public class TimetableActivity extends AppCompatActivity{
             }
         });
 
-        timetableViewModel.getTimetableListLiveData().observe(this, new Observer<List<Timetable>>() {
+        timetableViewModel.getTimetableListLiveData().observe(this, new Observer<Map<String, Timetable>>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
-            public void onChanged(List<Timetable> timetables) {
+            public void onChanged(Map<String, Timetable> timetables) {
                 if (!timetables.isEmpty()){
                     emptyImageView.setVisibility(View.GONE);
                     timetableAdapter.setTimetables(timetables);
@@ -170,7 +173,9 @@ public class TimetableActivity extends AppCompatActivity{
         alertDialog.show();
 
         if (!isAddDialog){
-            timetableToUpdate = timetableAdapter.getTimetables().get(itemPosition);
+            List<String> keys = new ArrayList<>(timetableAdapter.getTimetables().keySet());
+            String timetableId = keys.get(itemPosition);
+            timetableToUpdate = timetableAdapter.getTimetables().get(timetableId);
             timetableNameTextInput.getEditText().setText(timetableToUpdate.getTimetableName());
         }
 
@@ -193,7 +198,7 @@ public class TimetableActivity extends AppCompatActivity{
                         timetableViewModel.addNewTimetableToGroup(currentFaculty, currentGroup, timetableName,
                                 chairIndex, groupIndex, TimetableActivity.this, alertDialog, selectedImageUri);
                     }else{
-                        timetableViewModel.editTimetable(itemPosition, timetableName, selectedImageUri,
+                        timetableViewModel.editTimetable(timetableName, selectedImageUri,
                                 timetableToUpdate, currentGroup, currentFaculty, chairIndex, groupIndex,
                                 TimetableActivity.this, alertDialog);
                     }

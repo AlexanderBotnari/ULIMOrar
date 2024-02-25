@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
+    <data>
+        <variable
+            name="user"
+            type="com.example.ulimorar.entities.User" />
+    </data>
+
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -71,16 +79,17 @@
 
 
             <TextView
-                    android:text="IDNP"
+                    android:text="@string/passport_id"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
-                    android:paddingLeft="8dp"
+                    android:paddingStart="8dp"
                     android:textStyle="bold"
-                    android:id="@+id/idnpTitleTextView"/>
+                    android:id="@+id/idnpTitleTextView"
+                    tools:ignore="RtlSymmetry" />
 
             <TextView
-                    android:text="651235317537263"
+                    android:text="@{user.idnp, default=passport_id}"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
@@ -94,26 +103,27 @@
                     android:orientation="horizontal">
 
                 <TextView
-                        android:text="Email"
+                        android:text="@string/email"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="16sp"
-                        android:paddingLeft="8dp"
+                        android:paddingStart="8dp"
                         android:paddingTop="8dp"
                         android:textStyle="bold"
-                        android:id="@+id/emailTitleTextView"/>
+                        android:id="@+id/emailTitleTextView"
+                        tools:ignore="RtlSymmetry" />
 
                 <ImageButton
                         android:layout_height="wrap_content"
                         android:layout_width="0dp"
                         app:srcCompat="@drawable/ic_edit"
                         android:id="@+id/editEmailImageButton"
-                        android:layout_marginLeft="16dp"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"/>
 
             </LinearLayout>
                 <TextView
-                        android:text="sandubotnari99@gmail.com"
+                        android:text="@{user.email, default=user_email}"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textSize="16sp"
@@ -127,21 +137,22 @@
                 android:orientation="horizontal">
 
             <TextView
-                    android:text="Password"
+                    android:text="@string/password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
-                    android:paddingLeft="8dp"
+                    android:paddingStart="8dp"
                     android:paddingTop="8dp"
                     android:textStyle="bold"
-                    android:id="@+id/passwordTitleTextView"/>
+                    android:id="@+id/passwordTitleTextView"
+                    tools:ignore="RtlSymmetry" />
 
             <ImageButton
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
                     app:srcCompat="@drawable/ic_edit"
                     android:id="@+id/editPasswordImageButton"
-                    android:layout_marginLeft="16dp"
+                    android:layout_marginStart="16dp"
                     android:layout_weight="1"/>
 
         </LinearLayout>
@@ -152,12 +163,13 @@
                 android:orientation="horizontal">
             <TextView
                     android:inputType="textPassword"
-                    android:text="sandubotnari99@gmail.com"
+                    android:text="@{user.password, default=user_password}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
                     android:padding="8dp"
-                    android:id="@+id/passwordTextView"/>
+                    android:id="@+id/passwordTextView"
+                    tools:ignore="TextViewEdits" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="wrap_content"
@@ -236,3 +248,4 @@
     </ScrollView>
 </RelativeLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</layout>

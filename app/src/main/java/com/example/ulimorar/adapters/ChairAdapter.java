@@ -15,23 +15,26 @@ import com.example.ulimorar.entities.Chair;
 import com.example.ulimorar.entities.Faculty;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class ChairAdapter extends RecyclerView.Adapter<ChairAdapter.ChairViewHolder> {
 
-    private List<Chair> chairs;
+    private Map<String, Chair> chairs;
     private Context context;
     private Faculty currentFaculty;
     private boolean isAdmin;
     private String authenticatedUserEmail;
 
-    public ChairAdapter(List<Chair> chairs, Context context,  Faculty currentFaculty) {
+    public ChairAdapter(Map<String, Chair> chairs, Context context, Faculty currentFaculty) {
         this.chairs = chairs;
         this.context = context;
         this.currentFaculty = currentFaculty;
     }
 
-    public void setChairs(List<Chair> chairs) {
+    public void setChairs(Map<String, Chair> chairs) {
         this.chairs = chairs;
     }
 
@@ -43,7 +46,7 @@ public class ChairAdapter extends RecyclerView.Adapter<ChairAdapter.ChairViewHol
         this.authenticatedUserEmail = authenticatedUserEmail;
     }
 
-    public List<Chair> getChairs() {
+    public Map<String, Chair> getChairs() {
         return chairs;
     }
 
@@ -57,10 +60,15 @@ public class ChairAdapter extends RecyclerView.Adapter<ChairAdapter.ChairViewHol
 
     @Override
     public void onBindViewHolder(@NonNull @NotNull ChairAdapter.ChairViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        Chair chair = chairs.get(position);
+        List<String> keys = new ArrayList<>(chairs.keySet());
+        String key = keys.get(position);
 
-        holder.chairNameTextView.setText(chair.getChairName());
-        holder.chairSymbolTextView.setText(chair.getChairSymbol());
+        Chair chair = chairs.get(key);
+
+        if (Objects.requireNonNull(chair).getChairName() != null){
+            holder.chairNameTextView.setText(chair.getChairName());
+            holder.chairSymbolTextView.setText(chair.getChairSymbol());
+        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

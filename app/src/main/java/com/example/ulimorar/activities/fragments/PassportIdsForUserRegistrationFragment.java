@@ -27,11 +27,9 @@ import com.example.ulimorar.utils.GetDialogsStandardButtons;
 import com.example.ulimorar.viewmodels.PassportIdViewModel;
 import com.example.ulimorar.viewmodels.UserViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class PassportIdsForUserRegistrationFragment extends Fragment{
 
@@ -40,7 +38,8 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
     private SearchView searchView;
 
     private ArrayList<String> passportIds;
-    private ArrayList<String> searchResults;
+
+
     private PassportIdAdapter adapter;
 
     private AlertDialog alertDialog;
@@ -68,7 +67,6 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
         View view = inflater.inflate(R.layout.fragment_passport_ids_for_user_registration, container, false);
 
         passportIds = new ArrayList<>();
-        searchResults = new ArrayList<>();
 
         adapter = new PassportIdAdapter(requireContext(), passportIds);
         ListView listView = view.findViewById(R.id.listView);
@@ -120,13 +118,13 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                performSearch(query);
+                adapter.getFilter().filter(query);
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newQuery) {
-                updateSearchResults(newQuery);
+                adapter.getFilter().filter(newQuery);
                 return true;
             }
         });
@@ -220,44 +218,5 @@ public class PassportIdsForUserRegistrationFragment extends Fragment{
     public void onStart() {
         super.onStart();
         passportIdViewModel.getPassportIds();
-    }
-
-    private void performSearch(String query) {
-        searchResults.clear();
-        for (String passport : passportIds) {
-            if (passport.toLowerCase().contains(query.toLowerCase())) {
-                searchResults.add(passport);
-            }
-        }
-        // Display search results
-        if (!searchResults.isEmpty()){
-            displayResults(searchResults);
-        }else{
-            Snackbar snackbar = Snackbar.make(getView(), "No results!", 2000);
-            snackbar.show();
-        }
-
-    }
-
-    private void updateSearchResults(String newText) {
-        // logic to update search results dynamically
-        // based on the user's input
-
-        List<String> updatedResults = new ArrayList<>();
-        for (String passport : passportIds) {
-            if (passport.toLowerCase().contains(newText.toLowerCase())) {
-                updatedResults.add(passport);
-            }
-        }
-
-        if (!updatedResults.isEmpty()){
-            adapter.updateList(updatedResults);
-        }
-
-    }
-
-    private void displayResults(List<String> results) {
-        // logic to display the search results
-        adapter.updateList(results);
     }
 }

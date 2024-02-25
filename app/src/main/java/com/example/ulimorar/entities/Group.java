@@ -2,19 +2,30 @@ package com.example.ulimorar.entities;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 public class Group implements Serializable {
 
+    private String id;
     private String groupName;
     private String groupSymbol;
-    private List<Timetable> timetables;
+    private Map<String, Timetable> timetables;
 
     public Group() {
     }
 
-    public Group(String groupName, String groupSymbol) {
+    public Group(String id, String groupName, String groupSymbol) {
+        this.id = id;
         this.groupName = groupName;
         this.groupSymbol = groupSymbol;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getGroupName() {
@@ -33,11 +44,11 @@ public class Group implements Serializable {
         this.groupSymbol = groupSymbol;
     }
 
-    public List<Timetable> getTimetables() {
+    public Map<String, Timetable> getTimetables() {
         return timetables;
     }
 
-    public void setTimetables(List<Timetable> timetables) {
+    public void setTimetables(Map<String, Timetable> timetables) {
         this.timetables = timetables;
     }
 }

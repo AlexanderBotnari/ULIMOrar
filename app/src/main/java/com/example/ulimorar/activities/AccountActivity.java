@@ -13,10 +13,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.ulimorar.R;
+import com.example.ulimorar.databinding.ActivityAccountBinding;
 import com.example.ulimorar.entities.User;
 import com.example.ulimorar.viewmodels.UserViewModel;
 import com.google.android.material.textfield.TextInputLayout;
@@ -32,9 +34,7 @@ public class AccountActivity extends AppCompatActivity {
 
     private TextInputLayout firstNameTextField;
     private TextInputLayout lastNameTextField;
-    private TextView idnpTextView;
     private TextView passwordTextView;
-    private TextView emailTextView;
     private Button editButton;
     private Button saveButton;
     private Button logoutButton;
@@ -45,11 +45,15 @@ public class AccountActivity extends AppCompatActivity {
 
     private SwipeRefreshLayout swipeRefreshLayout;
 
+    private ActivityAccountBinding activityAccountBinding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle(R.string.account_activity_title);
         setContentView(R.layout.activity_account);
+
+        activityAccountBinding = DataBindingUtil.setContentView(this, R.layout.activity_account);
 
         Intent intent = getIntent();
         authenticatedUserEmail = intent.getStringExtra("currentUserEmail");
@@ -58,9 +62,7 @@ public class AccountActivity extends AppCompatActivity {
 
         firstNameTextField = findViewById(R.id.firstNameTextField);
         lastNameTextField = findViewById(R.id.lastNameTextField);
-        idnpTextView = findViewById(R.id.idnpTextView);
         passwordTextView = findViewById(R.id.passwordTextView);
-        emailTextView = findViewById(R.id.emailTextView);
 
         logoutButton = findViewById(R.id.logoutButton);
         editButton = findViewById(R.id.editButton);
@@ -192,11 +194,10 @@ public class AccountActivity extends AppCompatActivity {
                                 if (user != null){
                                     authenticatedUser = user;
 
+                                    activityAccountBinding.setUser(user);
+
                                     firstNameTextField.getEditText().setText(user.getFirstName());
                                     lastNameTextField.getEditText().setText(user.getLastName());
-                                    idnpTextView.setText(user.getIdnp());
-                                    emailTextView.setText(user.getEmail());
-                                    passwordTextView.setText(user.getPassword());
 
                                     swipeRefreshLayout.setRefreshing(false);
                                     makeFieldsEditable(false);

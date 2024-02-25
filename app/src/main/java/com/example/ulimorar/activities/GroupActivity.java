@@ -35,7 +35,9 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GroupActivity extends AppCompatActivity implements BottomSheetListener {
 
@@ -50,7 +52,7 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
     private Chair currentChair;
     private Faculty currentFaculty;
 
-    private List<Group> groupList;
+    private Map<String, Group> groupList;
     private RecyclerView recyclerView;
     private GroupAdapter groupAdapter;
 
@@ -80,7 +82,7 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
         isAdmin = intent.getBooleanExtra("userIsAdmin", false);
         authenticatedUserEmail = intent.getStringExtra("currentUserEmail");
 
-        groupList = new ArrayList<>();
+        groupList = new HashMap<>();
 
         groupViewModel = new ViewModelProvider(this).get(GroupViewModel.class);
 
@@ -124,10 +126,10 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
         recyclerView.setAdapter(groupAdapter);
         groupAdapter.setAdmin(true);
 
-        groupViewModel.getGroupListLiveData().observe(this, new Observer<List<Group>>() {
+        groupViewModel.getGroupListLiveData().observe(this, new Observer<Map<String, Group>>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
-            public void onChanged(List<Group> groups) {
+            public void onChanged(Map<String, Group> groups) {
                 if (!groups.isEmpty()){
                     emptyImageView.setVisibility(View.GONE);
                     groupAdapter.setGroups(groups);
@@ -186,7 +188,9 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
         alertDialog.show();
 
         if (!isAddDialog){
-            groupToUpdate = groupAdapter.getGroups().get(itemPosition);
+            List<String> keys = new ArrayList<>(groupAdapter.getGroups().keySet());
+            String groupId = keys.get(itemPosition);
+            groupToUpdate = groupAdapter.getGroups().get(groupId);
             groupNameTextInput.getEditText().setText(groupToUpdate.getGroupName());
             groupSymbolTextInput.getEditText().setText(groupToUpdate.getGroupSymbol());
         }
@@ -220,7 +224,7 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
                                     groupName, groupSymbol, GroupActivity.this, alertDialog);
                         }else {
                             groupViewModel.editGroup(groupToUpdate, currentFaculty, currentChairKey,
-                                    itemPosition, groupName, groupSymbol, GroupActivity.this, alertDialog);
+                                     groupName, groupSymbol, GroupActivity.this, alertDialog);
                         }
                     }else {
                         groupSymbolTextInput.setError(getText(R.string.group_symbol_max_length));
@@ -279,7 +283,10 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
 
     @Override
     public void onButtonDelete(View view) {
-        groupViewModel.deleteGroup(currentFaculty, currentChairKey, groupPositionToDelete,
+        List<String> keys = new ArrayList<>(currentChair.getGroups().keySet());
+        String groupId = keys.get(groupPositionToDelete);
+
+        groupViewModel.deleteGroup(currentFaculty, currentChairKey, groupId,
                 GroupActivity.this, bottomSheetFragment);
     }
 }
