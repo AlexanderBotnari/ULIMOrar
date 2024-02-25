@@ -165,7 +165,7 @@ public class RegisteredUsersFragment extends Fragment implements BottomSheetList
         layoutManager = new LinearLayoutManager(view.getContext());
         userRecyclerView.setHasFixedSize(true);
         userRecyclerView.setLayoutManager(layoutManager);
-        userAdapter = new UserAdapter(RegisteredUsersFragment.this, users);
+        userAdapter = new UserAdapter(users);
         userRecyclerView.setAdapter(userAdapter);
 
         swipeController = new SwipeController(new SwipeControllerActions() {
