@@ -26,26 +26,26 @@ public class GroupViewModel extends ViewModel {
         groupListLiveData = groupRepository.getGroupListLiveData();
     }
 
-    public void getGroups(String currentChairKey, Faculty currentFaculty){
-        groupRepository.getGroups(currentChairKey, currentFaculty);
+    public void getGroups(String currentChairId, Faculty currentFaculty){
+        groupRepository.getGroups(currentChairId, currentFaculty);
     }
 
-    public void addNewGroupToChair(Chair currentChair, Faculty currentFaculty, String currentChairKey,
+    public void addNewGroupToChair(Chair currentChair, Faculty currentFaculty,
                                    String groupName, String groupSymbol, Activity activity, AlertDialog alertDialog) {
-        groupRepository.addNewGroupToChair(currentChair, currentFaculty, currentChairKey, groupName,
+        groupRepository.addNewGroupToChair(currentChair, currentFaculty, groupName,
                 groupSymbol, activity, alertDialog);
     }
 
-    public void editGroup(Group groupToUpdate, Faculty currentFaculty, String currentChairKey,
+    public void editGroup(Group groupToUpdate, Faculty currentFaculty, String currentChairId,
                           String groupName, String groupSymbol,
                           Activity activity, AlertDialog alertDialog){
-        groupRepository.editGroup(groupToUpdate, currentFaculty, currentChairKey,
+        groupRepository.editGroup(groupToUpdate, currentFaculty, currentChairId,
                 groupName, groupSymbol, activity, alertDialog);
     }
 
-    public void deleteGroup(Faculty currentFaculty, String currentChairKey, String chairIdToDelete,
+    public void deleteGroup(Faculty currentFaculty, String currentChairId, String groupIdToDelete,
                             Activity activity, DeleteBottomSheetFragment bottomSheetFragment){
-        groupRepository.deleteGroup(currentFaculty, currentChairKey, chairIdToDelete, activity, bottomSheetFragment);
+        groupRepository.deleteGroup(currentFaculty, currentChairId, groupIdToDelete, activity, bottomSheetFragment);
     }
 
     public MutableLiveData<Map<String, Group>> getGroupListLiveData() {

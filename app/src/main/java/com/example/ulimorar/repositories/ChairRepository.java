@@ -35,7 +35,7 @@ public class ChairRepository {
 
     private MutableLiveData<Map<String, Chair>> chairsListLiveData = new MutableLiveData<Map<String, Chair>>();
 
-    private List<Chair> chairsList;
+    Map<String, Chair> chairs;
 
     public ChairRepository() {
         facultiesDatabaseReference = FirebaseDatabase.getInstance().getReference("faculties");
@@ -43,12 +43,11 @@ public class ChairRepository {
 
     public void getChairs(Faculty currentFaculty) {
         Query query = facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs");
-        Map<String, Chair> chairs = new HashMap<>();
         query.addValueEventListener(new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                chairs.clear();
+                chairs = new HashMap<>();
                 if (snapshot.exists()) {
                     for (DataSnapshot chairSnapshot : snapshot.getChildren()) {
                         Chair chair = chairSnapshot.getValue(Chair.class);
@@ -71,13 +70,11 @@ public class ChairRepository {
 
         String chairId = chairsReference.push().getKey();
 
-        if (currentFaculty.getChairs() == null) {
-            currentFaculty.setChairs(new HashMap<>());
-        }
-
         Chair chair = new Chair(chairId, chairName, String.valueOf(chairName.charAt(0)));
 
-        currentFaculty.getChairs().put(chairId, chair);
+        chairs.put(chairId, chair);
+
+        currentFaculty.setChairs(chairs);
 
         chairsReference.child(chairId).setValue(chair).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override

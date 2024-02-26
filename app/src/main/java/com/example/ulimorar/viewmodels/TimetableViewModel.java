@@ -25,28 +25,28 @@ public class TimetableViewModel extends ViewModel {
         timetableListLiveData = timetableRepository.getTimetableListLiveData();
     }
 
-    public void getTimetables(Faculty currentFaculty, String chairIndex, String groupIndex) {
-        timetableRepository.getTimetables(currentFaculty, chairIndex, groupIndex);
+    public void getTimetables(Faculty currentFaculty, String chairId, String groupId) {
+        timetableRepository.getTimetables(currentFaculty, chairId, groupId);
     }
 
     public void addNewTimetableToGroup(Faculty currentFaculty, Group currentGroup, String timetableName,
-                                       String chairIndex, String groupIndex, Activity activity,
+                                       String chairId, Activity activity,
                                        AlertDialog alertDialog, Uri selectedImageUri) {
-        timetableRepository.addNewTimetableToGroup(currentFaculty, currentGroup, timetableName, chairIndex,
-                groupIndex, activity, alertDialog, selectedImageUri);
+        timetableRepository.addNewTimetableToGroup(currentFaculty, currentGroup, timetableName, chairId,
+                 activity, alertDialog, selectedImageUri);
     }
 
     public void editTimetable(String timetableName, Uri selectedImageUri,
                               Timetable timetableToUpdate, Group currentGroup, Faculty currentFaculty,
-                              String chairIndex, String groupIndex, Activity activity, AlertDialog alertDialog){
+                              String chairId, Activity activity, AlertDialog alertDialog){
         timetableRepository.editTimetable(timetableName, selectedImageUri, timetableToUpdate,
-                currentGroup, currentFaculty, chairIndex, groupIndex, activity, alertDialog);
+                currentGroup, currentFaculty, chairId, activity, alertDialog);
     }
 
     public void deleteTimetable(Timetable timetableToDelete, Faculty currentFaculty,
-                                String chairIndex, String groupIndex, Group currentGroup, Activity activity){
-        timetableRepository.deleteTimetable(timetableToDelete, currentFaculty, chairIndex,
-                groupIndex, currentGroup, activity);
+                                String chairId, Group currentGroup, Activity activity){
+        timetableRepository.deleteTimetable(timetableToDelete, currentFaculty, chairId,
+                currentGroup, activity);
     }
 
     public MutableLiveData<Map<String, Timetable>> getTimetableListLiveData() {

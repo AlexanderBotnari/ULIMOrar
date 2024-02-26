@@ -58,7 +58,6 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
 
     private GroupViewModel groupViewModel;
 
-    private String currentChairKey;
     private boolean isAdmin;
     private String authenticatedUserEmail;
 
@@ -77,7 +76,6 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
 
         Intent intent = getIntent();
         currentChair = (Chair) intent.getSerializableExtra("chairFromIntent");
-        currentChairKey = intent.getStringExtra("chairIndex");
         currentFaculty = (Faculty) intent.getSerializableExtra("currentFaculty");
         isAdmin = intent.getBooleanExtra("userIsAdmin", false);
         authenticatedUserEmail = intent.getStringExtra("currentUserEmail");
@@ -112,7 +110,7 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                groupViewModel.getGroups(currentChairKey, currentFaculty);
+                groupViewModel.getGroups(currentChair.getId(), currentFaculty);
             }
         });
 
@@ -122,7 +120,7 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
         recyclerView = findViewById(R.id.groupRecycleView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        groupAdapter = new GroupAdapter(groupList, this, currentFaculty, currentChair, currentChairKey);
+        groupAdapter = new GroupAdapter(groupList, this, currentFaculty, currentChair);
         recyclerView.setAdapter(groupAdapter);
         groupAdapter.setAdmin(true);
 
@@ -220,10 +218,10 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
                 if (isValid) {
                     if (groupSymbol.length() <= 3) {
                         if (isAddDialog){
-                            groupViewModel.addNewGroupToChair(currentChair, currentFaculty, currentChairKey,
+                            groupViewModel.addNewGroupToChair(currentChair, currentFaculty,
                                     groupName, groupSymbol, GroupActivity.this, alertDialog);
                         }else {
-                            groupViewModel.editGroup(groupToUpdate, currentFaculty, currentChairKey,
+                            groupViewModel.editGroup(groupToUpdate, currentFaculty, currentChair.getId(),
                                      groupName, groupSymbol, GroupActivity.this, alertDialog);
                         }
                     }else {
@@ -245,7 +243,7 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
     protected void onStart() {
         super.onStart();
         groupAdapter.setAuthenticatedUserEmail(authenticatedUserEmail);
-        groupViewModel.getGroups(currentChairKey, currentFaculty);
+        groupViewModel.getGroups(currentChair.getId(), currentFaculty);
     }
 
     @Override
@@ -286,7 +284,7 @@ public class GroupActivity extends AppCompatActivity implements BottomSheetListe
         List<String> keys = new ArrayList<>(currentChair.getGroups().keySet());
         String groupId = keys.get(groupPositionToDelete);
 
-        groupViewModel.deleteGroup(currentFaculty, currentChairKey, groupId,
+        groupViewModel.deleteGroup(currentFaculty, currentChair.getId(), groupId,
                 GroupActivity.this, bottomSheetFragment);
     }
 }

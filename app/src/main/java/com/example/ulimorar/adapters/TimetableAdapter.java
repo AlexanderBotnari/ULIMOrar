@@ -33,7 +33,7 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
     private TimetableActivity timetableActivity;
     private boolean isAdmin;
     private DeleteBottomSheetFragment bottomSheetFragment;
-    private String timetablePositionToDelete;
+    private Integer timetablePositionToDelete;
 
     private TimetableViewModel timetableViewModel;
 
@@ -104,7 +104,7 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
             holder.deleteTimetableButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    timetablePositionToDelete = String.valueOf(position);
+                    timetablePositionToDelete = position;
                     bottomSheetFragment = new DeleteBottomSheetFragment();
                     bottomSheetFragment.show(timetableActivity.getSupportFragmentManager(), bottomSheetFragment.getTag());
                     bottomSheetFragment.setBottomSheetListener(TimetableAdapter.this);
@@ -129,13 +129,13 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
     @Override
     public void onButtonDelete(View view) {
         List<String> keys = new ArrayList<>(timetables.keySet());
-        String timetableId = keys.get(Integer.parseInt(timetablePositionToDelete));
+        String timetableId = keys.get(timetablePositionToDelete);
 
         Timetable timetable = timetables.get(timetableId);
 
         timetableViewModel.deleteTimetable(timetable,
-                timetableActivity.getCurrentFaculty(), timetableActivity.getChairIndex(),
-                timetableActivity.getGroupIndex(), timetableActivity.getCurrentGroup(), timetableActivity);
+                timetableActivity.getCurrentFaculty(), timetableActivity.getChairId()
+                , timetableActivity.getCurrentGroup(), timetableActivity);
     }
 
     public static class TimetableViewHolder extends RecyclerView.ViewHolder{

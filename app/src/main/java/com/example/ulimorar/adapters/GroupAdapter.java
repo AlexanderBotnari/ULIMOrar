@@ -26,16 +26,15 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHol
     private Context context;
     private Faculty currentFaculty;
     private Chair currentChair;
-    private String chairIndex;
+
     private boolean isAdmin;
     private String authenticatedUserEmail;
 
-    public GroupAdapter(Map<String, Group> groups, Context context, Faculty currentFaculty, Chair currentChair, String chairIndex) {
+    public GroupAdapter(Map<String, Group> groups, Context context, Faculty currentFaculty, Chair currentChair) {
         this.groups = groups;
         this.context = context;
         this.currentFaculty = currentFaculty;
         this.currentChair = currentChair;
-        this.chairIndex = chairIndex;
     }
 
     public void setAdmin(boolean admin) {
@@ -83,9 +82,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHol
                 Intent intent = new Intent(context, TimetableActivity.class);
                 intent.putExtra("groupFromIntent", group);
                 intent.putExtra("currentFaculty", currentFaculty);
-                intent.putExtra("currentChair", currentChair);
-                intent.putExtra("chairIndex", chairIndex);
-                intent.putExtra("groupIndex", String.valueOf(position));
+                intent.putExtra("chairId", currentChair.getId());
                 intent.putExtra("userIsAdmin", isAdmin);
                 intent.putExtra("currentUserEmail", authenticatedUserEmail);
                 context.startActivity(intent);

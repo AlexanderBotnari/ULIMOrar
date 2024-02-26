@@ -11,7 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.ulimorar.R;
+import com.example.ulimorar.entities.Chair;
 import com.example.ulimorar.entities.Faculty;
+import com.example.ulimorar.entities.Group;
+import com.example.ulimorar.entities.Timetable;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -30,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class FacultyRepository {
 
@@ -37,6 +41,7 @@ public class FacultyRepository {
     private StorageReference storageReference;
 
     private MutableLiveData<List<Faculty>> facultyListLiveData = new MutableLiveData<>();
+
 
     public FacultyRepository() {
         facultyDatabaseReference = FirebaseDatabase.getInstance().getReference("faculties");
@@ -113,6 +118,19 @@ public class FacultyRepository {
     }
 
     public void deleteFaculty(Faculty facultyToDelete, Activity activity){
+
+        Map<String, Chair> chairs = facultyToDelete.getChairs();
+
+        // when user delete the faculty this code remove timetables image from storage
+        for (Chair chair: chairs.values()) {
+            for (Group group: chair.getGroups().values()) {
+                for (Timetable timetable: group.getTimetables().values()) {
+                    storageReference.child("timetables/" + group.getGroupName() + "-" +
+                            timetable.getTimetableName() + "-" + timetable.getUpdateTime() + ".jpg").delete();
+                }
+            }
+        }
+
         facultyDatabaseReference.child(facultyToDelete.getId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull @NotNull Task<Void> task) {

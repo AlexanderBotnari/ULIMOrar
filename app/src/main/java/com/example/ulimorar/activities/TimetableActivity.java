@@ -54,8 +54,7 @@ public class TimetableActivity extends AppCompatActivity{
 
     private Group currentGroup;
     private Faculty currentFaculty;
-    private String chairIndex;
-    private String groupIndex;
+    private String chairId;
     private boolean isAdmin;
     private String authenticatedUserEmail;
 
@@ -76,8 +75,7 @@ public class TimetableActivity extends AppCompatActivity{
         Intent intent = getIntent();
         currentGroup = (Group) intent.getSerializableExtra("groupFromIntent");
         currentFaculty = (Faculty) intent.getSerializableExtra("currentFaculty");
-        chairIndex = intent.getStringExtra("chairIndex");
-        groupIndex = intent.getStringExtra("groupIndex");
+        chairId = intent.getStringExtra("chairId");
         isAdmin = intent.getBooleanExtra("userIsAdmin", false);
         authenticatedUserEmail = intent.getStringExtra("currentUserEmail");
 
@@ -126,7 +124,7 @@ public class TimetableActivity extends AppCompatActivity{
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                timetableViewModel.getTimetables(currentFaculty, chairIndex, groupIndex);
+                timetableViewModel.getTimetables(currentFaculty, chairId , currentGroup.getId());
             }
         });
 
@@ -196,10 +194,10 @@ public class TimetableActivity extends AppCompatActivity{
                 if (isValid){
                     if (isAddDialog){
                         timetableViewModel.addNewTimetableToGroup(currentFaculty, currentGroup, timetableName,
-                                chairIndex, groupIndex, TimetableActivity.this, alertDialog, selectedImageUri);
+                                chairId, TimetableActivity.this, alertDialog, selectedImageUri);
                     }else{
                         timetableViewModel.editTimetable(timetableName, selectedImageUri,
-                                timetableToUpdate, currentGroup, currentFaculty, chairIndex, groupIndex,
+                                timetableToUpdate, currentGroup, currentFaculty, chairId,
                                 TimetableActivity.this, alertDialog);
                     }
                 }
@@ -222,18 +220,18 @@ public class TimetableActivity extends AppCompatActivity{
         return currentFaculty;
     }
 
-    public String getChairIndex() {
-        return chairIndex;
+    public String getChairId() {
+        return chairId;
     }
 
-    public String getGroupIndex() {
-        return groupIndex;
+    public String getGroupId() {
+        return currentGroup.getId();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        timetableViewModel.getTimetables(currentFaculty, chairIndex, groupIndex);
+        timetableViewModel.getTimetables(currentFaculty, chairId, currentGroup.getId());
     }
 
     @Override

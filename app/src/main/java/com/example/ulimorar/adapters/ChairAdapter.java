@@ -76,7 +76,6 @@ public class ChairAdapter extends RecyclerView.Adapter<ChairAdapter.ChairViewHol
                 Intent intent = new Intent(context, GroupActivity.class);
                 intent.putExtra("chairFromIntent", chair);
                 intent.putExtra("currentFaculty", currentFaculty);
-                intent.putExtra("chairIndex", String.valueOf(position));
                 intent.putExtra("userIsAdmin", isAdmin);
                 intent.putExtra("currentUserEmail", authenticatedUserEmail);
                 context.startActivity(intent);

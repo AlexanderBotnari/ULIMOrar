@@ -42,23 +42,22 @@ public class TimetableRepository {
 
     private MutableLiveData<Map<String, Timetable>> timetableListLiveData = new MutableLiveData<Map<String, Timetable>>();
 
-    private Map<String, Timetable> timetableList;
+    private Map<String, Timetable> timetableMap;
 
     public TimetableRepository() {
         facultiesDatabaseReference = FirebaseDatabase.getInstance().getReference().child("faculties");
         storageReference = FirebaseStorage.getInstance().getReference();
     }
 
-    public void getTimetables(Faculty currentFaculty, String chairIndex, String groupIndex) {
+    public void getTimetables(Faculty currentFaculty, String chairId, String groupId) {
         Query query = facultiesDatabaseReference.child(currentFaculty.getId())
-                .child("chairs").child(chairIndex).child("groups").child(groupIndex)
+                .child("chairs").child(chairId).child("groups").child(groupId)
                 .child("timetables");
-        Map<String, Timetable> timetableMap = new HashMap<>();
         query.addValueEventListener(new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                timetableMap.clear();
+                timetableMap = new HashMap<>();
                 if (snapshot.exists()) {
                     for (DataSnapshot timetableSnapshot : snapshot.getChildren()) {
                         Timetable timetable = timetableSnapshot.getValue(Timetable.class);
@@ -76,20 +75,19 @@ public class TimetableRepository {
     }
 
     public void addNewTimetableToGroup(Faculty currentFaculty, Group currentGroup, String timetableName,
-                                       String chairIndex, String groupIndex, Activity activity,
+                                       String chairId, Activity activity,
                                        AlertDialog alertDialog, Uri selectedImageUri) {
         DatabaseReference databaseReference = facultiesDatabaseReference.child(currentFaculty.getId())
-                .child("chairs").child(chairIndex).child("groups").child(groupIndex)
+                .child("chairs").child(chairId).child("groups").child(currentGroup.getId())
                 .child("timetables");
-        String timetableId = databaseReference.push().getKey();
 
-        if (currentGroup.getTimetables() == null) {
-            currentGroup.setTimetables(new HashMap<>());
-        }
+        String timetableId = databaseReference.push().getKey();
 
         Timetable timetable = new Timetable(timetableId, timetableName, new Date().getTime());
 
-        currentGroup.getTimetables().put(timetableId, timetable);
+        timetableMap.put(timetableId, timetable);
+
+        currentGroup.setTimetables(timetableMap);
 
         databaseReference.child(timetableId).setValue(timetable).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -108,12 +106,12 @@ public class TimetableRepository {
         // Upload the selected image to Firebase Storage
         uploadImageToFirebaseStorage(selectedImageUri, timetable.getTimetableName(), timetable.getUpdateTime(),
                 timetableId, currentGroup, activity, currentFaculty,
-                chairIndex, groupIndex);
+                chairId);
     }
 
     private void uploadImageToFirebaseStorage(Uri imageUri, String sessionName, Long date, String timetableId,
                                               Group currentGroup, Activity activity, Faculty currentFaculty,
-                                              String chairIndex, String groupIndex) {
+                                              String chairId) {
         if (imageUri != null) {
             // Create a reference to "timetables/[filename]"
             StorageReference imageFacultyRef = storageReference.child("timetables/" + currentGroup.getGroupName() + "-" + sessionName + "-" + date + ".jpg");
@@ -132,7 +130,7 @@ public class TimetableRepository {
                                 public void onSuccess(Uri downloadUrl) {
                                     Log.d("DownloadUrl", downloadUrl.toString());
                                     facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs").
-                                            child(chairIndex).child("groups").child(groupIndex).
+                                            child(chairId).child("groups").child(currentGroup.getId()).
                                             child("timetables").child(timetableId).
                                             child("imageUrl").setValue(downloadUrl.toString());
                                 }
@@ -151,7 +149,7 @@ public class TimetableRepository {
 
     public void editTimetable(String timetableName, Uri selectedImageUri,
                               Timetable timetableToUpdate, Group currentGroup, Faculty currentFaculty,
-                              String chairIndex, String groupIndex, Activity activity, AlertDialog alertDialog){
+                              String chairId, Activity activity, AlertDialog alertDialog){
         Timetable newTimetable = new Timetable(timetableToUpdate.getId(), timetableName,  new Date().getTime());
 
         if (selectedImageUri != null){
@@ -159,13 +157,13 @@ public class TimetableRepository {
                     timetableToUpdate.getTimetableName() + "-" + timetableToUpdate.getUpdateTime() + ".jpg").delete();
             uploadImageToFirebaseStorage(selectedImageUri, newTimetable.getTimetableName(), newTimetable.getUpdateTime(),
                     timetableToUpdate.getId(), currentGroup, activity, currentFaculty,
-                    chairIndex, groupIndex);
+                    chairId);
         }else{
             newTimetable.setImageUrl(timetableToUpdate.getImageUrl());
         }
 
         facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs").
-                child(chairIndex).child("groups").child(groupIndex).
+                child(chairId).child("groups").child(currentGroup.getId()).
                 child("timetables").child(timetableToUpdate.getId())
                 .setValue(newTimetable).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -182,10 +180,10 @@ public class TimetableRepository {
     }
 
     public void deleteTimetable(Timetable timetableToDelete, Faculty currentFaculty,
-                                String chairIndex, String groupIndex, Group currentGroup, Activity activity){
+                                String chairId, Group currentGroup, Activity activity){
 
         facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs").
-                child(chairIndex).child("groups").child(groupIndex).
+                child(chairId).child("groups").child(currentGroup.getId()).
                 child("timetables").child(timetableToDelete.getId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull @NotNull Task<Void> task) {

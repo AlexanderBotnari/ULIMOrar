@@ -26,7 +26,6 @@ import com.google.firebase.database.ValueEventListener;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class GroupRepository {
@@ -35,24 +34,23 @@ public class GroupRepository {
 
     private MutableLiveData<Map<String, Group>> groupListLiveData = new MutableLiveData<Map<String, Group>>();
 
-    private List<Group> groupList;
+    private Map<String, Group> groupMap;
 
     public GroupRepository(){
         facultiesDatabaseReference = FirebaseDatabase.getInstance().getReference().
                 child("faculties");
     }
 
-    public void getGroups(String currentChairKey, Faculty currentFaculty){
-        if (currentChairKey != null){
+    public void getGroups(String currentChairId, Faculty currentFaculty){
+        if (currentChairId != null){
             Query query = FirebaseDatabase.getInstance().getReference("faculties").child(currentFaculty.getId())
-                    .child("chairs").child(currentChairKey).child("groups");
+                    .child("chairs").child(currentChairId).child("groups");
 
-            Map<String, Group> groupMap = new HashMap<>();
             query.addValueEventListener(new ValueEventListener() {
                 @SuppressLint("NotifyDataSetChanged")
                 @Override
                 public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                    groupMap.clear();
+                    groupMap = new HashMap<>();
                     if (snapshot.exists()) {
                         for (DataSnapshot groupSnapshot : snapshot.getChildren()) {
                             Group group = groupSnapshot.getValue(Group.class);
@@ -70,20 +68,20 @@ public class GroupRepository {
         }
     }
 
-    public void addNewGroupToChair(Chair currentChair, Faculty currentFaculty, String currentChairKey,
-                                   String groupName, String groupSymbol, Activity activity, AlertDialog alertDialog) {
+    public void addNewGroupToChair(Chair currentChair, Faculty currentFaculty, String groupName,
+                                   String groupSymbol, Activity activity, AlertDialog alertDialog) {
 
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("faculties").child(currentFaculty.getId())
-                .child("chairs").child(currentChairKey).child("groups");
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("faculties")
+                .child(currentFaculty.getId()).child("chairs").child(currentChair.getId())
+                .child("groups");
+
         String groupId = databaseReference.push().getKey();
-
-        if (currentChair.getGroups() == null) {
-            currentChair.setGroups(new HashMap<>());
-        }
 
         Group group = new Group(groupId, groupName, groupSymbol);
 
-        currentChair.getGroups().put(groupId, group);
+        groupMap.put(groupId, group);
+
+        currentChair.setGroups(groupMap);
 
             databaseReference.child(groupId).setValue(group).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
@@ -121,11 +119,11 @@ public class GroupRepository {
                 });
     }
 
-    public void deleteGroup(Faculty currentFaculty, String currentChairKey, String chairIdToDelete,
+    public void deleteGroup(Faculty currentFaculty, String currentChairId, String groupIdToDelete,
                             Activity activity, DeleteBottomSheetFragment bottomSheetFragment){
         facultiesDatabaseReference.child(currentFaculty.getId()).child("chairs")
-                .child(currentChairKey).child("groups")
-                .child(chairIdToDelete).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                .child(currentChairId).child("groups")
+                .child(groupIdToDelete).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull @NotNull Task<Void> task) {
                         Toast.makeText(activity, R.string.delete_group_success, Toast.LENGTH_SHORT).show();
